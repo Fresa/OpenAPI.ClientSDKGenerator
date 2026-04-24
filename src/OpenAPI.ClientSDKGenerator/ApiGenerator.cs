@@ -22,10 +22,6 @@ public sealed class ApiGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         // Debugger.Launch();
-        var optionsProvider = context.AdditionalTextsProvider
-            .Where(text => text.IsOptionsFile())
-            .Collect();
-
         var clientSdkGeneratorProvider = context.AdditionalTextsProvider
             .Combine(context.AnalyzerConfigOptionsProvider)
             .Select((pair, _) =>
@@ -43,26 +39,22 @@ public sealed class ApiGenerator : IIncrementalGenerator
             .Select((config, _) => config!)
             .Collect();
 
-        var openApiProvider = optionsProvider
-            .Combine(clientSdkGeneratorProvider)
+        var openApiProvider = clientSdkGeneratorProvider
             .Combine(context.CompilationProvider)
             .Select((tuple, _) => (
-                Options: tuple.Left.Left.FirstOrDefault(),
-                ClientSDKGenerators: tuple.Left.Right,
+                ClientSDKGenerators: tuple.Left,
                 Compilation: tuple.Right
             ));
 
         context.RegisterSourceOutput(openApiProvider,
             WithExceptionReporting<(
-                AdditionalText?, 
                 System.Collections.Immutable.ImmutableArray<ClientSdkGeneratorConfig>, 
                 Compilation)>(GenerateCode));
     }
 
     private static void GenerateCode(SourceProductionContext context,
-        (AdditionalText? Options,
-            System.Collections.Immutable.ImmutableArray<ClientSdkGeneratorConfig> ClientSDKGenerators,
-            Compilation Compilation) generatorContext)
+        (System.Collections.Immutable.ImmutableArray<ClientSdkGeneratorConfig> ClientSDKGenerators,
+         Compilation Compilation) generatorContext)
     {
         var compilation = generatorContext.Compilation;
         var rootNamespace = compilation.Assembly.Name;
@@ -72,7 +64,6 @@ public sealed class ApiGenerator : IIncrementalGenerator
             return;
         }
 
-        var options = generatorContext.Options.LoadOptions();
         var openApiSpecification = clientSdkConfigs.First().LoadOpenApiSpecification();
         var clientSdkGenerators = generatorContext.ClientSDKGenerators;
 
