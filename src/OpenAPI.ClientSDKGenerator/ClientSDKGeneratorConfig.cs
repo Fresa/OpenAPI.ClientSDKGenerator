@@ -6,8 +6,9 @@ using OpenAPI.ClientSDKGenerator.OpenApi;
 
 namespace OpenAPI.ClientSDKGenerator;
 
-internal sealed class ClientSdkGeneratorConfig(AdditionalText openApiSpecification, string? ns)
+internal sealed class ClientSdkGeneratorConfig(string clientName, AdditionalText openApiSpecification, string? ns)
 {
+    public string ClientName { get; } = clientName;
     public AdditionalText OpenApiSpecification { get; } = openApiSpecification;
     public string? Namespace { get; } = ns;
     

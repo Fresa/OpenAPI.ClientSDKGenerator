@@ -7,6 +7,7 @@ using System.Net.Http;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.OpenApi;
+using OpenAPI.ClientSDKGenerator.CodeGeneration;
 using OpenAPI.ClientSDKGenerator.OpenApi;
 using OpenAPI.ClientSDKGenerator.OpenApi.Visitor;
 using IIncrementalGenerator = Microsoft.CodeAnalysis.IIncrementalGenerator;
@@ -31,8 +32,9 @@ public sealed class ApiGenerator : IIncrementalGenerator
                 {
                     return null;
                 }
+                options.TryGetValue("build_metadata.AdditionalFiles.ClientName", out var clientName);
                 options.TryGetValue("build_metadata.AdditionalFiles.Namespace", out var @namespace);
-                return new ClientSdkGeneratorConfig(pair.Left, @namespace);
+                return new ClientSdkGeneratorConfig(clientName ?? "ClientSdk", pair.Left, @namespace);
             })
             .Where(config => config is not null)
             .Select((config, _) => config!)
@@ -65,6 +67,8 @@ public sealed class ApiGenerator : IIncrementalGenerator
     {
         var rootNamespace = config.Namespace ?? compilation.Assembly.Name;
         var openApiSpecification = config.LoadOpenApiSpecification();
+
+        ClientGenerator.Generate(config.ClientName, rootNamespace).AddTo(context);
         
         var openApiVersion = openApiSpecification.Version;
         var openApi = openApiSpecification.Document;

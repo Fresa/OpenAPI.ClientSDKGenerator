@@ -18,8 +18,11 @@ public class ApiGeneratorTests
     [InlineData("openapi-v3.2.yaml")]
     public void GivenAnOpenAPISpec_WhenGeneratingAPI_ExpectedClassesShouldHaveBeenGenerated(string openApiSpec)
     {
-        var compilation = Generator.Setup(openApiSpec, @namespace: "Example.Api", Cancellation,
-            out var diagnostics);
+        var compilation = Generator.Setup(openApiSpec,
+            clientName: "TestClient",
+            @namespace: "Example",
+            cancellationToken: Cancellation,
+            diagnostics: out var diagnostics);
 
         diagnostics.Should().BeEmpty();
 
@@ -27,6 +30,7 @@ public class ApiGeneratorTests
             .Select(t => Path.GetFileName(t.FilePath))
             .ToArray();
 
-        generatedFiles.Should().HaveCount(0);
+        generatedFiles.Should().HaveCount(1);
+        generatedFiles.Should().Contain("TestClient.g.cs");
     }
 }

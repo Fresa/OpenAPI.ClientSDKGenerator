@@ -11,13 +11,18 @@ namespace OpenAPI.ClientSDKGenerator.Tests;
 
 internal static class Generator
 {
-    internal static Compilation Setup(string openApiSpec, string @namespace, CancellationToken cancellationToken, out ImmutableArray<Diagnostic> diagnostics)
+    internal static Compilation Setup(string openApiSpec,
+        string clientName, 
+        string @namespace,
+        out ImmutableArray<Diagnostic> diagnostics,
+        CancellationToken cancellationToken)
     {
         var generator = new ApiGenerator();
         var clientSdkItem = new TestAdditionalFile($"OpenApiSpecs/{openApiSpec}");
 
         var metadata = ImmutableDictionary<string, string>.Empty
             .Add("build_metadata.AdditionalFiles.SourceItemGroup", "ClientSDKGenerator")
+            .Add("build_metadata.AdditionalFiles.ClientName", clientName)
             .Add("build_metadata.AdditionalFiles.Namespace", @namespace);
 
         GeneratorDriver driver = CSharpGeneratorDriver.Create(
