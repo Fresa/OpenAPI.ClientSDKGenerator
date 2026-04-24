@@ -32,7 +32,7 @@ public sealed class ApiGenerator : IIncrementalGenerator
                     return null;
                 }
                 options.TryGetValue("build_metadata.AdditionalFiles.Namespace", out var @namespace);
-                return new ClientSdkGeneratorConfig(pair.Left, @namespace ?? string.Empty);
+                return new ClientSdkGeneratorConfig(pair.Left, @namespace);
             })
             .Where(config => config is not null)
             .Select((config, _) => config!)
@@ -47,7 +47,7 @@ public sealed class ApiGenerator : IIncrementalGenerator
 
         context.RegisterSourceOutput(openApiProvider,
             WithExceptionReporting<(
-                System.Collections.Immutable.ImmutableArray<ClientSdkGeneratorConfig>, 
+                ImmutableArray<ClientSdkGeneratorConfig>, 
                 Compilation)>(GenerateCode));
     }
 
@@ -63,7 +63,7 @@ public sealed class ApiGenerator : IIncrementalGenerator
     private static void GenerateSdk(SourceProductionContext context,
         ClientSdkGeneratorConfig config, Compilation compilation)
     {
-        var rootNamespace = compilation.Assembly.Name;
+        var rootNamespace = config.Namespace ?? compilation.Assembly.Name;
         var openApiSpecification = config.LoadOpenApiSpecification();
         
         var openApiVersion = openApiSpecification.Version;

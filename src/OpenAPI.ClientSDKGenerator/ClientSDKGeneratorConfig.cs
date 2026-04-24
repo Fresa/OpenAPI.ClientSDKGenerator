@@ -6,10 +6,10 @@ using OpenAPI.ClientSDKGenerator.OpenApi;
 
 namespace OpenAPI.ClientSDKGenerator;
 
-internal sealed class ClientSdkGeneratorConfig(AdditionalText openApiSpecification, string ns)
+internal sealed class ClientSdkGeneratorConfig(AdditionalText openApiSpecification, string? ns)
 {
     public AdditionalText OpenApiSpecification { get; } = openApiSpecification;
-    public string Namespace { get; } = ns;
+    public string? Namespace { get; } = ns;
     
     internal OpenApiSpecification LoadOpenApiSpecification()
     {
