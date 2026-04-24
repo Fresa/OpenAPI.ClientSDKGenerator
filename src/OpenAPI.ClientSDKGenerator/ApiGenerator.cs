@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.OpenApi;
-using OpenAPI.ClientSDKGenerator.Extensions;
 using OpenAPI.ClientSDKGenerator.OpenApi;
 using OpenAPI.ClientSDKGenerator.OpenApi.Visitor;
-using AdditionalText = Microsoft.CodeAnalysis.AdditionalText;
 using IIncrementalGenerator = Microsoft.CodeAnalysis.IIncrementalGenerator;
 using IncrementalGeneratorInitializationContext = Microsoft.CodeAnalysis.IncrementalGeneratorInitializationContext;
 using SourceProductionContext = Microsoft.CodeAnalysis.SourceProductionContext;
@@ -53,20 +52,20 @@ public sealed class ApiGenerator : IIncrementalGenerator
     }
 
     private static void GenerateCode(SourceProductionContext context,
-        (System.Collections.Immutable.ImmutableArray<ClientSdkGeneratorConfig> ClientSDKGenerators,
-         Compilation Compilation) generatorContext)
+        (ImmutableArray<ClientSdkGeneratorConfig> ClientSDKGeneratorConfigs, Compilation Compilation) generatorContext)
     {
-        var compilation = generatorContext.Compilation;
-        var rootNamespace = compilation.Assembly.Name;
-        var clientSdkConfigs = generatorContext.ClientSDKGenerators;
-        if (clientSdkConfigs.IsDefaultOrEmpty)
+        foreach (var clientSdkConfig in generatorContext.ClientSDKGeneratorConfigs)
         {
-            return;
+            GenerateSdk(context, clientSdkConfig, generatorContext.Compilation);
         }
-
-        var openApiSpecification = clientSdkConfigs.First().LoadOpenApiSpecification();
-        var clientSdkGenerators = generatorContext.ClientSDKGenerators;
-
+    }
+    
+    private static void GenerateSdk(SourceProductionContext context,
+        ClientSdkGeneratorConfig config, Compilation compilation)
+    {
+        var rootNamespace = compilation.Assembly.Name;
+        var openApiSpecification = config.LoadOpenApiSpecification();
+        
         var openApiVersion = openApiSpecification.Version;
         var openApi = openApiSpecification.Document;
 
