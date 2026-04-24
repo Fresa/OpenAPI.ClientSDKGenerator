@@ -1,0 +1,11 @@
+﻿using Corvus.Json;
+using Microsoft.OpenApi;
+
+namespace OpenAPI.ClientSDKGenerator.OpenApi.Visitor;
+
+internal interface IOpenApiResponseVisitor
+{
+    public JsonReference GetSchemaReference(IOpenApiMediaType mediaType);
+    public bool HasContent(IOpenApiMediaType mediaType);
+    public JsonReference GetSchemaReference(IOpenApiHeader header);
+}

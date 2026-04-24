@@ -1,0 +1,62 @@
+﻿using System;
+using System.Linq;
+using System.Text;
+using Corvus.Json;
+
+namespace OpenAPI.ClientSDKGenerator.Json;
+
+internal readonly struct JsonPointer(params string[]? segments) : IEquatable<JsonPointer>
+{
+    internal static JsonPointer ParseFrom(JsonReference jsonReference) => 
+        ParseFrom(jsonReference.Fragment.ToString());
+
+    internal static JsonPointer ParseFrom(string pointer)
+    {
+        var segments = pointer.TrimStart('#')
+            .Split(['/'], StringSplitOptions.RemoveEmptyEntries)
+            .Select(Decode);
+        return new JsonPointer(segments.ToArray());
+    }
+    
+    internal string[] Segments => segments ?? [];
+
+    internal JsonPointer Append(params string[] segmentList)
+    {
+        return new JsonPointer(Segments.Concat(segmentList).ToArray());
+    }
+
+    public override string ToString() => 
+        Segments
+            .Aggregate(new StringBuilder("#"), (builder, s) => 
+                builder.Append($"/{Encode(s)}"))
+            .ToString();
+
+    private static string Encode(string segment) => 
+        segment.Replace("~", "~0").Replace("/", "~1");
+    private static string Decode(string segment) => 
+        segment.Replace("~0", "~").Replace("~1", "/");
+
+    private readonly int _hashCode = GenerateHashCode(segments ?? []);
+
+    private static int GenerateHashCode(string[] segments)
+    {
+        var hashCode = new HashCode();
+        foreach (var value in segments)
+        {
+            hashCode.Add(value);
+        }
+
+        return hashCode.ToHashCode();
+    }
+    public override int GetHashCode() => _hashCode;
+
+    public bool Equals(JsonPointer other)
+    {
+        return _hashCode == other._hashCode;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is JsonPointer other && Equals(other);
+    }
+} 
