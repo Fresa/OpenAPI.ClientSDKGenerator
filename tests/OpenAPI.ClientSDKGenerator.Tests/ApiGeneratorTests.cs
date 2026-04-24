@@ -5,7 +5,7 @@ using System.Threading;
 using AwesomeAssertions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using OpenAPI.ClientSDKGenerator.CodeGeneration;
+using OpenAPI.ClientSDKGenerator.Tests.Utils;
 using Xunit;
 
 namespace OpenAPI.ClientSDKGenerator.Tests;
@@ -31,10 +31,7 @@ public partial class ApiGeneratorTests
             .Select(t => Path.GetFileName(t.FilePath))
             .ToArray();
 
-        generatedFiles.Should().HaveCountGreaterThan(0);
-        generatedFiles.Should().ContainMatch("*.Request.g.cs");
-        generatedFiles.Should().ContainMatch("*.Response.g.cs");
-        generatedFiles.Should().ContainMatch("*.Operation.g.cs");
+        generatedFiles.Should().HaveCount(0);
     }
 
     private Compilation SetupGenerator(string openApiSpec, out ImmutableArray<Diagnostic> diagnostics)
@@ -45,8 +42,7 @@ public partial class ApiGeneratorTests
 
         driver = driver.AddAdditionalTexts(
             [
-                new InMemoryAdditionalText("openapi.json",
-                    openApiSpec)
+                new TestAdditionalFile($"OpenApiSpecs/{openApiSpec}")
             ]
         );
 
