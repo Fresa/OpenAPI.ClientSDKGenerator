@@ -73,6 +73,9 @@ public sealed class ApiGenerator : IIncrementalGenerator
         var openApiVersion = openApiSpecification.Version;
         var openApi = openApiSpecification.Document;
 
+        var schemaGenerator = SchemaGenerator.For(
+            openApiSpecification, rootNamespace, context);
+
         var openApiVisitor = OpenApiVisitor.ForSpecification(openApiSpecification);
 
         var operations = new List<(string Namespace, KeyValuePair<HttpMethod, OpenApiOperation> Operation)>();

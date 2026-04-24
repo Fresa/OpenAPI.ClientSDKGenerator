@@ -55,7 +55,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Bcl.HashCode" Version="6.0.0" PrivateAssets="all" GeneratePathProperty="true" />
-        <PackageReference Include="Corvus.Json.SourceGeneratorTools" Version="4.6.7" PrivateAssets="all" GeneratePathProperty="true" />
+        <PackageReference Include="Corvus.Json.SourceGeneratorTools" Version="4.5.0" PrivateAssets="all" GeneratePathProperty="true" />
         <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="5.3.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
