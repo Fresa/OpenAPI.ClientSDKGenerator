@@ -1,39 +1,61 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using AwesomeAssertions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 using OpenAPI.ClientSDKGenerator.Tests.Utils;
 
 namespace OpenAPI.ClientSDKGenerator.Tests;
 
 internal static class Generator
 {
-    internal static Compilation Setup(string openApiSpec, CancellationToken cancellationToken, out ImmutableArray<Diagnostic> diagnostics)
+    internal static Compilation Setup(string openApiSpec, string @namespace, CancellationToken cancellationToken, out ImmutableArray<Diagnostic> diagnostics)
     {
         var generator = new ApiGenerator();
+        var clientSdkItem = new TestAdditionalFile($"OpenApiSpecs/{openApiSpec}");
 
-        GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
+        var metadata = ImmutableDictionary<string, string>.Empty
+            .Add("build_metadata.AdditionalFiles.SourceItemGroup", "ClientSDKGenerator")
+            .Add("build_metadata.AdditionalFiles.Namespace", @namespace);
 
-        driver = driver.AddAdditionalTexts(
-            [
-                new TestAdditionalFile($"OpenApiSpecs/{openApiSpec}")
-            ]
-        );
+        GeneratorDriver driver = CSharpGeneratorDriver.Create(
+            generators: [generator.AsSourceGenerator()],
+            additionalTexts: [clientSdkItem],
+            optionsProvider: new OptionsProvider(clientSdkItem, metadata));
 
         const string assemblyName = nameof(ApiGeneratorTests);
         var compilation = CSharpCompilation.Create(assemblyName,
             options: new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary));
 
         driver.RunGeneratorsAndUpdateCompilation(compilation, out var newCompilation, out diagnostics, cancellationToken);
-        
-        foreach (var tree in newCompilation.SyntaxTrees)                                                  
-        {                                
+
+        foreach (var tree in newCompilation.SyntaxTrees)
+        {
             tree.GetDiagnostics().Should().NotContain(diagnostic =>
                 diagnostic.Severity == DiagnosticSeverity.Error ||
-                diagnostic.Severity == DiagnosticSeverity.Warning);       
-        }     
-        
+                diagnostic.Severity == DiagnosticSeverity.Warning);
+        }
+
         return newCompilation;
+    }
+
+    private sealed class OptionsProvider(AdditionalText text, ImmutableDictionary<string, string> metadata)
+        : AnalyzerConfigOptionsProvider
+    {
+        public override AnalyzerConfigOptions GlobalOptions { get; } =
+            new Options(ImmutableDictionary<string, string>.Empty);
+
+        public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => GlobalOptions;
+
+        public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) =>
+            textFile == text ? new Options(metadata) : GlobalOptions;
+    }
+
+    private sealed class Options(ImmutableDictionary<string, string> values) : AnalyzerConfigOptions
+    {
+        public override bool TryGetValue(string key, [NotNullWhen(true)] out string? value) =>
+            values.TryGetValue(key, out value);
     }
 }

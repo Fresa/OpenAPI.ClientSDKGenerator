@@ -1,0 +1,19 @@
+<Project>
+
+    <ItemGroup>
+        <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="SourceItemGroup" />
+        <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="Namespace" />
+        <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="OpenApiUri" />
+    </ItemGroup>
+
+    <Target Name="_ClientSDKGenerator_AddAdditionalFiles"
+            BeforeTargets="PrepareForBuild;BeforeCompile;GenerateMSBuildEditorConfigFile;CoreCompile">
+        <ItemGroup>
+            <AdditionalFiles Include="%(ClientSDKGenerator.OpenApiUri)"
+                             SourceItemGroup="ClientSDKGenerator"
+                             OpenApiUri="%(ClientSDKGenerator.OpenApiUri)"
+                             Namespace="%(ClientSDKGenerator.Namespace)" />
+        </ItemGroup>
+    </Target>
+
+</Project>

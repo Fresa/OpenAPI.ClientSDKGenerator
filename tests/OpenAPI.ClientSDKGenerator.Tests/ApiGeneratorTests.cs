@@ -18,7 +18,7 @@ public class ApiGeneratorTests
     [InlineData("openapi-v3.2.yaml")]
     public void GivenAnOpenAPISpec_WhenGeneratingAPI_ExpectedClassesShouldHaveBeenGenerated(string openApiSpec)
     {
-        var compilation = Generator.Setup(openApiSpec, Cancellation,
+        var compilation = Generator.Setup(openApiSpec, @namespace: "Example.Api", Cancellation,
             out var diagnostics);
 
         diagnostics.Should().BeEmpty();

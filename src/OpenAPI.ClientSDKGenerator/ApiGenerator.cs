@@ -26,38 +26,55 @@ public sealed class ApiGenerator : IIncrementalGenerator
             .Where(text => text.IsOptionsFile())
             .Collect();
 
-        var openapiDocumentProvider = context.AdditionalTextsProvider
-            .Where(text => text.IsOpenApiFile())
-            .Collect()
-            .Select((array, _) =>
-                array.FirstOrDefault() ??
-                throw new InvalidOperationException(
-                    $"No OpenAPI specification found in AdditionalFiles matching {AdditionalTextExtensions.OpenApiFilePattern}"));
-        
-        
-        var openApiProvider = openapiDocumentProvider
-            .Combine(optionsProvider)
+        var clientSdkGeneratorProvider = context.AdditionalTextsProvider
+            .Combine(context.AnalyzerConfigOptionsProvider)
+            .Select((pair, _) =>
+            {
+                var options = pair.Right.GetOptions(pair.Left);
+                if (!options.TryGetValue("build_metadata.AdditionalFiles.SourceItemGroup", out var group) ||
+                    !string.Equals(group, "ClientSDKGenerator", StringComparison.OrdinalIgnoreCase))
+                {
+                    return null;
+                }
+                options.TryGetValue("build_metadata.AdditionalFiles.Namespace", out var @namespace);
+                return new ClientSdkGeneratorConfig(pair.Left, @namespace ?? string.Empty);
+            })
+            .Where(config => config is not null)
+            .Select((config, _) => config!)
+            .Collect();
+
+        var openApiProvider = optionsProvider
+            .Combine(clientSdkGeneratorProvider)
             .Combine(context.CompilationProvider)
             .Select((tuple, _) => (
-                OpenApiSpecification: tuple.Left.Left,
-                Options: tuple.Left.Right.FirstOrDefault(),
+                Options: tuple.Left.Left.FirstOrDefault(),
+                ClientSDKGenerators: tuple.Left.Right,
                 Compilation: tuple.Right
             ));
 
         context.RegisterSourceOutput(openApiProvider,
-            WithExceptionReporting<(AdditionalText, AdditionalText?, Microsoft.CodeAnalysis.Compilation)>(GenerateCode));
+            WithExceptionReporting<(
+                AdditionalText?, 
+                System.Collections.Immutable.ImmutableArray<ClientSdkGeneratorConfig>, 
+                Compilation)>(GenerateCode));
     }
 
     private static void GenerateCode(SourceProductionContext context,
-        (AdditionalText OpenApiDocument,
-        AdditionalText? Options,
-            Microsoft.CodeAnalysis.Compilation Compilation) generatorContext)
+        (AdditionalText? Options,
+            System.Collections.Immutable.ImmutableArray<ClientSdkGeneratorConfig> ClientSDKGenerators,
+            Compilation Compilation) generatorContext)
     {
         var compilation = generatorContext.Compilation;
         var rootNamespace = compilation.Assembly.Name;
+        var clientSdkConfigs = generatorContext.ClientSDKGenerators;
+        if (clientSdkConfigs.IsDefaultOrEmpty)
+        {
+            return;
+        }
 
         var options = generatorContext.Options.LoadOptions();
-        var openApiSpecification = generatorContext.OpenApiDocument.LoadOpenApiSpecification();
+        var openApiSpecification = clientSdkConfigs.First().LoadOpenApiSpecification();
+        var clientSdkGenerators = generatorContext.ClientSDKGenerators;
 
         var openApiVersion = openApiSpecification.Version;
         var openApi = openApiSpecification.Document;
@@ -161,7 +178,7 @@ public sealed class ApiGenerator : IIncrementalGenerator
                 var firstStackTraceLocation = firstFrameWithLineNumber == null ?
                     Location.None :
                     Location.Create(
-                        firstFrameWithLineNumber.GetFileName(),
+                        firstFrameWithLineNumber.GetFileName() ?? string.Empty,
                         new TextSpan(),
                         new LinePositionSpan(
                             new LinePosition(

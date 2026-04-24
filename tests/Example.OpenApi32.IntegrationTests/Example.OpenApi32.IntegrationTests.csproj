@@ -30,7 +30,10 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\OpenAPI.ClientSDKGenerator\OpenAPI.ClientSDKGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
     </ItemGroup>
+
+    <Import Project="..\..\src\OpenAPI.ClientSDKGenerator\build\ClientSDKGenerator.OpenAPI.targets" />
+
     <ItemGroup>
-        <AdditionalFiles Include="openapi.json" />
+        <ClientSDKGenerator Include="Foo" OpenApiUri="openapi.json" Namespace="Example.Foo" />
     </ItemGroup>
 </Project>
