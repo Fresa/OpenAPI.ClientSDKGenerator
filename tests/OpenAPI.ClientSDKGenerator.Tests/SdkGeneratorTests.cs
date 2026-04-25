@@ -6,7 +6,7 @@ using Xunit;
 
 namespace OpenAPI.ClientSDKGenerator.Tests;
 
-public class ApiGeneratorTests
+public class SdkGeneratorTests
 {
     private CancellationToken Cancellation => TestContext.Current.CancellationToken;
     

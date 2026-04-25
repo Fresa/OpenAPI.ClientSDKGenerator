@@ -17,7 +17,7 @@ internal static class Generator
         out ImmutableArray<Diagnostic> diagnostics,
         CancellationToken cancellationToken)
     {
-        var generator = new ApiGenerator();
+        var generator = new SdkGenerator();
         var clientSdkItem = new TestAdditionalFile($"OpenApiSpecs/{openApiSpec}");
 
         var metadata = ImmutableDictionary<string, string>.Empty
@@ -30,7 +30,7 @@ internal static class Generator
             additionalTexts: [clientSdkItem],
             optionsProvider: new OptionsProvider(clientSdkItem, metadata));
 
-        const string assemblyName = nameof(ApiGeneratorTests);
+        const string assemblyName = nameof(SdkGeneratorTests);
         var compilation = CSharpCompilation.Create(assemblyName,
             options: new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary));
 

@@ -4,7 +4,6 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
-using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.OpenApi;
@@ -18,7 +17,7 @@ using SourceProductionContext = Microsoft.CodeAnalysis.SourceProductionContext;
 namespace OpenAPI.ClientSDKGenerator;
 
 [Generator]
-public sealed class ApiGenerator : IIncrementalGenerator
+public sealed class SdkGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
