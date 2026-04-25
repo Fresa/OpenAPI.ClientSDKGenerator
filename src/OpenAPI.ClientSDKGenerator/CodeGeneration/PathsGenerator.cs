@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using OpenAPI.ClientSDKGenerator.Extensions;
@@ -10,11 +11,11 @@ internal sealed class PathsGenerator(ClientGenerator clientGenerator)
     // todo: make this configurable
     // The root entity name, i.e. the name used for path templates that start with a parameter, i.e. /{id}
     private const string RootEntityName = "_";
-    private readonly Dictionary<string, EntityGenerator> _entityGenerators = new();
+    private readonly ConcurrentDictionary<string, EntityGenerator> _entityGenerators = new();
     internal EntityGenerator GetEntityGenerator(string pathTemplate, ParameterGenerator[] parameters)
     {
         var segments = pathTemplate
-            .Split('/')
+            .Split(['/'], StringSplitOptions.RemoveEmptyEntries)
             .ToArray();
 
         EntityGenerator? current = null;
@@ -31,38 +32,36 @@ internal sealed class PathsGenerator(ClientGenerator clientGenerator)
                 continue;
             }
 
+            AddParametersToCurrentEntity();
+            
             var entityName = segment.ToPascalCase();
-            if (string.IsNullOrEmpty(entityName))
-            {
-                entityName = RootEntityName;
-            }
-            AddCurrentParameters();
-
             if (current != null)
             {
                 current = current.AddEntity(entityName);
                 continue;
             }
-            
-            if (_entityGenerators.TryGetValue(entityName, out current))
-            {
-                continue;
-            };
 
-            current = new EntityGenerator(entityName);
-            _entityGenerators.Add(entityName, current);
+            // Client SDK name overlaps with one of the root entities
+            if (entityName == clientGenerator.ClassName)
+            {
+                entityName = $"{entityName}_";
+            }
+            current = _entityGenerators.GetOrAdd(entityName, _ => new EntityGenerator(entityName));
         }
 
-        AddCurrentParameters();
+        AddParametersToCurrentEntity();
         return current ?? throw new InvalidOperationException("path template is empty");
 
-        void AddCurrentParameters()
+        void AddParametersToCurrentEntity()
         {
             if (!currentParameters.Any())
             {
                 return;
             }
-            current?.AddParameters(currentParameters.ToArray());
+
+            // if the template starts with parameters we need to create a root entity
+            current ??= _entityGenerators.GetOrAdd(RootEntityName, _ => new EntityGenerator(RootEntityName));
+            current.AddParameters(currentParameters.ToArray());
             currentParameters.Clear();
         }
     }
