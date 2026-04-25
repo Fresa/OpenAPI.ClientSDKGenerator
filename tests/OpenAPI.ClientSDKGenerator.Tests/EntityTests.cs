@@ -14,7 +14,7 @@ public class EntityTests
     [Fact]
     public void GivenAClientNameThatOverlapsWithARootEntity_WhenGeneratingAPI_TheOverlappingEntityShouldBeRenamed()
     {
-        var compilation = Generator.Setup("openapi-v3.json",
+        var compilation = ClientSdkGenerator.Setup("openapi-v3.json",
             clientName: "Pets",
             @namespace: "Example",
             cancellationToken: Cancellation,

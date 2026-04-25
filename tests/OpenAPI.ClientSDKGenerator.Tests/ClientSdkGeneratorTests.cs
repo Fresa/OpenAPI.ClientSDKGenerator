@@ -6,7 +6,7 @@ using Xunit;
 
 namespace OpenAPI.ClientSDKGenerator.Tests;
 
-public class SdkGeneratorTests
+public class ClientSdkGeneratorTests
 {
     private CancellationToken Cancellation => TestContext.Current.CancellationToken;
     
@@ -18,7 +18,7 @@ public class SdkGeneratorTests
     [InlineData("openapi-v3.2.yaml")]
     public void GivenAnOpenAPISpec_WhenGeneratingAPI_ExpectedClassesShouldHaveBeenGenerated(string openApiSpec)
     {
-        var compilation = Generator.Setup(openApiSpec,
+        var compilation = ClientSdkGenerator.Setup(openApiSpec,
             clientName: "TestClient",
             @namespace: "Example",
             cancellationToken: Cancellation,

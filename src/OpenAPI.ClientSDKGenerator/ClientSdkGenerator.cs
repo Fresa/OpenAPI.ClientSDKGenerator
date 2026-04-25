@@ -17,7 +17,7 @@ using SourceProductionContext = Microsoft.CodeAnalysis.SourceProductionContext;
 namespace OpenAPI.ClientSDKGenerator;
 
 [Generator]
-public sealed class SdkGenerator : IIncrementalGenerator
+public sealed class ClientSdkGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {

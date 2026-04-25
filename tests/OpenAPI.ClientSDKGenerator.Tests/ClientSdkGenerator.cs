@@ -9,7 +9,7 @@ using OpenAPI.ClientSDKGenerator.Tests.Utils;
 
 namespace OpenAPI.ClientSDKGenerator.Tests;
 
-internal static class Generator
+internal static class ClientSdkGenerator
 {
     internal static Compilation Setup(string openApiSpec,
         string clientName, 
@@ -17,7 +17,7 @@ internal static class Generator
         out ImmutableArray<Diagnostic> diagnostics,
         CancellationToken cancellationToken)
     {
-        var generator = new SdkGenerator();
+        var generator = new ClientSDKGenerator.ClientSdkGenerator();
         var clientSdkItem = new TestAdditionalFile($"OpenApiSpecs/{openApiSpec}");
 
         var metadata = ImmutableDictionary<string, string>.Empty
@@ -30,7 +30,7 @@ internal static class Generator
             additionalTexts: [clientSdkItem],
             optionsProvider: new OptionsProvider(clientSdkItem, metadata));
 
-        const string assemblyName = nameof(SdkGeneratorTests);
+        const string assemblyName = nameof(ClientSdkGeneratorTests);
         var compilation = CSharpCompilation.Create(assemblyName,
             options: new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary));
 
