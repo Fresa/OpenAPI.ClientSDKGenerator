@@ -2,20 +2,23 @@ using OpenAPI.ClientSDKGenerator.Extensions;
 
 namespace OpenAPI.ClientSDKGenerator.CodeGeneration;
 
-internal static class ClientGenerator
+internal sealed class ClientGenerator(string clientName, string @namespace)
 {
-    internal static SourceCode Generate(string clientName, string rootNamespace)
+    public string ClassName { get; } = clientName.ToPascalCase();
+    public string Namespace { get; } = @namespace;
+
+    internal SourceCode Generate()
     {
-        var name = clientName.ToPascalCase();
-        return new SourceCode($"{name}.g.cs", $$"""
+        return new SourceCode($"{ClassName}.g.cs", $$"""
 using System.Net.Http;
 
-namespace {{rootNamespace}};
+namespace {{Namespace}};
 
-internal sealed class {{name}}(HttpClient httpClient)
+internal sealed partial class {{ClassName}}(HttpClient httpClient)
 {
-
 }
 """);
     }
+
+    public PathsGenerator GetPathsGenerator() => new(this);
 }

@@ -30,7 +30,7 @@ public class ApiGeneratorTests
             .Select(t => Path.GetFileName(t.FilePath))
             .ToArray();
 
-        generatedFiles.Should().HaveCount(1);
+        generatedFiles.Should().HaveCountGreaterThan(0);
         generatedFiles.Should().Contain("TestClient.g.cs");
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.OpenApi;
@@ -68,8 +69,9 @@ public sealed class ApiGenerator : IIncrementalGenerator
         var rootNamespace = config.Namespace ?? compilation.Assembly.Name;
         var openApiSpecification = config.LoadOpenApiSpecification();
 
-        ClientGenerator.Generate(config.ClientName, rootNamespace).AddTo(context);
-        
+        var clientGenerator = new ClientGenerator(config.ClientName, rootNamespace);
+        var pathsGenerator = clientGenerator.GetPathsGenerator();
+
         var openApiVersion = openApiSpecification.Version;
         var openApi = openApiSpecification.Document;
 
@@ -84,11 +86,17 @@ public sealed class ApiGenerator : IIncrementalGenerator
             var pathExpression = path.Key;
             var pathItem = path.Value;
             var openApiPathVisitor = openApiVisitor.Visit(pathItem);
+
+            var pathParameterGenerators = new Dictionary<string, ParameterGenerator>();
             foreach (var parameter in pathItem.Parameters ?? [])
             {
                 var schemaReference = openApiPathVisitor.GetSchemaReference(parameter);
+                var typeDeclaration = schemaGenerator.Generate(schemaReference);
+                pathParameterGenerators[$"{parameter.GetName()}_{parameter.GetLocation()}"] =
+                    new ParameterGenerator(typeDeclaration,
+                        parameter);
             }
-
+            
             foreach (var openApiOperation in path.Value.GetOperations())
             {
                 var openApiOperationVisitor = openApiPathVisitor.Visit(openApiOperation.Key);
@@ -96,12 +104,19 @@ public sealed class ApiGenerator : IIncrementalGenerator
                 var operationDirectory = operationMetadata.Path;
                 var operationNamespace = $"{rootNamespace}.{operationMetadata.Namespace}.{operationMetadata.Name}";
                 var operation = openApiOperation.Value;
-
+                var operationParameterGenerators = new Dictionary<string, ParameterGenerator>(pathParameterGenerators);
+                
                 foreach (var parameter in operation.GetParameters())
                 {
                     var schemaReference = openApiOperationVisitor.GetSchemaReference(parameter);
+                    var typeDeclaration = schemaGenerator.Generate(schemaReference);
+                    operationParameterGenerators[$"{parameter.GetName()}_{parameter.GetLocation()}"] =
+                        new ParameterGenerator(typeDeclaration,
+                            parameter);
                 }
 
+                var entityGenerator = pathsGenerator.GetEntityGenerator(pathExpression, operationParameterGenerators.Values.ToArray());
+                
                 var body = operation.RequestBody;
                 if (body is not null)
                 {
@@ -145,11 +160,17 @@ public sealed class ApiGenerator : IIncrementalGenerator
                 }).ToList();
                 
                 operations.Add((operationNamespace, openApiOperation));
-                
+
             }
         }
+
+        clientGenerator.Generate().AddTo(context);
+        foreach (var sourceCode in pathsGenerator.Generate())
+        {
+            sourceCode.AddTo(context);
+        }
     }
- 
+
     private static Action<SourceProductionContext, T> WithExceptionReporting<T>(
         Action<SourceProductionContext, T> handler) =>
         (productionContext, input) =>

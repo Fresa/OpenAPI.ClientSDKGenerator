@@ -13,6 +13,7 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Corvus.Json.ExtendedTypes" Version="4.4.2" />
         <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
         <PackageReference Include="JsonPointer.Net" Version="7.0.1" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.4.0" />
