@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using OpenAPI.ClientSDKGenerator.Extensions;
 
@@ -6,10 +7,10 @@ namespace OpenAPI.ClientSDKGenerator.CodeGeneration;
 
 internal sealed class EntityGenerator(string name)
 {
-    public string Name { get; } = name;
     private readonly Dictionary<string, EntityGenerator> _entityGenerators = new();
     private readonly Dictionary<string, ParameterGenerator[]> _methodSignatures = new();
-
+    private readonly string _className = $"{name.ToPascalCase()}Entity";
+    
     internal EntityGenerator AddEntity(string name)
     {
         if (_entityGenerators.TryGetValue(name, out var entity))
@@ -27,35 +28,71 @@ internal sealed class EntityGenerator(string name)
         _methodSignatures.Add(id, parameterGenerators);
     }
 
-    internal IEnumerable<SourceCode> Generate(params string[] outerClassNames)
+    internal IEnumerable<SourceCode> Generate(string @namespace, params string[] outerClassNames)
     {
-        var allNames = outerClassNames.Concat([Name]).ToArray();
-        var fileName = string.Join(".", allNames);
+        var fileName = string.Join(".", outerClassNames);
 
-        yield return new SourceCode($"{fileName}.g.cs", GenerateClass(allNames));
+        yield return new SourceCode($"{fileName}.{_className}.g.cs", GenerateClass(@namespace, outerClassNames));
 
         foreach (var inner in _entityGenerators.Values
-                     .SelectMany(entity => entity.Generate(allNames)))
+                     .SelectMany(entity => entity.Generate(@namespace, outerClassNames)))
         {
             yield return inner;
         }
     }
 
-    private static string GenerateClass(IReadOnlyList<string> names)
+    private string GenerateNestedClassStructure(IReadOnlyList<string> nestedClassNames, Func<string> content)
     {
-        if (names.Count == 0)
+        if (nestedClassNames.Count == 0)
         {
-            return string.Empty;
+            return content();
         }
 
-        var name = names[0];
-        var inner = GenerateClass(names.Skip(1).ToArray());
+        var className = nestedClassNames[0];
+        var inner = GenerateNestedClassStructure(nestedClassNames.Skip(1).ToArray(), content);
+        return 
+$$"""
+internal sealed partial class {{className}}
+{{{inner.Indent(4)}}
+}
+""";
+    }
+    
+    private string GenerateClass(string @namespace, IReadOnlyList<string> nestedClassNames)
+    {
+        return 
+$$"""
+namespace {{@namespace}};
+{{GenerateNestedClassStructure(nestedClassNames, () =>
+$$"""
+{{_methodSignatures.Values.AggregateToString(parameters =>
+$$"""
+internal {{_className}} {{name}}({{parameters.AggregateToString(parameter =>
+$$"""
+    {{parameter.FullyQualifiedTypeName}} {{parameter.ParameterName.ToCamelCase()}},
+""").TrimEnd(',')}}) => 
+    new({{parameters.AggregateToString(parameter =>
+$"""
+        {parameter.ParameterName.ToCamelCase()},
+""").TrimEnd(',')}});
+"""
+)}}
 
-        return $$"""
-            internal sealed partial class {{name}}
-            {
-            {{inner.Indent(4)}}
-            }
-            """;
+internal sealed partial class {{_className}}
+{{{_methodSignatures.Values.AggregateToString(parameters =>
+$$"""
+    internal {{_className}}({{parameters.AggregateToString(parameter =>
+$$"""
+        {{parameter.FullyQualifiedTypeName}} {{parameter.ParameterName.ToCamelCase()}},
+""").TrimEnd(',')}})
+    {
+    }
+"""
+)}}
+}
+"""  
+)}}
+
+""";
     }
 }

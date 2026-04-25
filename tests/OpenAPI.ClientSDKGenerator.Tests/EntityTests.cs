@@ -27,7 +27,7 @@ public class EntityTests
             .ToArray();
 
         generatedFiles.Should().Contain("Pets.g.cs");
-        generatedFiles.Should().Contain("Pets.Pets_.g.cs");
+        generatedFiles.Should().Contain("Pets.PetsEntity.g.cs");
 
         var typeNames = compilation
             .GetSymbolsWithName(_ => true, SymbolFilter.Type, Cancellation)
@@ -35,6 +35,19 @@ public class EntityTests
             .ToArray();
 
         typeNames.Should().Contain("Pets");
-        typeNames.Should().Contain("Pets_");
+        typeNames.Should().Contain("PetsEntity");
+
+        var petsType = compilation
+            .GetSymbolsWithName("Pets", SymbolFilter.Type, Cancellation)
+            .OfType<INamedTypeSymbol>()
+            .Single(symbol => symbol.ContainingNamespace.ToDisplayString() == "Example");
+
+        var methodNames = petsType
+            .GetMembers()
+            .OfType<IMethodSymbol>()
+            .Select(method => method.Name)
+            .ToArray();
+
+        methodNames.Should().Contain("Pets_");
     }
 }

@@ -68,5 +68,5 @@ internal sealed class PathsGenerator(ClientGenerator clientGenerator)
 
     internal IEnumerable<SourceCode> Generate() =>
         _entityGenerators.Values.SelectMany(entityGeneratorsValue => 
-            entityGeneratorsValue.Generate(clientGenerator.ClassName));
+            entityGeneratorsValue.Generate(clientGenerator.Namespace, clientGenerator.ClassName));
 }
