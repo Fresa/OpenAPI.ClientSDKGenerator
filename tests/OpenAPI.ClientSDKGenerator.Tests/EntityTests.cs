@@ -51,6 +51,6 @@ public class EntityTests(ITestOutputHelper testOutputHelper)
             .Select(method => method.Name)
             .ToArray();
 
-        methodNames.Should().Contain("Pets_");
+        methodNames.Should().Contain("Pets_", Exactly.Twice());
     }
 }

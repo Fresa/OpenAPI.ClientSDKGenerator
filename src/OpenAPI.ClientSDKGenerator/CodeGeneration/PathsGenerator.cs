@@ -54,14 +54,13 @@ internal sealed class PathsGenerator(ClientGenerator clientGenerator)
 
         void AddParametersToCurrentEntity()
         {
-            if (!currentParameters.Any())
+            if (currentParameters.Any() && current == null)
             {
-                return;
+                // if the template starts with parameters we need to create a root entity
+                current = _entityGenerators.GetOrAdd(RootEntityName, _ => new EntityGenerator(RootEntityName));
             }
 
-            // if the template starts with parameters we need to create a root entity
-            current ??= _entityGenerators.GetOrAdd(RootEntityName, _ => new EntityGenerator(RootEntityName));
-            current.AddPathParameters(currentParameters.ToArray());
+            current?.AddPathParameters(currentParameters.ToArray());
             currentParameters.Clear();
         }
     }
