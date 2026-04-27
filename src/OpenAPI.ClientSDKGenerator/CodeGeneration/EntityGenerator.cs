@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using Microsoft.OpenApi;
 using OpenAPI.ClientSDKGenerator.Extensions;
 
 namespace OpenAPI.ClientSDKGenerator.CodeGeneration;
 
-internal sealed class EntityGenerator(string name)
+internal sealed class EntityGenerator(string name) : IEntityGenerator
 {
     private readonly Dictionary<string, EntityGenerator> _entityGenerators = new();
     private readonly Dictionary<string, ParameterGenerator[]> _methodSignatures = new();
+    private readonly Dictionary<HttpMethod, OperationGenerator> _operations = new();
     private readonly string _className = $"{name.ToPascalCase()}Entity";
     
     internal EntityGenerator AddEntity(string name)
@@ -21,13 +23,15 @@ internal sealed class EntityGenerator(string name)
         return entity;
     }
 
-    public void AddOperation(OpenApiOperation operation, 
+    public void AddOperation(string pathExpression, KeyValuePair<HttpMethod, OpenApiOperation> operation,
         IEnumerable<ParameterGenerator> parameterGenerators)
     {
-        AddParameters(parameterGenerators.Where(generator => generator.Location == "path").ToArray());
+        // _operations.Add(operation.Key, 
+        //     new OperationGenerator(pathExpression, operation.Value,
+        //         parameterGenerators));
     }
 
-    private void AddParameters(params ParameterGenerator[] parameterGenerators)
+    internal void AddPathParameters(params ParameterGenerator[] parameterGenerators)
     {
         var id = parameterGenerators.Aggregate("", (id, generator) => id + generator.FullyQualifiedTypeName);
         if (_methodSignatures.TryGetValue(id, out _))
