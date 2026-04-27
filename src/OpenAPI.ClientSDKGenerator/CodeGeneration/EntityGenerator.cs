@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.OpenApi;
 using OpenAPI.ClientSDKGenerator.Extensions;
 
 namespace OpenAPI.ClientSDKGenerator.CodeGeneration;
@@ -20,7 +21,13 @@ internal sealed class EntityGenerator(string name)
         return entity;
     }
 
-    internal void AddParameters(params ParameterGenerator[] parameterGenerators)
+    public void AddOperation(OpenApiOperation operation, 
+        IEnumerable<ParameterGenerator> parameterGenerators)
+    {
+        AddParameters(parameterGenerators.Where(generator => generator.Location == "path").ToArray());
+    }
+
+    private void AddParameters(params ParameterGenerator[] parameterGenerators)
     {
         var id = parameterGenerators.Aggregate("", (id, generator) => id + generator.FullyQualifiedTypeName);
         if (_methodSignatures.TryGetValue(id, out _))

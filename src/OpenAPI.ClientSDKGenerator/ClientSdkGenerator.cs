@@ -114,7 +114,8 @@ public sealed class ClientSdkGenerator : IIncrementalGenerator
                             parameter);
                 }
 
-                var entityGenerator = pathsGenerator.GetEntityGenerator(pathExpression, operationParameterGenerators.Values.ToArray());
+                var entityGenerator = pathsGenerator.GetEntityGenerator(pathExpression);
+                entityGenerator.AddOperation(operation, operationParameterGenerators.Values);
                 
                 var body = operation.RequestBody;
                 if (body is not null)
