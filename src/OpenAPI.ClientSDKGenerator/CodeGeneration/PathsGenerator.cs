@@ -12,8 +12,12 @@ internal sealed class PathsGenerator(ClientGenerator clientGenerator)
     // The root entity name, i.e. the name used for path templates that start with a parameter, i.e. /{id}
     private const string RootEntityName = "_";
     private readonly ConcurrentDictionary<string, EntityGenerator> _entityGenerators = new();
-    internal IEntityGenerator GetEntityGenerator(string pathTemplate, ParameterGenerator[] parameters)
+    internal MethodGenerator GetMethodGenerator(string pathTemplate, ParameterGenerator[] parameters)
     {
+        var parameterLookup =
+            new ConcurrentDictionary<string, ParameterGenerator>(
+                parameters.ToDictionary(generator => generator.ParameterName, generator => generator));
+        
         var segments = pathTemplate
             .Split(['/'], StringSplitOptions.RemoveEmptyEntries)
             .ToArray();
@@ -25,14 +29,17 @@ internal sealed class PathsGenerator(ClientGenerator clientGenerator)
             if (segment.StartsWith("{"))
             {
                 var parameterName = segment.TrimStart('{').TrimEnd('}');
-                var parameter = parameters.FirstOrDefault(generator => generator.ParameterName == parameterName) ??
-                                throw new InvalidOperationException(
-                                    $"path contain parameter {parameterName} which is not defined in the parameter collection");
+                if (!parameterLookup.TryRemove(parameterName, out var parameter))
+                {
+                    throw new InvalidOperationException(
+                        $"path contain parameter {parameterName} which is not defined in the parameter collection");
+                }
+                                
                 currentParameters.Add(parameter);
                 continue;
             }
 
-            AddParametersToCurrentEntity();
+            AddMethodToCurrentEntity();
             
             var entityName = segment.ToPascalCase();
             if (current != null)
@@ -49,10 +56,9 @@ internal sealed class PathsGenerator(ClientGenerator clientGenerator)
             current = _entityGenerators.GetOrAdd(entityName, _ => new EntityGenerator(entityName));
         }
 
-        AddParametersToCurrentEntity();
-        return current ?? throw new InvalidOperationException("path template is empty");
+        return AddMethodToCurrentEntity() ?? throw new InvalidOperationException("path template is empty");
 
-        void AddParametersToCurrentEntity()
+        MethodGenerator? AddMethodToCurrentEntity()
         {
             if (currentParameters.Any() && current == null)
             {
@@ -60,8 +66,9 @@ internal sealed class PathsGenerator(ClientGenerator clientGenerator)
                 current = _entityGenerators.GetOrAdd(RootEntityName, _ => new EntityGenerator(RootEntityName));
             }
 
-            current?.AddPathParameters(currentParameters.ToArray());
+            var methodGenerator = current?.AddMethod(pathTemplate, currentParameters.ToArray());
             currentParameters.Clear();
+            return methodGenerator;
         }
     }
 

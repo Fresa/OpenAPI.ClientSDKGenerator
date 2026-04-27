@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using Microsoft.OpenApi;
 using OpenAPI.ClientSDKGenerator.Extensions;
 
 namespace OpenAPI.ClientSDKGenerator.CodeGeneration;
 
-internal sealed class EntityGenerator(string name) : IEntityGenerator
+internal sealed class EntityGenerator(string name)
 {
     private readonly Dictionary<string, EntityGenerator> _entityGenerators = new();
-    private readonly Dictionary<string, ParameterGenerator[]> _methodSignatures = new();
-    private readonly Dictionary<HttpMethod, OperationGenerator> _operations = new();
+    private readonly Dictionary<string, MethodGenerator> _methodSignatures = new();
     private readonly string _className = $"{name.ToPascalCase()}Entity";
     
     internal EntityGenerator AddEntity(string name)
@@ -23,20 +20,14 @@ internal sealed class EntityGenerator(string name) : IEntityGenerator
         return entity;
     }
 
-    public void AddOperation(string pathExpression, KeyValuePair<HttpMethod, OpenApiOperation> operation,
-        IEnumerable<ParameterGenerator> parameterGenerators)
-    {
-        // _operations.Add(operation.Key, 
-        //     new OperationGenerator(pathExpression, operation.Value,
-        //         parameterGenerators));
-    }
-
-    internal void AddPathParameters(params ParameterGenerator[] parameterGenerators)
+    internal MethodGenerator AddMethod(string pathExpression, params ParameterGenerator[] parameterGenerators)
     {
         var id = parameterGenerators.Aggregate("", (id, generator) => id + generator.FullyQualifiedTypeName);
-        if (_methodSignatures.TryGetValue(id, out _))
-            return;
-        _methodSignatures.Add(id, parameterGenerators);
+        if (_methodSignatures.TryGetValue(id, out var methodGenerator))
+            return methodGenerator;
+        methodGenerator = new MethodGenerator(pathExpression, parameterGenerators);
+        _methodSignatures.Add(id, methodGenerator);
+        return methodGenerator;
     }
 
     internal IEnumerable<SourceCode> Generate(string @namespace, params string[] outerClassNames)
@@ -76,13 +67,13 @@ $$"""
 namespace {{@namespace}};
 {{GenerateNestedClassStructure(nestedClassNames, () =>
 $$"""
-{{_methodSignatures.Values.AggregateToString(parameters =>
+{{_methodSignatures.Values.AggregateToString(methodGenerator =>
 $$"""
-internal {{_className}} {{name}}({{parameters.AggregateToString(parameter =>
+internal {{_className}} {{name}}({{methodGenerator.Parameters.AggregateToString(parameter =>
 $$"""
     {{parameter.FullyQualifiedTypeName}} {{parameter.ParameterName.ToCamelCase()}},
 """).TrimEnd(',')}}) => 
-    new({{parameters.AggregateToString(parameter =>
+    new({{methodGenerator.Parameters.AggregateToString(parameter =>
 $"""
         {parameter.ParameterName.ToCamelCase()},
 """).TrimEnd(',')}});
@@ -90,9 +81,9 @@ $"""
 )}}
 
 internal sealed partial class {{_className}}
-{{{_methodSignatures.Values.AggregateToString(parameters =>
+{{{_methodSignatures.Values.AggregateToString(methodGenerator =>
 $$"""
-    internal {{_className}}({{parameters.AggregateToString(parameter =>
+    internal {{_className}}({{methodGenerator.Parameters.AggregateToString(parameter =>
 $$"""
         {{parameter.FullyQualifiedTypeName}} {{parameter.ParameterName.ToCamelCase()}},
 """).TrimEnd(',')}})
