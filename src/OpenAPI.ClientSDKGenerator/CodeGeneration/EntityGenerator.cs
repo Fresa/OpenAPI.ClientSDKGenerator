@@ -41,7 +41,7 @@ internal sealed class EntityGenerator(string name)
         }
     }
 
-    private string GenerateNestedClassStructure(IReadOnlyList<string> nestedClassNames, Func<string> content)
+    private static string GenerateNestedClassStructure(IReadOnlyList<string> nestedClassNames, Func<string> content)
     {
         if (nestedClassNames.Count == 0)
         {

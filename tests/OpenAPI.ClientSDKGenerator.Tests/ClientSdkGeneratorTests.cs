@@ -2,11 +2,12 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using AwesomeAssertions;
+using OpenAPI.ClientSDKGenerator.Tests.Utils;
 using Xunit;
 
 namespace OpenAPI.ClientSDKGenerator.Tests;
 
-public class ClientSdkGeneratorTests
+public class ClientSdkGeneratorTests(ITestOutputHelper testOutputHelper)
 {
     private CancellationToken Cancellation => TestContext.Current.CancellationToken;
     
@@ -30,6 +31,7 @@ public class ClientSdkGeneratorTests
             .Select(t => Path.GetFileName(t.FilePath))
             .ToArray();
 
+        compilation.Output("TestClient.g.cs", testOutputHelper, Cancellation);
         generatedFiles.Should().HaveCountGreaterThan(0);
         generatedFiles.Should().Contain("TestClient.g.cs");
     }

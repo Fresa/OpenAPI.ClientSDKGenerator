@@ -3,11 +3,12 @@ using System.Linq;
 using System.Threading;
 using AwesomeAssertions;
 using Microsoft.CodeAnalysis;
+using OpenAPI.ClientSDKGenerator.Tests.Utils;
 using Xunit;
 
 namespace OpenAPI.ClientSDKGenerator.Tests;
 
-public class EntityTests
+public class EntityTests(ITestOutputHelper testOutputHelper)
 {
     private CancellationToken Cancellation => TestContext.Current.CancellationToken;
 
@@ -27,7 +28,9 @@ public class EntityTests
             .ToArray();
 
         generatedFiles.Should().Contain("Pets.g.cs");
+        compilation.Output("Pets.g.cs", testOutputHelper, Cancellation);
         generatedFiles.Should().Contain("Pets.PetsEntity.g.cs");
+        compilation.Output("Pets.PetsEntity.g.cs", testOutputHelper, Cancellation);
 
         var typeNames = compilation
             .GetSymbolsWithName(_ => true, SymbolFilter.Type, Cancellation)

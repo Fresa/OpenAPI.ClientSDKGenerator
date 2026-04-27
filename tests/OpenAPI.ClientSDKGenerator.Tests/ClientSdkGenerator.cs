@@ -12,7 +12,7 @@ namespace OpenAPI.ClientSDKGenerator.Tests;
 internal static class ClientSdkGenerator
 {
     internal static Compilation Setup(string openApiSpec,
-        string clientName, 
+        string clientName,
         string @namespace,
         out ImmutableArray<Diagnostic> diagnostics,
         CancellationToken cancellationToken)
