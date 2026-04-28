@@ -40,7 +40,8 @@ internal static class ClientSdkGenerator
         {
             tree.GetDiagnostics().Should().NotContain(diagnostic =>
                 diagnostic.Severity == DiagnosticSeverity.Error ||
-                diagnostic.Severity == DiagnosticSeverity.Warning);
+                diagnostic.Severity == DiagnosticSeverity.Warning, 
+                because: $"the syntax should be correct: {tree.GetText(cancellationToken)}");
         }
 
         return newCompilation;

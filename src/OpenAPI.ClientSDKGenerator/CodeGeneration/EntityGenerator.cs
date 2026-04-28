@@ -9,7 +9,7 @@ internal sealed class EntityGenerator(string name)
 {
     private readonly Dictionary<string, EntityGenerator> _entityGenerators = new();
     private readonly Dictionary<string, MethodGenerator> _methodSignatures = new();
-    private readonly string _className = $"{name.ToPascalCase()}Entity";
+    private readonly string _className = name.ToPascalCase();
     
     internal EntityGenerator AddEntity(string name)
     {
@@ -68,33 +68,35 @@ namespace {{@namespace}};
 {{GenerateNestedClassStructure(nestedClassNames, () =>
 $$"""
 {{_methodSignatures.Values.AggregateToString(methodGenerator =>
-$$"""
-internal {{_className}} {{name}}({{methodGenerator.Parameters.AggregateToString(parameter =>
-$$"""
-    {{parameter.FullyQualifiedTypeName}} {{parameter.ParameterName.ToCamelCase()}},
-""").TrimEnd(',')}}) => 
-    new({{methodGenerator.Parameters.AggregateToString(parameter =>
-$"""
-        {parameter.ParameterName.ToCamelCase()},
-""").TrimEnd(',')}});
-"""
-)}}
-
-internal sealed partial class {{_className}}
-{{{_methodSignatures.Values.AggregateToString(methodGenerator =>
-$$"""
-    internal {{_className}}({{methodGenerator.Parameters.AggregateToString(parameter =>
-$$"""
-        {{parameter.FullyQualifiedTypeName}} {{parameter.ParameterName.ToCamelCase()}},
-""").TrimEnd(',')}})
     {
+        var className = _className + methodGenerator.Parameters.Length;
+        
+        return 
+$$"""
+internal {{className}} {{name}}({{GetMethodParameterList(methodGenerator)}}) => 
+    new({{GetMethodArgumentList(methodGenerator)}});
+         
+    internal sealed partial class {{className}}({{GetMethodParameterList(methodGenerator)}})
+    {
+        
     }
-"""
-)}}
-}
-"""  
-)}}
-
 """;
     }
+)}}
+""")}}
+""";
+    }
+
+    private static string GetMethodParameterList(MethodGenerator methodGenerator) =>
+        methodGenerator.Parameters.AggregateToString(parameter =>
+            $$"""
+                  {{parameter.FullyQualifiedTypeName}} {{parameter.ParameterName.ToCamelCase()}},
+              """).TrimEnd(',');
+    
+    private static string GetMethodArgumentList(MethodGenerator methodGenerator) =>
+        methodGenerator.Parameters.AggregateToString(parameter =>
+            $$"""
+                  {{parameter.ParameterName.ToCamelCase()}},
+              """).TrimEnd(',');
+    
 }

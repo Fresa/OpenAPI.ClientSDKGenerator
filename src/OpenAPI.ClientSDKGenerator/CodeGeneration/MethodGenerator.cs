@@ -8,14 +8,12 @@ internal sealed class MethodGenerator(string pathExpression, ParameterGenerator[
 {
     public string PathExpression { get; } = pathExpression;
     public ParameterGenerator[] Parameters { get; } = parameters;
-    private readonly Dictionary<HttpMethod, OperationGenerator> _operationGenerators = new();
+    internal Dictionary<HttpMethod, OperationGenerator> Operations { get; } = new();
 
     public void AddOperation( 
         HttpMethod method, 
-        OpenApiOperation operation,
-        IEnumerable<ParameterGenerator> parameterGenerators)
+        OperationGenerator operation)
     {
-        _operationGenerators.Add(method, 
-            new OperationGenerator(operation, parameterGenerators));
+        Operations.Add(method, operation);
     }
 }

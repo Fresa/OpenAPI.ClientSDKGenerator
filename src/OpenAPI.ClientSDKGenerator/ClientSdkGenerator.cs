@@ -116,7 +116,8 @@ public sealed class ClientSdkGenerator : IIncrementalGenerator
 
                 
                 var methodGenerator = pathsGenerator.GetMethodGenerator(pathExpression, operationParameterGenerators.Values.ToArray());
-                methodGenerator.AddOperation(openApiOperation.Key, operation, operationParameterGenerators.Values);
+                var operationGenerator = new OperationGenerator(operation, operationParameterGenerators.Values);
+                methodGenerator.AddOperation(openApiOperation.Key, operationGenerator);
                 
                 var body = operation.RequestBody;
                 if (body is not null)

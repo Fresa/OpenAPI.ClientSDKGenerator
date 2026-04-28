@@ -15,7 +15,6 @@ internal sealed class ParameterGenerator(
 
     private string FullyQualifiedTypeDeclarationIdentifier => typeDeclaration.FullyQualifiedDotnetTypeName();
     
-    internal string PropertyName { get; } = parameter.GetName().ToPascalCase();
     internal string ParameterName { get; } = parameter.GetName();
     internal bool IsParameterRequired { get; } = parameter.Required;
     internal string Location { get; } = parameter.GetLocation();
