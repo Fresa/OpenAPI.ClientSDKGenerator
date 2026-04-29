@@ -73,13 +73,16 @@ $$"""
         return 
 $$"""
 internal {{className}} {{name}}({{GetMethodParameterList(methodGenerator)}}) => 
-    new({{GetMethodArgumentList(methodGenerator).Indent(4)}});
+    new({{GetMethodArgumentList(methodGenerator).Indent(4).TrimStart()}});
          
-internal sealed partial class {{className}}({{GetMethodParameterList(methodGenerator)}})
+internal sealed partial class {{className}}({{GetConstructorParameterList(methodGenerator)}})
 {{{methodGenerator.Operations.AggregateToString(operation => 
 $$"""
-    internal void {{operation.Key.Method.ToLower().ToPascalCase()}}()
+    internal Task {{operation.Key.Method.ToLower().ToPascalCase()}}Async(CancellationToken cancellation = default)
     {
+        return httpClient.SendAsync(new HttpRequestMessage
+        {
+        }, cancellation);
     }
     
 """)}}
@@ -98,10 +101,16 @@ $$"""
                   {{parameter.FullyQualifiedTypeName}} {{parameter.ParameterName.ToCamelCase()}},
               """).TrimEnd(',');
     
-    private static string GetMethodArgumentList(MethodGenerator methodGenerator) =>
-        methodGenerator.Parameters.AggregateToString(parameter =>
+    private static string GetConstructorParameterList(MethodGenerator methodGenerator) =>
+        methodGenerator.Parameters.AggregateToString("HttpClient httpClient", parameter =>
             $$"""
-                  {{parameter.ParameterName.ToCamelCase()}},
-              """).TrimEnd(',');
+                  , {{parameter.FullyQualifiedTypeName}} {{parameter.ParameterName.ToCamelCase()}}
+              """);
+    
+    private static string GetMethodArgumentList(MethodGenerator methodGenerator) =>
+        methodGenerator.Parameters.AggregateToString("httpClient", parameter =>
+            $$"""
+                  , {{parameter.ParameterName.ToCamelCase()}}
+              """);
     
 }
