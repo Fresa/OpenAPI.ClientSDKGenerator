@@ -9,6 +9,7 @@ using Corvus.Json;
 using OpenAPI.ParameterStyleParsers;
 using System.Collections.Concurrent;
 using System.Net.Http;
+using System.Text.Json.Nodes;
 
 namespace {{@namespace}};
 
@@ -17,10 +18,11 @@ internal sealed class RequestBuilder(HttpClient httpClient)
     private static readonly ConcurrentDictionary<string, IParameterValueParser> ParserCache = new();
     private const string ParameterValueParserVersion = "2.0";
     
-    private readonly Dictionary<string, (IJsonValue Value, string ParameterSpecificationAsJson)> _pathParameters = new();
-    internal void AddPathParameter(string name, IJsonValue value, string parameterSpecificationAsJson)
+    private readonly Dictionary<string, string> _pathParameters = new();
+    internal void AddPathParameter<T>(string name, T value, string parameterSpecificationAsJson)
+        where T : struct, IJsonValue
     {
-        _pathParameters[name] = (value, parameterSpecificationAsJson);
+        _pathParameters[name] = Serialize(value, parameterSpecificationAsJson);
     }
 
     internal Task SendAsync(string pathTemplate, 
@@ -28,15 +30,16 @@ internal sealed class RequestBuilder(HttpClient httpClient)
         CancellationToken cancellation = default)
     {
         var path = _pathParameters.Aggregate(pathTemplate, (uri, parameter) => 
-            uri.Replace("{" + parameter.Key + "}", Serialize(parameter.Value.Value, parameter.Value.ParameterSpecificationAsJson)));
+            uri.Replace("{" + parameter.Key + "}", parameter.Value));
         return httpClient.SendAsync(new HttpRequestMessage
         {
-            Method = new Method(httpMethod),
+            Method = new HttpMethod(httpMethod),
             RequestUri = new Uri(path) 
         }, cancellation);
     }
     
-    private string Serialize(IJsonValue value, string parameterSpecificationAsJson)
+    private string Serialize<TValue>(TValue value, string parameterSpecificationAsJson)
+        where TValue : struct, IJsonValue
     {
         var parser = ParserCache.GetOrAdd(parameterSpecificationAsJson, 
             _ => ParameterValueParserFactory.OpenApi(ParameterValueParserVersion, parameterSpecificationAsJson));        
