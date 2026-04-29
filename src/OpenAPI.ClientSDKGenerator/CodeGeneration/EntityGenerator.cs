@@ -76,9 +76,15 @@ internal {{className}} {{name}}({{GetMethodParameterList(methodGenerator)}}) =>
     new({{GetMethodArgumentList(methodGenerator).Indent(4)}});
          
 internal sealed partial class {{className}}({{GetMethodParameterList(methodGenerator)}})
-{
+{{{methodGenerator.Operations.AggregateToString(operation => 
+$$"""
+    internal void {{operation.Key.Method.ToLower().ToPascalCase()}}()
+    {
+    }
     
+""")}}
 }
+
 """;
     }
 )}}

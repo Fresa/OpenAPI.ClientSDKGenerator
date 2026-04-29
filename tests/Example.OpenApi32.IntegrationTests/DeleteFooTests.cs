@@ -7,6 +7,6 @@ public class DeleteFooTests(FooApplicationFactory app) : FooTestSpecification, I
     {
         using var httpClient = new HttpClient();
         var client = new Foo.Foo(httpClient);
-        client.Foo_(10);
+        client.Foo_(10).Delete();
     }
 }
