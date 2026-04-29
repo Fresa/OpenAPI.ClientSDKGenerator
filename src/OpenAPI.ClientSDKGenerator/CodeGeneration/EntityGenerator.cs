@@ -70,16 +70,15 @@ $$"""
 {{_methodSignatures.Values.AggregateToString(methodGenerator =>
     {
         var className = _className + methodGenerator.Parameters.Length;
-        
         return 
 $$"""
 internal {{className}} {{name}}({{GetMethodParameterList(methodGenerator)}}) => 
-    new({{GetMethodArgumentList(methodGenerator)}});
+    new({{GetMethodArgumentList(methodGenerator).Indent(4)}});
          
-    internal sealed partial class {{className}}({{GetMethodParameterList(methodGenerator)}})
-    {
-        
-    }
+internal sealed partial class {{className}}({{GetMethodParameterList(methodGenerator)}})
+{
+    
+}
 """;
     }
 )}}
