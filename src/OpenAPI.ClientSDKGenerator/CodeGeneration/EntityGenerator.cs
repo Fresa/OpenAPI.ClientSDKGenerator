@@ -78,12 +78,11 @@ internal {{className}} {{name}}({{GetMethodParameterList(methodGenerator)}}) =>
 internal sealed partial class {{className}}({{GetConstructorParameterList(methodGenerator)}})
 {{{methodGenerator.Operations.AggregateToString(operation => 
 $$"""
-    internal Task {{operation.Key.Method.ToLower().ToPascalCase()}}Async(CancellationToken cancellation = default)
-    {
-        return httpClient.SendAsync(new HttpRequestMessage
+    internal Task {{operation.Key.Method.ToLower().ToPascalCase()}}Async(CancellationToken cancellation = default) =>
+        httpClient.SendAsync(new HttpRequestMessage
         {
+            Method = new Method("{{operation.Key.Method}}")
         }, cancellation);
-    }
     
 """)}}
 }
