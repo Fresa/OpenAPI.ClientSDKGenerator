@@ -79,10 +79,10 @@ internal sealed partial class {{className}}({{GetConstructorParameterList(method
 {{{methodGenerator.Operations.AggregateToString(operation => 
 $$"""
     internal Task {{operation.Key.Method.ToLower().ToPascalCase()}}Async(CancellationToken cancellation = default) =>
-        httpClient.SendAsync(new HttpRequestMessage
-        {
-            Method = new Method("{{operation.Key.Method}}")
-        }, cancellation);
+        requestBuilder.SendAsync(
+            "",
+            new Method("{{operation.Key.Method}}"), 
+            cancellation);
     
 """)}}
 }
@@ -101,13 +101,13 @@ $$"""
               """).TrimEnd(',');
     
     private static string GetConstructorParameterList(MethodGenerator methodGenerator) =>
-        methodGenerator.Parameters.AggregateToString("HttpClient httpClient,", parameter =>
+        methodGenerator.Parameters.AggregateToString("RequestBuilder requestBuilder,", parameter =>
             $$"""
                   {{parameter.FullyQualifiedTypeName}} {{parameter.ParameterName.ToCamelCase()}},
               """).TrimEnd(',');
     
     private static string GetMethodArgumentList(MethodGenerator methodGenerator) =>
-        methodGenerator.Parameters.AggregateToString("httpClient,", parameter =>
+        methodGenerator.Parameters.AggregateToString("requestBuilder,", parameter =>
             $$"""
                   {{parameter.ParameterName.ToCamelCase()}},
               """).TrimEnd(',');
