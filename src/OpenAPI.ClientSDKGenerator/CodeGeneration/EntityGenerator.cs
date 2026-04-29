@@ -101,15 +101,15 @@ $$"""
               """).TrimEnd(',');
     
     private static string GetConstructorParameterList(MethodGenerator methodGenerator) =>
-        methodGenerator.Parameters.AggregateToString("HttpClient httpClient", parameter =>
+        methodGenerator.Parameters.AggregateToString("HttpClient httpClient,", parameter =>
             $$"""
-                  , {{parameter.FullyQualifiedTypeName}} {{parameter.ParameterName.ToCamelCase()}}
-              """);
+                  {{parameter.FullyQualifiedTypeName}} {{parameter.ParameterName.ToCamelCase()}},
+              """).TrimEnd(',');
     
     private static string GetMethodArgumentList(MethodGenerator methodGenerator) =>
-        methodGenerator.Parameters.AggregateToString("httpClient", parameter =>
+        methodGenerator.Parameters.AggregateToString("httpClient,", parameter =>
             $$"""
-                  , {{parameter.ParameterName.ToCamelCase()}}
-              """);
+                  {{parameter.ParameterName.ToCamelCase()}},
+              """).TrimEnd(',');
     
 }
