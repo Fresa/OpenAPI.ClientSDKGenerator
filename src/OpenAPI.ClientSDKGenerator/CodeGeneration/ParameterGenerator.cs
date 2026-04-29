@@ -7,6 +7,7 @@ using OpenAPI.ClientSDKGenerator.OpenApi;
 namespace OpenAPI.ClientSDKGenerator.CodeGeneration;
 
 internal sealed class ParameterGenerator(
+    OpenApiSpecVersion openApiSpecVersion,
     TypeDeclaration typeDeclaration, 
     IOpenApiParameter parameter)
 {
@@ -19,4 +20,6 @@ internal sealed class ParameterGenerator(
     internal bool IsParameterRequired { get; } = parameter.Required;
     internal string Location { get; } = parameter.GetLocation();
     internal string SchemaLocation { get; } = typeDeclaration.RelativeSchemaLocation;
+    
+    internal string ParameterSpecificationAsJson { get; } = parameter.Serialize(openApiSpecVersion).ToString();
 }

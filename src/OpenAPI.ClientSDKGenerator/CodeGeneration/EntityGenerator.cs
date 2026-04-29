@@ -72,16 +72,25 @@ $$"""
         var className = _className + methodGenerator.Parameters.Length;
         return 
 $$"""
-internal {{className}} {{name}}({{GetMethodParameterList(methodGenerator)}}) => 
-    new({{GetMethodArgumentList(methodGenerator).Indent(4).TrimStart()}});
-         
-internal sealed partial class {{className}}({{GetConstructorParameterList(methodGenerator)}})
+internal {{className}} {{name}}({{GetMethodParameterList(methodGenerator)}}) 
+{{{methodGenerator.Parameters.AggregateToString(parameter =>
+$$""""
+    requestBuilder.AddPathParameter("{{parameter.ParameterName.ToCamelCase()}}",
+        {{parameter.ParameterName.ToCamelCase()}},
+        """
+        {{parameter.ParameterSpecificationAsJson.Indent(8).Trim()}}
+        """);
+"""").TrimEnd(',')}}
+    return new(requestBuilder);
+}
+
+internal sealed partial class {{className}}(RequestBuilder requestBuilder)
 {{{methodGenerator.Operations.AggregateToString(operation => 
 $$"""
     internal Task {{operation.Key.Method.ToLower().ToPascalCase()}}Async(CancellationToken cancellation = default) =>
         requestBuilder.SendAsync(
-            "",
-            new Method("{{operation.Key.Method}}"), 
+            "{{methodGenerator.PathExpression}}",
+            "{{operation.Key.Method}}", 
             cancellation);
     
 """)}}
@@ -99,17 +108,4 @@ $$"""
             $$"""
                   {{parameter.FullyQualifiedTypeName}} {{parameter.ParameterName.ToCamelCase()}},
               """).TrimEnd(',');
-    
-    private static string GetConstructorParameterList(MethodGenerator methodGenerator) =>
-        methodGenerator.Parameters.AggregateToString("RequestBuilder requestBuilder,", parameter =>
-            $$"""
-                  {{parameter.FullyQualifiedTypeName}} {{parameter.ParameterName.ToCamelCase()}},
-              """).TrimEnd(',');
-    
-    private static string GetMethodArgumentList(MethodGenerator methodGenerator) =>
-        methodGenerator.Parameters.AggregateToString("requestBuilder,", parameter =>
-            $$"""
-                  {{parameter.ParameterName.ToCamelCase()}},
-              """).TrimEnd(',');
-    
 }

@@ -94,7 +94,7 @@ public sealed class ClientSdkGenerator : IIncrementalGenerator
                 var schemaReference = openApiPathVisitor.GetSchemaReference(parameter);
                 var typeDeclaration = schemaGenerator.Generate(schemaReference);
                 pathParameterGenerators[$"{parameter.GetName()}_{parameter.GetLocation()}"] =
-                    new ParameterGenerator(typeDeclaration,
+                    new ParameterGenerator(openApiVersion, typeDeclaration,
                         parameter);
             }
             
@@ -112,7 +112,7 @@ public sealed class ClientSdkGenerator : IIncrementalGenerator
                     var schemaReference = openApiOperationVisitor.GetSchemaReference(parameter);
                     var typeDeclaration = schemaGenerator.Generate(schemaReference);
                     operationParameterGenerators[$"{parameter.GetName()}_{parameter.GetLocation()}"] =
-                        new ParameterGenerator(typeDeclaration,
+                        new ParameterGenerator(openApiVersion, typeDeclaration,
                             parameter);
                 }
 
