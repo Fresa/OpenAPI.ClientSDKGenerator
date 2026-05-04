@@ -1,8 +1,11 @@
+using Microsoft.OpenApi;
+using OpenAPI.ClientSDKGenerator.OpenApi;
+
 namespace OpenAPI.ClientSDKGenerator.CodeGeneration;
 
-internal sealed class RequestBuilderGenerator(string @namespace)
+internal sealed class RequestBuilderGenerator(OpenApiSpecVersion openApiSpecVersion)
 {
-    internal SourceCode Generate() =>
+    internal SourceCode Generate(string @namespace) =>
         new("RequestBuilder.g.cs", 
 $$"""
 using Corvus.Json;
@@ -16,7 +19,7 @@ namespace {{@namespace}};
 internal sealed class RequestBuilder(HttpClient httpClient)
 {
     private static readonly ConcurrentDictionary<string, IParameterValueParser> ParserCache = new();
-    private const string ParameterValueParserVersion = "2.0";
+    private const string ParameterValueParserVersion = "{{openApiSpecVersion.GetParameterVersion()}}";
     
     private readonly Dictionary<string, string> _pathParameters = new();
     internal void AddPathParameter<T>(string name, T value, string parameterSpecificationAsJson)

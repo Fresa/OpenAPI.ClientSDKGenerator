@@ -67,14 +67,13 @@ public sealed class ClientSdkGenerator : IIncrementalGenerator
     {
         var rootNamespace = config.Namespace ?? compilation.Assembly.Name;
         var openApiSpecification = config.LoadOpenApiSpecification();
-
-        var requestBuilderGenerator = new RequestBuilderGenerator(rootNamespace);
-        requestBuilderGenerator.Generate().AddTo(context);
-        var clientGenerator = new ClientGenerator(config.ClientName, rootNamespace);
-        var pathsGenerator = clientGenerator.GetPathsGenerator();
-
         var openApiVersion = openApiSpecification.Version;
         var openApi = openApiSpecification.Document;
+
+        var requestBuilderGenerator = new RequestBuilderGenerator(openApiVersion);
+        requestBuilderGenerator.Generate(rootNamespace).AddTo(context);
+        var clientGenerator = new ClientGenerator(config.ClientName, rootNamespace);
+        var pathsGenerator = clientGenerator.GetPathsGenerator();
 
         var schemaGenerator = SchemaGenerator.For(
             openApiSpecification, rootNamespace, context);
