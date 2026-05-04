@@ -5,9 +5,10 @@ public class DeleteFooTests(FooApplicationFactory app) : FooTestSpecification, I
     [Fact]
     public async Task When_Deleting_Foo_It_Should_Return_Ok()
     {
-        using var httpClient = new HttpClient();
+        using var httpClient = app.CreateClient();
+        
         var client = new Foo.Foo(httpClient);
         await client.Foo_(10)
-            .DeleteAsync(TestContext.Current.CancellationToken);
+            .DeleteAsync(CancellationToken);
     }
 }
