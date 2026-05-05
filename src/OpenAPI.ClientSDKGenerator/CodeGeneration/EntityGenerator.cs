@@ -7,18 +7,8 @@ namespace OpenAPI.ClientSDKGenerator.CodeGeneration;
 
 internal sealed class EntityGenerator(string name)
 {
-    private readonly Dictionary<string, EntityGenerator> _entityGenerators = new();
     private readonly Dictionary<string, MethodGenerator> _methodSignatures = new();
     private readonly string _className = name.ToPascalCase();
-    
-    internal EntityGenerator AddEntity(string name)
-    {
-        if (_entityGenerators.TryGetValue(name, out var entity))
-            return entity;
-        entity = new EntityGenerator(name);
-        _entityGenerators.Add(name, entity);
-        return entity;
-    }
 
     internal MethodGenerator AddMethod(string pathExpression, params ParameterGenerator[] parameterGenerators)
     {
@@ -30,20 +20,34 @@ internal sealed class EntityGenerator(string name)
         return methodGenerator;
     }
 
-    internal IEnumerable<SourceCode> Generate(string @namespace, params string[] outerClassNames)
+    internal IEnumerable<SourceCode> Generate(string @namespace, params string[] outerClassNames) =>
+        Generate(@namespace, outerEntityNames: outerClassNames, outerClassNames: outerClassNames, rootEntity: true);
+
+    private IEnumerable<SourceCode> Generate(
+        string @namespace,
+        string[] outerEntityNames,
+        string[] outerClassNames,
+        bool rootEntity)
     {
-        var fileName = string.Join(".", outerClassNames);
+        var fileName = string.Join(".", outerEntityNames);
 
-        yield return new SourceCode($"{fileName}.{_className}.g.cs", GenerateClass(@namespace, outerClassNames, true));
+        yield return new SourceCode($"{fileName}.{_className}.g.cs", GenerateClass(@namespace, outerClassNames, rootEntity));
 
-        foreach (var inner in _entityGenerators.Values
-                     .SelectMany(entity => entity.Generate(@namespace, outerClassNames)))
+        var childEntityChain = outerEntityNames.Append(_className).ToArray();
+        foreach (var methodGenerator in _methodSignatures.Values)
         {
-            yield return inner;
+            var parentClassName = _className + methodGenerator.Parameters.Length;
+            var childClassChain = outerClassNames.Append(parentClassName).ToArray();
+            foreach (var source in methodGenerator.Children.Values
+                         .SelectMany(child => 
+                             child.Generate(@namespace, childEntityChain, childClassChain, rootEntity: false)))
+            {
+                yield return source;
+            }
         }
     }
 
-    private static string GenerateNestedClassStructure(IReadOnlyList<string> nestedClassNames, Func<string> content)
+    private static string GenerateNestedClassStructure(IReadOnlyList<string> nestedClassNames, Func<string> content, bool isRoot = false)
     {
         if (nestedClassNames.Count == 0)
         {
@@ -51,7 +55,7 @@ internal sealed class EntityGenerator(string name)
         }
 
         var className = nestedClassNames[0];
-        var inner = GenerateNestedClassStructure(nestedClassNames.Skip(1).ToArray(), content);
+        var inner = GenerateNestedClassStructure(nestedClassNames.Skip(1).ToArray(), content, isRoot);
         return 
 $$"""
 internal sealed partial class {{className}}
@@ -103,7 +107,7 @@ $$"""
 """;
     }
 )}}
-""")}}
+""", rootEntity)}}
 """;
     }
 

@@ -181,7 +181,7 @@ internal sealed partial class TestClient
     }
 
     [Fact]
-    public void MultipleOperations_EntityShouldHaveOneMethodPerVerb()
+    public void MultipleOperations_EntityShouldHaveOneMethodPerOperation()
     {
         const string spec = """
         {
@@ -312,31 +312,33 @@ internal sealed partial class TestClient
 }
 """");
 
-        compilation.GetSource("TestClient.Child.g.cs", Cancellation).Should().Be(
+        compilation.GetSource("TestClient.Parent.Child.g.cs", Cancellation).Should().Be(
 """"
 namespace Example;
 internal sealed partial class TestClient
-{
-    internal Child0 Child()
+{    internal sealed partial class Parent1
     {
-        var requestBuilder = new RequestBuilder(httpClient);
-        return new(requestBuilder);
-    }
+        internal Child0 Child()
+        {
 
-    internal sealed partial class Child0(RequestBuilder requestBuilder)
-    {
-        internal Task GetAsync(CancellationToken cancellation = default) =>
-            requestBuilder.SendAsync(
-                "/parent/{id}/child",
-                "GET",
-                cancellation);
+            return new(requestBuilder);
+        }
+
+        internal sealed partial class Child0(RequestBuilder requestBuilder)
+        {
+            internal Task GetAsync(CancellationToken cancellation = default) =>
+                requestBuilder.SendAsync(
+                    "/parent/{id}/child",
+                    "GET",
+                    cancellation);
+        }
     }
 }
 """");
     }
 
     [Fact]
-    public void PathWithParameter_AccessorMethodShouldTakeThePathParameter()
+    public void PathWithParameter_MethodShouldIncludeTheParameter()
     {
         const string spec = """
         {

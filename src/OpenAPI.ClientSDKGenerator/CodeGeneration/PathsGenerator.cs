@@ -39,12 +39,12 @@ internal sealed class PathsGenerator(ClientGenerator clientGenerator)
                 continue;
             }
 
-            AddMethodToCurrentEntity();
-            
+            var methodGenerator = AddMethodToCurrentEntity();
+
             var entityName = segment.ToPascalCase();
-            if (current != null)
+            if (methodGenerator != null)
             {
-                current = current.AddEntity(entityName);
+                current = methodGenerator.AddEntity(entityName);
                 continue;
             }
 
