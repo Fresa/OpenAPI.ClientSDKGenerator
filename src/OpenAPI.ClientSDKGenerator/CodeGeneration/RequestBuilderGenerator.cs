@@ -1,3 +1,4 @@
+using System;
 using Microsoft.OpenApi;
 using OpenAPI.ClientSDKGenerator.OpenApi;
 
@@ -37,7 +38,7 @@ internal sealed class RequestBuilder(HttpClient httpClient)
         return httpClient.SendAsync(new HttpRequestMessage
         {
             Method = new HttpMethod(httpMethod),
-            RequestUri = new Uri(path) 
+            RequestUri = new Uri(path, UriKind.Relative) 
         }, cancellation);
     }
     
