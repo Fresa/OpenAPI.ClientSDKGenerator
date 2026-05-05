@@ -316,11 +316,11 @@ internal sealed partial class TestClient
 """"
 namespace Example;
 internal sealed partial class TestClient
-{    internal sealed partial class Parent1
+{
+    internal sealed partial class Parent1
     {
         internal Child0 Child()
         {
-
             return new(requestBuilder);
         }
 

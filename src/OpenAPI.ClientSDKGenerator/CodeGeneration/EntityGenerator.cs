@@ -51,7 +51,7 @@ internal sealed class EntityGenerator(string name)
     {
         if (nestedClassNames.Count == 0)
         {
-            return content();
+            return content().Trim();
         }
 
         var className = nestedClassNames[0];
@@ -59,7 +59,8 @@ internal sealed class EntityGenerator(string name)
         return 
 $$"""
 internal sealed partial class {{className}}
-{{{inner.Indent(4)}}
+{
+{{inner.Indent(4)}}
 }
 """;
     }
