@@ -79,7 +79,7 @@ internal {{className}} {{name}}({{GetMethodParameterList(methodGenerator)}})
     var requestBuilder = new RequestBuilder(httpClient);
 """ : "")}}{{methodGenerator.Parameters.AggregateToString(parameter =>
 $$""""
-    requestBuilder.AddPathParameter("{{parameter.ParameterName.ToCamelCase()}}",
+    requestBuilder.AddPathParameter("{{parameter.ParameterName}}",
         {{parameter.ParameterName.ToCamelCase()}},
         """
         {{parameter.ParameterSpecificationAsJson.Indent(8).Trim()}}
