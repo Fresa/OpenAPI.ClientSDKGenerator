@@ -34,7 +34,7 @@ internal sealed class EntityGenerator(string name)
     {
         var fileName = string.Join(".", outerClassNames);
 
-        yield return new SourceCode($"{fileName}.{_className}.g.cs", GenerateClass(@namespace, outerClassNames));
+        yield return new SourceCode($"{fileName}.{_className}.g.cs", GenerateClass(@namespace, outerClassNames, true));
 
         foreach (var inner in _entityGenerators.Values
                      .SelectMany(entity => entity.Generate(@namespace, outerClassNames)))
@@ -60,7 +60,7 @@ internal sealed partial class {{className}}
 """;
     }
     
-    private string GenerateClass(string @namespace, IReadOnlyList<string> nestedClassNames)
+    private string GenerateClass(string @namespace, IReadOnlyList<string> nestedClassNames, bool rootEntity = false)
     {
         return 
 $$"""
@@ -72,8 +72,12 @@ $$"""
         var className = _className + methodGenerator.Parameters.Length;
         return 
 $$"""
-internal {{className}} {{name}}({{GetMethodParameterList(methodGenerator)}}) 
-{{{methodGenerator.Parameters.AggregateToString(parameter =>
+internal {{className}} {{name}}({{GetMethodParameterList(methodGenerator)}})
+{
+{{(rootEntity ? 
+"""
+    var requestBuilder = new RequestBuilder(httpClient);
+""" : "")}}{{methodGenerator.Parameters.AggregateToString(parameter =>
 $$""""
     requestBuilder.AddPathParameter("{{parameter.ParameterName.ToCamelCase()}}",
         {{parameter.ParameterName.ToCamelCase()}},

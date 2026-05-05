@@ -16,7 +16,6 @@ namespace {{Namespace}};
 
 internal sealed partial class {{ClassName}}(HttpClient httpClient)
 {
-    private RequestBuilder requestBuilder => new RequestBuilder(httpClient);
 }
 """);
     }
