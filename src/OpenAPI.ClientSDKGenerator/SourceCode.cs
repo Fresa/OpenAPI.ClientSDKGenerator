@@ -24,5 +24,5 @@ internal sealed class SourceCode(string fileName, string code)
     }
     
     private static SourceText ParseCSharpCode(string code) => 
-        SourceText.From(code, Encoding.UTF8);
+        SourceText.From(code.Replace("\r\n", "\n"), Encoding.UTF8);
 }

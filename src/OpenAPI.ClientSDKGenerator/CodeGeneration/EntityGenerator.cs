@@ -94,7 +94,7 @@ $$"""
     internal Task {{operation.Key.Method.ToLower().ToPascalCase()}}Async(CancellationToken cancellation = default) =>
         requestBuilder.SendAsync(
             "{{methodGenerator.PathExpression}}",
-            "{{operation.Key.Method}}", 
+            "{{operation.Key.Method}}",
             cancellation);
     
 """)}}

@@ -5,9 +5,25 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace OpenAPI.ClientSDKGenerator.Tests.Utils;
 
-public class TestAdditionalFile(string path) : AdditionalText
+public class TestAdditionalFile : AdditionalText
 {
-    public override SourceText GetText(CancellationToken cancellationToken = new()) => SourceText.From(File.OpenRead(Path));
+    private readonly string? _content;
 
-    public override string Path { get; } = path;
+    public TestAdditionalFile(string path) => Path = path;
+
+    private TestAdditionalFile(string path, string content)
+    {
+        Path = path;
+        _content = content;
+    }
+
+    public static TestAdditionalFile FromContent(string content) =>
+        new("openapi.json", content);
+
+    public override SourceText GetText(CancellationToken cancellationToken = default) =>
+        _content is not null
+            ? SourceText.From(_content)
+            : SourceText.From(File.OpenRead(Path));
+
+    public override string Path { get; }
 }

@@ -15,10 +15,25 @@ internal static class ClientSdkGenerator
         string clientName,
         string @namespace,
         out ImmutableArray<Diagnostic> diagnostics,
+        CancellationToken cancellationToken) =>
+        Run(new TestAdditionalFile($"OpenApiSpecs/{openApiSpec}"),
+            clientName, @namespace, out diagnostics, cancellationToken);
+
+    internal static Compilation SetupFromContent(string openApiSpec,
+        string clientName,
+        string @namespace,
+        out ImmutableArray<Diagnostic> diagnostics,
+        CancellationToken cancellationToken) =>
+        Run(TestAdditionalFile.FromContent(openApiSpec),
+            clientName, @namespace, out diagnostics, cancellationToken);
+
+    private static Compilation Run(TestAdditionalFile clientSdkItem,
+        string clientName,
+        string @namespace,
+        out ImmutableArray<Diagnostic> diagnostics,
         CancellationToken cancellationToken)
     {
         var generator = new ClientSDKGenerator.ClientSdkGenerator();
-        var clientSdkItem = new TestAdditionalFile($"OpenApiSpecs/{openApiSpec}");
 
         var metadata = ImmutableDictionary<string, string>.Empty
             .Add("build_metadata.AdditionalFiles.SourceItemGroup", "ClientSDKGenerator")

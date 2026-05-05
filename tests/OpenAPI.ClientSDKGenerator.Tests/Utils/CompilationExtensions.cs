@@ -1,6 +1,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading;
+using AwesomeAssertions;
 using Microsoft.CodeAnalysis;
 using Xunit;
 
@@ -18,5 +19,17 @@ internal static class CompilationExtensions
             output.WriteLine($"// === {Path.GetFileName(tree.FilePath)} ===");
             output.WriteLine(tree.GetText(cancellationToken).ToString());
         }
+    }
+
+    internal static string GetSource(this Compilation compilation,
+        string fileName,
+        CancellationToken cancellationToken = default)
+    {
+        compilation.SyntaxTrees
+            .Select(tree => Path.GetFileName(tree.FilePath))
+            .Should().Contain(fileName);
+        return compilation.SyntaxTrees
+            .Single(tree => Path.GetFileName(tree.FilePath) == fileName)
+            .GetText(cancellationToken).ToString();
     }
 }
