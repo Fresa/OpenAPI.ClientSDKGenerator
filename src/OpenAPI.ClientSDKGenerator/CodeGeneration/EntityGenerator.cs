@@ -77,9 +77,9 @@ $$"""
         return 
 $$"""
 internal {{className}} {{name}}({{GetMethodParameterList(methodGenerator)}})
-{
-{{(rootEntity ? 
+{{{(rootEntity ? 
 """
+
     var requestBuilder = new RequestBuilder(httpClient);
 """ : "")}}{{methodGenerator.Parameters.AggregateToString(parameter =>
 $$""""
