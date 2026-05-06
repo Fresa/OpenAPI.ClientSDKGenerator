@@ -14,8 +14,11 @@ using System.Net.Http;
 
 namespace {{Namespace}};
 
-internal sealed partial class {{ClassName}}(HttpClient httpClient)
+internal sealed partial class {{ClassName}}(
+    HttpClient httpClient, 
+    ClientSdkConfiguration? configuration = null)
 {
+    private ClientSdkConfiguration _configuration = configuration ?? new();
 }
 """);
     }

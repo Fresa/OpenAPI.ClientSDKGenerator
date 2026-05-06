@@ -81,11 +81,12 @@ internal {{className}} {{name}}({{GetMethodParameterList(methodGenerator)}})
 {{{(rootEntity ? 
 """
 
-    var requestBuilder = new RequestBuilder(httpClient);
+    var requestBuilder = new RequestBuilder(httpClient, _configuration);
 """ : "")}}{{methodGenerator.Parameters.AggregateToString(parameter =>
 $$""""
     requestBuilder.AddPathParameter("{{parameter.ParameterName}}",
         {{parameter.ParameterName.ToCamelCase()}},
+        "{{parameter.SchemaLocation}}",
         """
         {{parameter.ParameterSpecificationAsJson.Indent(8).Trim()}}
         """);

@@ -4,7 +4,9 @@ using OpenAPI.ClientSDKGenerator.OpenApi;
 
 namespace OpenAPI.ClientSDKGenerator.CodeGeneration;
 
-internal sealed class RequestBuilderGenerator(OpenApiSpecVersion openApiSpecVersion)
+internal sealed class RequestBuilderGenerator(
+    OpenApiSpecVersion openApiSpecVersion,
+    JsonValidationExceptionGenerator jsonValidationExceptionGenerator)
 {
     internal SourceCode Generate(string @namespace) =>
         new("RequestBuilder.g.cs", 
@@ -17,24 +19,30 @@ using System.Text.Json.Nodes;
 
 namespace {{@namespace}};
 
-internal sealed class RequestBuilder(HttpClient httpClient)
+internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfiguration configuration)
 {
     private static readonly ConcurrentDictionary<string, IParameterValueParser> ParserCache = new();
     private const string ParameterValueParserVersion = "{{openApiSpecVersion.GetParameterVersion()}}";
     
-    private readonly Dictionary<string, string> _pathParameters = new();
-    internal void AddPathParameter<T>(string name, T value, string parameterSpecificationAsJson)
+    private readonly Dictionary<string, Func<string>> _pathParameters = new();
+    internal void AddPathParameter<T>(
+        string name, 
+        T value,
+        string schemaLocation, 
+        string parameterSpecificationAsJson)
         where T : struct, IJsonValue
     {
-        _pathParameters[name] = Serialize(value, parameterSpecificationAsJson);
+        _validationContext = value.Validate(schemaLocation, true, _validationContext, _validationLevel);
+        _pathParameters[name] = () => Serialize(value, parameterSpecificationAsJson);
     }
 
     internal Task SendAsync(string pathTemplate, 
         string httpMethod, 
         CancellationToken cancellation = default)
     {
+        Validate();
         var path = _pathParameters.Aggregate(pathTemplate, (uri, parameter) => 
-            uri.Replace("{" + parameter.Key + "}", parameter.Value));
+            uri.Replace("{" + parameter.Key + "}", parameter.Value()));
         return httpClient.SendAsync(new HttpRequestMessage
         {
             Method = new HttpMethod(httpMethod),
@@ -49,6 +57,18 @@ internal sealed class RequestBuilder(HttpClient httpClient)
             _ => ParameterValueParserFactory.OpenApi(ParameterValueParserVersion, parameterSpecificationAsJson));        
         var jsonValue = value.Serialize();
         return parser.Serialize(JsonNode.Parse(jsonValue));
+    }
+    
+    private ValidationLevel _validationLevel = ValidationLevel.Detailed;
+    private ValidationContext _validationContext = ValidationContext.ValidContext.UsingStack().UsingResults();
+
+    private void Validate()
+    {
+        if (_validationContext.IsValid)
+            return;
+
+        var validationResult = _validationContext.Results.WithLocation(configuration.OpenApiSpecificationUri);
+        {{jsonValidationExceptionGenerator.CreateThrowJsonValidationExceptionInvocation("Response is not valid", "validationResult")}};
     }
 }
 """);

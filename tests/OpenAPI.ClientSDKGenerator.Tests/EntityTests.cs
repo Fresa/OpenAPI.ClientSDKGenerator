@@ -46,7 +46,7 @@ internal sealed partial class Pets
 {
     internal Pets0 Pets_()
     {
-        var requestBuilder = new RequestBuilder(httpClient);
+        var requestBuilder = new RequestBuilder(httpClient, _configuration);
         return new(requestBuilder);
     }
 
@@ -62,9 +62,10 @@ internal sealed partial class Pets
     internal Pets1 Pets_(
         Corvus.Json.JsonString petId)
     {
-        var requestBuilder = new RequestBuilder(httpClient);
+        var requestBuilder = new RequestBuilder(httpClient, _configuration);
         requestBuilder.AddPathParameter("petId",
             petId,
+            "#/paths/~1pets~1{petId}/parameters/0/schema",
             """
             {
               "name": "petId",
@@ -120,7 +121,7 @@ internal sealed partial class TestClient
 {
     internal Foo0 Foo()
     {
-        var requestBuilder = new RequestBuilder(httpClient);
+        var requestBuilder = new RequestBuilder(httpClient, _configuration);
         return new(requestBuilder);
     }
 
@@ -142,7 +143,7 @@ internal sealed partial class TestClient
 {
     internal Bar0 Bar()
     {
-        var requestBuilder = new RequestBuilder(httpClient);
+        var requestBuilder = new RequestBuilder(httpClient, _configuration);
         return new(requestBuilder);
     }
 
@@ -164,7 +165,7 @@ internal sealed partial class TestClient
 {
     internal Baz0 Baz()
     {
-        var requestBuilder = new RequestBuilder(httpClient);
+        var requestBuilder = new RequestBuilder(httpClient, _configuration);
         return new(requestBuilder);
     }
 
@@ -216,9 +217,10 @@ internal sealed partial class TestClient
     internal Items1 Items(
         Corvus.Json.JsonString id)
     {
-        var requestBuilder = new RequestBuilder(httpClient);
+        var requestBuilder = new RequestBuilder(httpClient, _configuration);
         requestBuilder.AddPathParameter("id",
             id,
+            "#/paths/~1items~1{id}/parameters/0/schema",
             """
             {
               "name": "id",
@@ -290,9 +292,10 @@ internal sealed partial class TestClient
     internal Parent1 Parent(
         Corvus.Json.JsonString id)
     {
-        var requestBuilder = new RequestBuilder(httpClient);
+        var requestBuilder = new RequestBuilder(httpClient, _configuration);
         requestBuilder.AddPathParameter("id",
             id,
+            "#/paths/~1parent~1{id}~1child/parameters/0/schema",
             """
             {
               "name": "id",
@@ -371,9 +374,10 @@ internal sealed partial class TestClient
     internal Items1 Items(
         Corvus.Json.JsonString id)
     {
-        var requestBuilder = new RequestBuilder(httpClient);
+        var requestBuilder = new RequestBuilder(httpClient, _configuration);
         requestBuilder.AddPathParameter("id",
             id,
+            "#/paths/~1items~1{id}/parameters/0/schema",
             """
             {
               "name": "id",

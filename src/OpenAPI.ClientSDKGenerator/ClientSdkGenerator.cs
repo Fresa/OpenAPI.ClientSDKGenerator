@@ -70,7 +70,14 @@ public sealed class ClientSdkGenerator : IIncrementalGenerator
         var openApiVersion = openApiSpecification.Version;
         var openApi = openApiSpecification.Document;
 
-        var requestBuilderGenerator = new RequestBuilderGenerator(openApiVersion);
+        var jsonValidationExceptionGenerator = new JsonValidationExceptionGenerator(rootNamespace);
+        jsonValidationExceptionGenerator.GenerateJsonValidationExceptionClass().AddTo(context);
+        var apiConfigurationGenerator = new SdkConfigurationGenerator(rootNamespace);
+        apiConfigurationGenerator.GenerateClass().AddTo(context);
+        var validationExtensionsGenerator = new ValidationExtensionsGenerator(rootNamespace);
+        validationExtensionsGenerator.GenerateClass().AddTo(context);
+        
+        var requestBuilderGenerator = new RequestBuilderGenerator(openApiVersion, jsonValidationExceptionGenerator);
         requestBuilderGenerator.Generate(rootNamespace).AddTo(context);
         var clientGenerator = new ClientGenerator(config.ClientName, rootNamespace);
         var pathsGenerator = clientGenerator.GetPathsGenerator();
