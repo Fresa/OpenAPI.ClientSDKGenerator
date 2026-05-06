@@ -27,14 +27,7 @@ public sealed class ClientSdkGenerator : IIncrementalGenerator
             .Select((pair, _) =>
             {
                 var options = pair.Right.GetOptions(pair.Left);
-                if (!options.TryGetValue("build_metadata.AdditionalFiles.SourceItemGroup", out var group) ||
-                    !string.Equals(group, "ClientSDKGenerator", StringComparison.OrdinalIgnoreCase))
-                {
-                    return null;
-                }
-                options.TryGetValue("build_metadata.AdditionalFiles.ClientName", out var clientName);
-                options.TryGetValue("build_metadata.AdditionalFiles.Namespace", out var @namespace);
-                return new ClientSdkGeneratorConfig(clientName ?? "ClientSdk", pair.Left, @namespace);
+                return ClientSdkGeneratorConfig.Parse(options, pair.Left);
             })
             .Where(config => config is not null)
             .Select((config, _) => config!)
@@ -63,10 +56,10 @@ public sealed class ClientSdkGenerator : IIncrementalGenerator
     }
     
     private static void GenerateSdk(SourceProductionContext context,
-        ClientSdkGeneratorConfig config, Compilation compilation)
+        ClientSdkGeneratorConfig sdkConfiguration, Compilation compilation)
     {
-        var rootNamespace = config.Namespace ?? compilation.Assembly.Name;
-        var openApiSpecification = config.LoadOpenApiSpecification();
+        var rootNamespace = sdkConfiguration.Namespace ?? compilation.Assembly.Name;
+        var openApiSpecification = sdkConfiguration.LoadOpenApiSpecification();
         var openApiVersion = openApiSpecification.Version;
         var openApi = openApiSpecification.Document;
 
@@ -77,9 +70,11 @@ public sealed class ClientSdkGenerator : IIncrementalGenerator
         var validationExtensionsGenerator = new ValidationExtensionsGenerator(rootNamespace);
         validationExtensionsGenerator.GenerateClass().AddTo(context);
         
-        var requestBuilderGenerator = new RequestBuilderGenerator(openApiVersion, jsonValidationExceptionGenerator);
+        var requestBuilderGenerator = new RequestBuilderGenerator(openApiVersion,
+            sdkConfiguration,
+            jsonValidationExceptionGenerator);
         requestBuilderGenerator.Generate(rootNamespace).AddTo(context);
-        var clientGenerator = new ClientGenerator(config.ClientName, rootNamespace);
+        var clientGenerator = new ClientGenerator(sdkConfiguration.ClientName, rootNamespace);
         var pathsGenerator = clientGenerator.GetPathsGenerator();
 
         var schemaGenerator = SchemaGenerator.For(

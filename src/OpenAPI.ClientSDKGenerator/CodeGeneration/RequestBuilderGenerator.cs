@@ -6,6 +6,7 @@ namespace OpenAPI.ClientSDKGenerator.CodeGeneration;
 
 internal sealed class RequestBuilderGenerator(
     OpenApiSpecVersion openApiSpecVersion,
+    ClientSdkGeneratorConfig generatorConfig,
     JsonValidationExceptionGenerator jsonValidationExceptionGenerator)
 {
     internal SourceCode Generate(string @namespace) =>
@@ -59,7 +60,7 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
         return parser.Serialize(JsonNode.Parse(jsonValue));
     }
     
-    private ValidationLevel _validationLevel = ValidationLevel.Detailed;
+    private ValidationLevel _validationLevel = ValidationLevel.{{generatorConfig.ValidationLevel.ToString()}};
     private ValidationContext _validationContext = ValidationContext.ValidContext.UsingStack().UsingResults();
 
     private void Validate()
