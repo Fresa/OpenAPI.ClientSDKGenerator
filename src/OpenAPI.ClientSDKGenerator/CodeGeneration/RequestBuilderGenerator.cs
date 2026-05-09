@@ -38,7 +38,8 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
     }
 
     internal Task SendAsync(string pathTemplate, 
-        string httpMethod, 
+        string httpMethod,
+        HttpContent? content,
         CancellationToken cancellation = default)
     {
         Validate();
