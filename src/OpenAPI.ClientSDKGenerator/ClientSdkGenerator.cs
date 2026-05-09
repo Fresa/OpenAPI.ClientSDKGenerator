@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
+using Corvus.Json.CodeGeneration;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.OpenApi;
@@ -69,7 +70,9 @@ public sealed class ClientSdkGenerator : IIncrementalGenerator
         apiConfigurationGenerator.GenerateClass().AddTo(context);
         var validationExtensionsGenerator = new ValidationExtensionsGenerator(rootNamespace);
         validationExtensionsGenerator.GenerateClass().AddTo(context);
-        
+        var sequentialJsonEnumeratorsGenerator = new SequentialMediaTypesGenerator(rootNamespace);
+        sequentialJsonEnumeratorsGenerator.GenerateClasses().AddTo(context);
+
         var requestBuilderGenerator = new RequestBuilderGenerator(openApiVersion,
             sdkConfiguration,
             jsonValidationExceptionGenerator);
@@ -119,20 +122,26 @@ public sealed class ClientSdkGenerator : IIncrementalGenerator
 
                 
                 var methodGenerator = pathsGenerator.GetMethodGenerator(pathExpression, operationParameterGenerators.Values.ToArray());
-                var operationGenerator = new OperationGenerator(operation, operationParameterGenerators.Values);
-                methodGenerator.AddOperation(openApiOperation.Key, operationGenerator);
                 
                 var body = operation.RequestBody;
+                var requestBodyGenerator = RequestBodyGenerator.Empty;
                 if (body is not null)
                 {
                     var contentGenerators = body.GetContent().Select(pair =>
                     {
                         var mediaType = pair.Value;
                         var schemaReference = openApiOperationVisitor.GetSchemaReference(mediaType);
-                        return schemaReference;
+                        var typeDeclaration = schemaGenerator.Generate(schemaReference);
+                        return new RequestBodyContentGenerator(pair, typeDeclaration);
                     }).ToList();
+                    requestBodyGenerator = new RequestBodyGenerator(
+                        body,
+                        contentGenerators);
                 }
-
+                
+                var operationGenerator = new OperationGenerator(operation, operationParameterGenerators.Values, requestBodyGenerator);
+                methodGenerator.AddOperation(openApiOperation.Key, operationGenerator);
+                
                 var responses = operation.Responses ??
                                 throw new InvalidOperationException(
                                     $"No responses defined for operation at {openApiOperationVisitor.Pointer}");

@@ -69,6 +69,11 @@ internal sealed partial class {{className}}
     {
         return 
 $$"""
+#nullable enable
+using Corvus.Json;
+using System.Net.Http.Headers;
+using System.Text;
+
 namespace {{@namespace}};
 {{GenerateNestedClassStructure(nestedClassNames, () =>
 $$"""
@@ -97,19 +102,23 @@ $$""""
 internal sealed partial class {{className}}(RequestBuilder requestBuilder)
 {{{methodGenerator.Operations.AggregateToString(operation => 
 $$"""
-    internal Task {{operation.Key.Method.ToLower().ToPascalCase()}}Async(CancellationToken cancellation = default) =>
+    internal Task {{operation.Key.Method.ToLower().ToPascalCase()}}Async({{
+        (operation.Value.RequestBodyGenerator.HasBody ? "Content content, " : "")}}
+        CancellationToken cancellation = default) =>
         requestBuilder.SendAsync(
             "{{methodGenerator.PathExpression}}",
             "{{operation.Key.Method}}",
             cancellation);
-    
-""")}}
+            
+{{operation.Value.RequestBodyGenerator.GenerateClass().Indent(4)}}
+""".TrimEnd())}}
 }
 
 """;
     }
 )}}
 """, rootEntity)}}
+#nullable restore
 """;
     }
 
