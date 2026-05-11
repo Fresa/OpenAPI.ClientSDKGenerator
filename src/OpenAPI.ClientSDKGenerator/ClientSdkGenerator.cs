@@ -66,6 +66,8 @@ public sealed class ClientSdkGenerator : IIncrementalGenerator
 
         var jsonValidationExceptionGenerator = new JsonValidationExceptionGenerator(rootNamespace);
         jsonValidationExceptionGenerator.GenerateJsonValidationExceptionClass().AddTo(context);
+        var mediaTypeHeaderValueExtensionsGenerator = new MediaTypeHeaderValueExtensionsGenerator(rootNamespace);
+        mediaTypeHeaderValueExtensionsGenerator.GenerateClass().AddTo(context);
         var apiConfigurationGenerator = new SdkConfigurationGenerator(rootNamespace);
         apiConfigurationGenerator.GenerateClass().AddTo(context);
         var validationExtensionsGenerator = new ValidationExtensionsGenerator(rootNamespace);
