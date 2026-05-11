@@ -80,4 +80,6 @@ internal static class StringExtensions
                     .Prepend($"/// <{commentType}>")
                     .Append($"/// </{commentType}>")));
     }
+
+    internal static string PrependNewline(this string str) => "\n" + str;
 }

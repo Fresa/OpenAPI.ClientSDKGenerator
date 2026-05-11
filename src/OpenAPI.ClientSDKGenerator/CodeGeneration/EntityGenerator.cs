@@ -110,7 +110,10 @@ $$"""
             "{{operation.Key.Method}}",
             {{(operation.Value.RequestBodyGenerator.HasBody ? "content.Get()" : "null")}},
             cancellation);
-{{operation.Value.RequestBodyGenerator.GenerateClass().Indent(4)}}
+{{operation.Value.RequestBodyGenerator.GenerateClass()
+    .Indent(4)
+    .PrependNewline()
+    .TrimEnd()}}
 """)}}
 }
 

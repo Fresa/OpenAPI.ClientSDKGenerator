@@ -42,7 +42,7 @@ internal abstract class Content
     /// </summary>
     /// <param name="contentType">Content type</param>
     /// <param name="expectedContentType">Expected content type</param>
-    internal void EnsureExpectedContentType(MediaTypeHeaderValue contentType, MediaTypeHeaderValue expectedContentType)
+    protected void EnsureExpectedContentType(MediaTypeHeaderValue contentType, MediaTypeHeaderValue expectedContentType)
     {
         if (!contentType.IsSubset(expectedContentType))
         {
@@ -51,12 +51,10 @@ internal abstract class Content
     }
 
     internal abstract HttpContent Get();
-    
+
     internal abstract ValidationContext Validate(ValidationContext validationContext, ValidationLevel validationLevel);
-        
-{{{
-    _contentGenerators.AggregateToString(generator =>
-        generator.GenerateContentClass())}}}
+{{{_contentGenerators.AggregateToString(generator => 
+    generator.GenerateContentClass()).Indent(4)}}}
 }
 """;
     }

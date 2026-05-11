@@ -470,4 +470,123 @@ internal sealed partial class TestClient
 #nullable restore
 """");
     }
+
+    [Fact]
+    public void OperationWithRequestBody_GeneratesContentClassAndBodyParameter()
+    {
+        const string spec = """
+        {
+          "openapi": "3.0.0",
+          "info": { "title": "Test", "version": "1.0.0" },
+          "paths": {
+            "/items": {
+              "post": {
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": { "type": "object", "properties": { "name": { "type": "string" } } }
+                    }
+                  }
+                },
+                "responses": { "200": { "description": "OK" } }
+              }
+            }
+          }
+        }
+        """;
+
+        var compilation = ClientSdkGenerator.SetupFromContent(spec,
+            clientName: "TestClient",
+            @namespace: "Example",
+            cancellationToken: Cancellation,
+            diagnostics: out var diagnostics);
+
+        diagnostics.Should().BeEmpty();
+
+        var source = compilation.GetSource("TestClient.Items.g.cs", Cancellation);
+
+        source.Should().Be("""
+            #nullable enable
+            using Corvus.Json;
+            using System.Net.Http.Headers;
+            using System.Text;
+            
+            namespace Example;
+            internal sealed partial class TestClient
+            {
+                internal Items0 Items()
+                {
+                    var requestBuilder = new RequestBuilder(httpClient, _configuration);
+                    return new(requestBuilder);
+                }
+            
+                internal sealed partial class Items0(RequestBuilder requestBuilder)
+                {
+                    internal Task PostAsync(Content content, 
+                        CancellationToken cancellation = default) =>
+                        requestBuilder.SendAsync(
+                            "/items",
+                            "POST",
+                            content.Get(),
+                            cancellation);
+
+                    internal abstract class Content
+                    {
+                        internal abstract string? MediaType { get; }
+            
+                        /// <summary>
+                        /// Ensures that the specified content type matches the specification
+                        /// <exception cref="ArgumentOutOfRangeException">Thrown when the specified content type does not match the specification</exception>
+                        /// </summary>
+                        /// <param name="contentType">Content type</param>
+                        /// <param name="expectedContentType">Expected content type</param>
+                        protected void EnsureExpectedContentType(MediaTypeHeaderValue contentType, MediaTypeHeaderValue expectedContentType)
+                        {
+                            if (!contentType.IsSubset(expectedContentType))
+                            {
+                                throw new ArgumentOutOfRangeException($"Expected content type {contentType.MediaType} to be a subset of {expectedContentType.MediaType}");
+                            }
+                        }
+            
+                        internal abstract HttpContent Get();
+
+                        internal abstract ValidationContext Validate(ValidationContext validationContext, ValidationLevel validationLevel);
+            
+                        /// <summary>
+                        /// Response for content application/json
+                        /// </summary>
+                        internal sealed class ApplicationJson : Content
+                        {
+                            private Example.Paths.Items.Post.RequestBody.Content.ApplicationJson _content;
+
+                            /// <summary>
+                            /// Construct response for content application/json
+                            /// </summary>
+                            /// <param name="applicationJson">Content</param>
+                            public ApplicationJson(Example.Paths.Items.Post.RequestBody.Content.ApplicationJson applicationJson)
+                            {
+                                _content = applicationJson;
+                                MediaType = "application/json";
+                            }
+
+                            internal override string MediaType { get; }
+
+                            internal override HttpContent Get() =>
+                               new StringContent(
+                                   _content.Serialize(),
+                                   encoding: Encoding.UTF8,
+                                   mediaType: MediaType
+                               );    
+                            private const string ContentSchemaLocation = "#/paths/~1items/post/requestBody/content/application~1json/schema";
+                            /// <inheritdoc/>
+                            internal override ValidationContext Validate(ValidationContext validationContext, ValidationLevel validationLevel) =>
+                                _content.Validate(ContentSchemaLocation, true, validationContext, validationLevel);
+                        }
+                    }
+                }
+            }
+            #nullable restore
+            """);
+    }
 }
