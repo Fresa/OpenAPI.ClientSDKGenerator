@@ -10,7 +10,7 @@ public class EntityTests(ITestOutputHelper testOutputHelper)
     private CancellationToken Cancellation => TestContext.Current.CancellationToken;
 
     [Fact]
-    public void GivenAClientNameThatOverlapsWithARootEntity_WhenGeneratingAPI_TheOverlappingEntityShouldBeRenamed()
+    public void ClientNameThatOverlapsWithARootEntity_TheOverlappingEntityShouldBeRenamed()
     {
         const string spec = """
         {
@@ -41,6 +41,11 @@ public class EntityTests(ITestOutputHelper testOutputHelper)
         var source = compilation.GetSource("Pets.Pets.g.cs", Cancellation);
         source.Should().Be(
 """"
+#nullable enable
+using Corvus.Json;
+using System.Net.Http.Headers;
+using System.Text;
+
 namespace Example;
 internal sealed partial class Pets
 {
@@ -52,10 +57,12 @@ internal sealed partial class Pets
 
     internal sealed partial class Pets0(RequestBuilder requestBuilder)
     {
-        internal Task GetAsync(CancellationToken cancellation = default) =>
+        internal Task GetAsync(
+            CancellationToken cancellation = default) =>
             requestBuilder.SendAsync(
                 "/pets",
                 "GET",
+                null,
                 cancellation);
     }
 
@@ -81,13 +88,16 @@ internal sealed partial class Pets
 
     internal sealed partial class Pets1(RequestBuilder requestBuilder)
     {
-        internal Task GetAsync(CancellationToken cancellation = default) =>
+        internal Task GetAsync(
+            CancellationToken cancellation = default) =>
             requestBuilder.SendAsync(
                 "/pets/{petId}",
                 "GET",
+                null,
                 cancellation);
     }
 }
+#nullable restore
 """");
     }
 
@@ -116,6 +126,11 @@ internal sealed partial class Pets
 
         compilation.GetSource("TestClient.Foo.g.cs", Cancellation).Should().Be(
 """"
+#nullable enable
+using Corvus.Json;
+using System.Net.Http.Headers;
+using System.Text;
+
 namespace Example;
 internal sealed partial class TestClient
 {
@@ -127,17 +142,25 @@ internal sealed partial class TestClient
 
     internal sealed partial class Foo0(RequestBuilder requestBuilder)
     {
-        internal Task GetAsync(CancellationToken cancellation = default) =>
+        internal Task GetAsync(
+            CancellationToken cancellation = default) =>
             requestBuilder.SendAsync(
                 "/foo",
                 "GET",
+                null,
                 cancellation);
     }
 }
+#nullable restore
 """");
 
         compilation.GetSource("TestClient.Bar.g.cs", Cancellation).Should().Be(
 """"
+#nullable enable
+using Corvus.Json;
+using System.Net.Http.Headers;
+using System.Text;
+
 namespace Example;
 internal sealed partial class TestClient
 {
@@ -149,17 +172,25 @@ internal sealed partial class TestClient
 
     internal sealed partial class Bar0(RequestBuilder requestBuilder)
     {
-        internal Task GetAsync(CancellationToken cancellation = default) =>
+        internal Task GetAsync(
+            CancellationToken cancellation = default) =>
             requestBuilder.SendAsync(
                 "/bar",
                 "GET",
+                null,
                 cancellation);
     }
 }
+#nullable restore
 """");
 
         compilation.GetSource("TestClient.Baz.g.cs", Cancellation).Should().Be(
 """"
+#nullable enable
+using Corvus.Json;
+using System.Net.Http.Headers;
+using System.Text;
+
 namespace Example;
 internal sealed partial class TestClient
 {
@@ -171,13 +202,16 @@ internal sealed partial class TestClient
 
     internal sealed partial class Baz0(RequestBuilder requestBuilder)
     {
-        internal Task GetAsync(CancellationToken cancellation = default) =>
+        internal Task GetAsync(
+            CancellationToken cancellation = default) =>
             requestBuilder.SendAsync(
                 "/baz",
                 "GET",
+                null,
                 cancellation);
     }
 }
+#nullable restore
 """");
     }
 
@@ -211,6 +245,11 @@ internal sealed partial class TestClient
 
         compilation.GetSource("TestClient.Items.g.cs", Cancellation).Should().Be(
 """"
+#nullable enable
+using Corvus.Json;
+using System.Net.Http.Headers;
+using System.Text;
+
 namespace Example;
 internal sealed partial class TestClient
 {
@@ -236,25 +275,32 @@ internal sealed partial class TestClient
 
     internal sealed partial class Items1(RequestBuilder requestBuilder)
     {
-        internal Task GetAsync(CancellationToken cancellation = default) =>
+        internal Task GetAsync(
+            CancellationToken cancellation = default) =>
             requestBuilder.SendAsync(
                 "/items/{id}",
                 "GET",
+                null,
                 cancellation);
 
-        internal Task PutAsync(CancellationToken cancellation = default) =>
+        internal Task PutAsync(
+            CancellationToken cancellation = default) =>
             requestBuilder.SendAsync(
                 "/items/{id}",
                 "PUT",
+                null,
                 cancellation);
 
-        internal Task DeleteAsync(CancellationToken cancellation = default) =>
+        internal Task DeleteAsync(
+            CancellationToken cancellation = default) =>
             requestBuilder.SendAsync(
                 "/items/{id}",
                 "DELETE",
+                null,
                 cancellation);
     }
 }
+#nullable restore
 """");
     }
 
@@ -286,6 +332,11 @@ internal sealed partial class TestClient
 
         compilation.GetSource("TestClient.Parent.g.cs", Cancellation).Should().Be(
 """"
+#nullable enable
+using Corvus.Json;
+using System.Net.Http.Headers;
+using System.Text;
+
 namespace Example;
 internal sealed partial class TestClient
 {
@@ -313,10 +364,16 @@ internal sealed partial class TestClient
     {
     }
 }
+#nullable restore
 """");
 
         compilation.GetSource("TestClient.Parent.Child.g.cs", Cancellation).Should().Be(
 """"
+#nullable enable
+using Corvus.Json;
+using System.Net.Http.Headers;
+using System.Text;
+
 namespace Example;
 internal sealed partial class TestClient
 {
@@ -329,14 +386,17 @@ internal sealed partial class TestClient
 
         internal sealed partial class Child0(RequestBuilder requestBuilder)
         {
-            internal Task GetAsync(CancellationToken cancellation = default) =>
+            internal Task GetAsync(
+                CancellationToken cancellation = default) =>
                 requestBuilder.SendAsync(
                     "/parent/{id}/child",
                     "GET",
+                    null,
                     cancellation);
         }
     }
 }
+#nullable restore
 """");
     }
 
@@ -368,6 +428,11 @@ internal sealed partial class TestClient
 
         compilation.GetSource("TestClient.Items.g.cs", Cancellation).Should().Be(
 """"
+#nullable enable
+using Corvus.Json;
+using System.Net.Http.Headers;
+using System.Text;
+
 namespace Example;
 internal sealed partial class TestClient
 {
@@ -393,13 +458,16 @@ internal sealed partial class TestClient
 
     internal sealed partial class Items1(RequestBuilder requestBuilder)
     {
-        internal Task GetAsync(CancellationToken cancellation = default) =>
+        internal Task GetAsync(
+            CancellationToken cancellation = default) =>
             requestBuilder.SendAsync(
                 "/items/{id}",
                 "GET",
+                null,
                 cancellation);
     }
 }
+#nullable restore
 """");
     }
 }

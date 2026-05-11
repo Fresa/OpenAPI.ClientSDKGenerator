@@ -107,12 +107,11 @@ $$"""
         CancellationToken cancellation = default) =>
         requestBuilder.SendAsync(
             "{{methodGenerator.PathExpression}}",
-            "{{operation.Key.Method}}", 
+            "{{operation.Key.Method}}",
             {{(operation.Value.RequestBodyGenerator.HasBody ? "content.Get()" : "null")}},
             cancellation);
-            
 {{operation.Value.RequestBodyGenerator.GenerateClass().Indent(4)}}
-""".TrimEnd())}}
+""")}}
 }
 
 """;
