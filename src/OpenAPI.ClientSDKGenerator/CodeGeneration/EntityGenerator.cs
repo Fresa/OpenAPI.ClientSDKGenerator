@@ -103,13 +103,15 @@ internal sealed partial class {{className}}(RequestBuilder requestBuilder)
 {{{methodGenerator.Operations.AggregateToString(operation => 
 $$"""
     internal Task {{operation.Key.Method.ToLower().ToPascalCase()}}Async({{
-        (operation.Value.RequestBodyGenerator.HasBody ? "Content content, " : "")}}
+        (operation.Value.RequestBodyGenerator.HasBody ? "Content content, " : "")}}{{
+        (operation.Value.QueryGenerator.IsEmpty ? "" : $"{operation.Value.QueryGenerator.ClassName}{(operation.Value.QueryGenerator.IsOptional ? "?" : "")} query{(operation.Value.QueryGenerator.IsOptional ? " = null" : "")},")}}
         CancellationToken cancellation = default) =>
-        requestBuilder.SendAsync(
-            "{{methodGenerator.PathExpression}}",
-            "{{operation.Key.Method}}",
-            {{(operation.Value.RequestBodyGenerator.HasBody ? "content.Get()" : "null")}},
-            cancellation);
+        {{(operation.Value.QueryGenerator.IsEmpty ? "requestBuilder" : $"(query{(operation.Value.QueryGenerator.IsOptional ? " ?? new()" : "")}).AddTo(requestBuilder)")}}
+            .SendAsync(
+                "{{methodGenerator.PathExpression}}",
+                "{{operation.Key.Method}}",
+                {{(operation.Value.RequestBodyGenerator.HasBody ? "content.Get()" : "null")}},
+                cancellation);
 {{ new[] 
     { 
         operation.Value.RequestBodyGenerator.GenerateClass(),

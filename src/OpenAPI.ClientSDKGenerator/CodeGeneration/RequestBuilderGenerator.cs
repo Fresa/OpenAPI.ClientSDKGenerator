@@ -17,6 +17,7 @@ using Corvus.Json;
 using OpenAPI.ParameterStyleParsers;
 using System.Collections.Concurrent;
 using System.Net.Http;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace {{@namespace}};
@@ -42,11 +43,16 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
     internal void AddQuery<T>(
         string name,
         T? value,
+        bool isRequired,
         string schemaLocation, 
         string parameterSpecificationAsJson)
         where T : struct, IJsonValue<T>
     {
         var nonNullableValue = value ?? T.Undefined;
+        if (!isRequired && nonNullableValue.ValueKind == JsonValueKind.Undefined)
+        {
+            return;
+        }
         _validationContext = nonNullableValue.Validate(schemaLocation, true, _validationContext, _validationLevel);
         _queryParameters[name] = () => Serialize(nonNullableValue, parameterSpecificationAsJson);
     }
@@ -59,7 +65,12 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
         Validate();
         var path = _pathParameters.Aggregate(pathTemplate, (uri, parameter) => 
             uri.Replace("{" + parameter.Key + "}", parameter.Value()));
-        path += string.Join("&", _queryParameters.Values);
+        var query = string.Join("&", _queryParameters.Values);
+        if (query != string.Empty)
+        {
+            path += $"?{query}";
+        }
+        
         return httpClient.SendAsync(new HttpRequestMessage
         {
             Method = new HttpMethod(httpMethod),
@@ -85,7 +96,7 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
             return;
 
         var validationResult = _validationContext.Results.WithLocation(configuration.OpenApiSpecificationUri);
-        {{jsonValidationExceptionGenerator.CreateThrowJsonValidationExceptionInvocation("Response is not valid", "validationResult")}};
+        {{jsonValidationExceptionGenerator.CreateThrowJsonValidationExceptionInvocation("Request is not valid", "validationResult")}};
     }
 }
 #nullable restore

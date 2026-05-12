@@ -13,7 +13,9 @@ public class UpdateFooTests(FooApplicationFactory app) : FooTestSpecification, I
         await client.Foo_(1)
             .PutAsync(
                 new Foo.Foo.Foo1.Content.ApplicationJson(
-                    FooProperties.Create(name: "test")));
+                    FooProperties.Create(name: "test")),
+                cancellation: CancellationToken
+                );
         
         // result.StatusCode.Should().Be(HttpStatusCode.OK);
         // var responseContent = await result.Content.ReadAsJsonNodeAsync(CancellationToken);

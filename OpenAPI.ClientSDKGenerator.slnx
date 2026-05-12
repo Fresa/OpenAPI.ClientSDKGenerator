@@ -3,5 +3,4 @@
   <Project Path="tests/Example.OpenApi/Example.OpenApi.csproj" />
   <Project Path="tests/Example.OpenApi32.IntegrationTests/Example.OpenApi32.IntegrationTests.csproj" />
   <Project Path="tests/OpenAPI.ClientSDKGenerator.Tests/OpenAPI.ClientSDKGenerator.Tests.csproj" />
-  <Project Path="tests/OpenAPI.ClientSDKGenerator.UnitTests/OpenAPI.ClientSDKGenerator.UnitTests.csproj" />
 </Solution>
