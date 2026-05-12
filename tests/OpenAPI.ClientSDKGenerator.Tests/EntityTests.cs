@@ -653,7 +653,7 @@ internal sealed partial class TestClient
     {
         internal Task GetAsync(Query query,
             CancellationToken cancellation = default) =>
-            (query).AddTo(requestBuilder)
+            query.AddTo(requestBuilder)
                 .SendAsync(
                     "/items",
                     "GET",

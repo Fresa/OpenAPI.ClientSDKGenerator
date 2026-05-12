@@ -104,9 +104,9 @@ internal sealed partial class {{className}}(RequestBuilder requestBuilder)
 $$"""
     internal Task {{operation.Key.Method.ToLower().ToPascalCase()}}Async({{
         (operation.Value.RequestBodyGenerator.HasBody ? "Content content, " : "")}}{{
-        (operation.Value.QueryGenerator.IsEmpty ? "" : $"{operation.Value.QueryGenerator.ClassName}{(operation.Value.QueryGenerator.IsOptional ? "?" : "")} query{(operation.Value.QueryGenerator.IsOptional ? " = null" : "")},")}}
+        GetParameterArgumentExpression(operation.Value.QueryGenerator)}}
         CancellationToken cancellation = default) =>
-        {{(operation.Value.QueryGenerator.IsEmpty ? "requestBuilder" : $"(query{(operation.Value.QueryGenerator.IsOptional ? " ?? new()" : "")}).AddTo(requestBuilder)")}}
+        {{GetParameterBuilderMethod(operation.Value.QueryGenerator)}}
             .SendAsync(
                 "{{methodGenerator.PathExpression}}",
                 "{{operation.Key.Method}}",
@@ -139,4 +139,22 @@ $$"""
             $$"""
                   {{parameter.FullyQualifiedTypeName}} {{parameter.ParameterName.ToCamelCase()}},
               """).TrimEnd(',');
+
+    private static string GetParameterBuilderMethod(ParametersGenerator parametersGenerator) =>
+        parametersGenerator.IsEmpty
+            ? "requestBuilder"
+            : $"{(parametersGenerator.IsOptional ?
+                "(query ?? new())" : "query")}.AddTo(requestBuilder)";
+
+    private static string GetParameterArgumentExpression(ParametersGenerator parametersGenerator)
+    {
+        if (parametersGenerator.IsEmpty)
+        {
+            return string.Empty;
+        }
+
+        var terny = parametersGenerator.IsOptional ? "?" : string.Empty;
+        var defaultExpression = parametersGenerator.IsOptional ? " = null" : string.Empty;
+        return $"{parametersGenerator.ClassName}{terny} query{defaultExpression},"; 
+    }
 }
