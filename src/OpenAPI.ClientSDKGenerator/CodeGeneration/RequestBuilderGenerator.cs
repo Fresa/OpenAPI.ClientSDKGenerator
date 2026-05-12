@@ -12,6 +12,7 @@ internal sealed class RequestBuilderGenerator(
     internal SourceCode Generate(string @namespace) =>
         new("RequestBuilder.g.cs", 
 $$"""
+#nullable enable
 using Corvus.Json;
 using OpenAPI.ParameterStyleParsers;
 using System.Collections.Concurrent;
@@ -31,10 +32,23 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
         T value,
         string schemaLocation, 
         string parameterSpecificationAsJson)
-        where T : struct, IJsonValue
+        where T : struct, IJsonValue<T>
     {
         _validationContext = value.Validate(schemaLocation, true, _validationContext, _validationLevel);
         _pathParameters[name] = () => Serialize(value, parameterSpecificationAsJson);
+    }
+    
+    private readonly Dictionary<string, Func<string>> _queryParameters = new();
+    internal void AddQuery<T>(
+        string name,
+        T? value,
+        string schemaLocation, 
+        string parameterSpecificationAsJson)
+        where T : struct, IJsonValue<T>
+    {
+        var nonNullableValue = value ?? T.Undefined;
+        _validationContext = nonNullableValue.Validate(schemaLocation, true, _validationContext, _validationLevel);
+        _queryParameters[name] = () => Serialize(nonNullableValue, parameterSpecificationAsJson);
     }
 
     internal Task SendAsync(string pathTemplate, 
@@ -45,6 +59,7 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
         Validate();
         var path = _pathParameters.Aggregate(pathTemplate, (uri, parameter) => 
             uri.Replace("{" + parameter.Key + "}", parameter.Value()));
+        path += string.Join("&", _queryParameters.Values);
         return httpClient.SendAsync(new HttpRequestMessage
         {
             Method = new HttpMethod(httpMethod),
@@ -52,8 +67,8 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
         }, cancellation);
     }
     
-    private string Serialize<TValue>(TValue value, string parameterSpecificationAsJson)
-        where TValue : struct, IJsonValue
+    private string Serialize<T>(T value, string parameterSpecificationAsJson)
+        where T : struct, IJsonValue<T>
     {
         var parser = ParserCache.GetOrAdd(parameterSpecificationAsJson, 
             _ => ParameterValueParserFactory.OpenApi(ParameterValueParserVersion, parameterSpecificationAsJson));        
@@ -73,6 +88,7 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
         {{jsonValidationExceptionGenerator.CreateThrowJsonValidationExceptionInvocation("Response is not valid", "validationResult")}};
     }
 }
+#nullable restore
 """);
 
 }

@@ -29,9 +29,6 @@ internal partial class Operation
 
     internal partial Task<Response> HandleAsync(Request request, CancellationToken cancellationToken)
     {
-        _ = request.Query.Fee;
-        _ = request.Path.FooId;
-
         switch (request.TryMatchAcceptMediaType<Response.OK200>(out var matchedMediaType))
         {
             case false:

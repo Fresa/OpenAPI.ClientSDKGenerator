@@ -589,4 +589,102 @@ internal sealed partial class TestClient
             #nullable restore
             """);
     }
+
+    [Fact]
+    public void OperationWithQueryParameters_GeneratesQueryClassWithInitProperties()
+    {
+        const string spec = """
+        {
+          "openapi": "3.0.0",
+          "info": { "title": "Test", "version": "1.0.0" },
+          "paths": {
+            "/items": {
+              "get": {
+                "parameters": [
+                  { "name": "limit",  "in": "query", "required": true,  "schema": { "type": "integer" } },
+                  { "name": "filter", "in": "query", "required": false, "schema": { "type": "string"  } }
+                ],
+                "responses": { "200": { "description": "OK" } }
+              }
+            }
+          }
+        }
+        """;
+
+        var compilation = ClientSdkGenerator.SetupFromContent(spec,
+            clientName: "TestClient",
+            @namespace: "Example",
+            cancellationToken: Cancellation,
+            diagnostics: out var diagnostics);
+
+        diagnostics.Should().BeEmpty();
+
+        var source = compilation.GetSource("TestClient.Items.g.cs", Cancellation);
+        testOutputHelper.WriteLine(source);
+
+        source.Should().Be(
+""""
+#nullable enable
+using Corvus.Json;
+using System.Net.Http.Headers;
+using System.Text;
+
+namespace Example;
+internal sealed partial class TestClient
+{
+    internal Items0 Items()
+    {
+        var requestBuilder = new RequestBuilder(httpClient, _configuration);
+        return new(requestBuilder);
+    }
+
+    internal sealed partial class Items0(RequestBuilder requestBuilder)
+    {
+        internal Task GetAsync(
+            CancellationToken cancellation = default) =>
+            requestBuilder.SendAsync(
+                "/items",
+                "GET",
+                null,
+                cancellation);
+
+        internal sealed class Query
+        {
+            internal required Corvus.Json.JsonInteger Limit { get; init; }
+            internal Corvus.Json.JsonString? Filter { get; init; }
+
+            internal void AddTo(RequestBuilder requestBuilder)
+            {
+                requestBuilder.AddQuery("limit",
+                    Limit,
+                    "#/paths/~1items/get/parameters/0/schema",
+                    """
+                    {
+                      "name": "limit",
+                      "in": "query",
+                      "required": true,
+                      "schema": {
+                        "type": "integer"
+                      }
+                    }
+                    """);
+                requestBuilder.AddQuery("filter",
+                    Filter,
+                    "#/paths/~1items/get/parameters/1/schema",
+                    """
+                    {
+                      "name": "filter",
+                      "in": "query",
+                      "schema": {
+                        "type": "string"
+                      }
+                    }
+                    """);
+            }
+        }
+    }
+}
+#nullable restore
+"""");
+    }
 }

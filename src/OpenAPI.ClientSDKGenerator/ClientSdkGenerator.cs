@@ -141,7 +141,7 @@ public sealed class ClientSdkGenerator : IIncrementalGenerator
                         contentGenerators);
                 }
                 
-                var operationGenerator = new OperationGenerator(operation, operationParameterGenerators.Values, requestBodyGenerator);
+                var operationGenerator = new OperationGenerator(operation, operationParameterGenerators.Values.ToArray(), requestBodyGenerator);
                 methodGenerator.AddOperation(openApiOperation.Key, operationGenerator);
                 
                 var responses = operation.Responses ??
