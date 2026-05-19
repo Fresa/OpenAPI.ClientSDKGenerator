@@ -27,7 +27,7 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
     private static readonly ConcurrentDictionary<string, IParameterValueParser> ParserCache = new();
     private const string ParameterValueParserVersion = "{{openApiSpecVersion.GetParameterVersion()}}";
     
-    private readonly Dictionary<string, Func<string>> _pathParameters = new();
+    private readonly Dictionary<string, Func<string?>> _pathParameters = new();
     internal void AddPathParameter<T>(
         string name, 
         T value,
@@ -39,7 +39,7 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
         _pathParameters[name] = () => Serialize(value, parameterSpecificationAsJson);
     }
     
-    private readonly Dictionary<string, Func<string>> _queryParameters = new();
+    private readonly Dictionary<string, Func<string?>> _queryParameters = new();
     internal void AddQuery<T>(
         string name,
         T? value,
@@ -53,7 +53,7 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
         _queryParameters[name] = () => Serialize(nonNullableValue, parameterSpecificationAsJson);
     }
     
-    private readonly Dictionary<string, Func<string>> _headerParameters = new();
+    private readonly Dictionary<string, Func<string?>> _headerParameters = new();
     internal void AddHeader<T>(
         string name,
         T? value,
@@ -93,7 +93,7 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
         return httpClient.SendAsync(message, cancellation);
     }
     
-    private string Serialize<T>(T value, string parameterSpecificationAsJson)
+    private string? Serialize<T>(T value, string parameterSpecificationAsJson)
         where T : struct, IJsonValue<T>
     {
         var parser = ParserCache.GetOrAdd(parameterSpecificationAsJson, 
