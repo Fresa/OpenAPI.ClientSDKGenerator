@@ -1,3 +1,4 @@
+using Corvus.Json;
 using Example.Foo.Components.Schemas;
 
 namespace Example.OpenApi32.IntegrationTests;
@@ -12,10 +13,13 @@ public class UpdateFooTests(FooApplicationFactory app) : FooTestSpecification, I
         var client = new Foo.Foo(httpClient);
         await client.Foo_(1)
             .PutAsync(
-                new Foo.Foo.Foo1.Content.ApplicationJson(
+                content: new Foo.Foo.Foo1.Content.ApplicationJson(
                     FooProperties.Create(name: "test")),
-                cancellation: CancellationToken
-                );
+                header: new Foo.Foo.Foo1.Header
+                {
+                    Bar = new JsonString("foo")
+                },
+                cancellation: CancellationToken);
         
         // result.StatusCode.Should().Be(HttpStatusCode.OK);
         // var responseContent = await result.Content.ReadAsJsonNodeAsync(CancellationToken);

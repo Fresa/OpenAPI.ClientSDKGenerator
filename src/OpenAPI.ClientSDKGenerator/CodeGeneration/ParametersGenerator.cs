@@ -42,7 +42,7 @@ $$"""
     internal RequestBuilder AddTo(RequestBuilder requestBuilder)
     {{{Parameters.AggregateToString(parameter =>
 $$""""
-        requestBuilder.Add{{className}}("{{parameter.ParameterName}}",
+        requestBuilder.Add{{className}}<{{parameter.FullyQualifiedTypeDeclarationIdentifier}}>("{{parameter.ParameterName}}",
             {{parameter.ParameterName.ToPascalCase()}},
             {{parameter.IsParameterRequired.ToString().ToLowerInvariant()}},
             "{{parameter.SchemaLocation}}",

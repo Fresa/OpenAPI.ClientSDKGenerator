@@ -104,18 +104,39 @@ internal sealed partial class {{className}}(RequestBuilder requestBuilder)
 $$"""
     internal Task {{operation.Key.Method.ToLower().ToPascalCase()}}Async({{
         (operation.Value.RequestBodyGenerator.HasBody ? "Content content, " : "")}}{{
-        GetParameterArgumentExpression(operation.Value.QueryGenerator)}}
-        CancellationToken cancellation = default) =>
-        {{GetParameterBuilderMethod(operation.Value.QueryGenerator)}}
+            new ParametersGenerator []
+            {
+                operation.Value.QueryGenerator,
+                operation.Value.HeadersGenerator
+            }.OrderBy(generator => generator.IsOptional)
+            .Select(GetParameterArgumentExpression)
+            .AggregateToString()
+            .Indent(8)
+            .TrimStart()
+        }}
+        CancellationToken cancellation = default)
+    {{{
+            new ParametersGenerator []
+            {
+                operation.Value.QueryGenerator,
+                operation.Value.HeadersGenerator
+            }
+            .Select(GetParameterBuilderMethod)
+            .AggregateToString()
+            .Indent(8)
+        }}
+        return requestBuilder
             .SendAsync(
                 "{{methodGenerator.PathExpression}}",
                 "{{operation.Key.Method}}",
                 {{(operation.Value.RequestBodyGenerator.HasBody ? "content.Get()" : "null")}},
                 cancellation);
+    }
 {{ new[] 
     { 
         operation.Value.RequestBodyGenerator.GenerateClass(),
-        operation.Value.QueryGenerator.GenerateClass() 
+        operation.Value.QueryGenerator.GenerateClass(), 
+        operation.Value.HeadersGenerator.GenerateClass()
     }
     .AggregateToString()
     .Trim()
@@ -142,9 +163,9 @@ $$"""
 
     private static string GetParameterBuilderMethod(ParametersGenerator parametersGenerator) =>
         parametersGenerator.IsEmpty
-            ? "requestBuilder"
+            ? string.Empty
             : $"{(parametersGenerator.IsOptional ?
-                "(query ?? new())" : "query")}.AddTo(requestBuilder)";
+                $"({parametersGenerator.ClassName.ToCamelCase()} ?? new())" : parametersGenerator.ClassName.ToCamelCase())}.AddTo(requestBuilder);";
 
     private static string GetParameterArgumentExpression(ParametersGenerator parametersGenerator)
     {
@@ -155,6 +176,6 @@ $$"""
 
         var terny = parametersGenerator.IsOptional ? "?" : string.Empty;
         var defaultExpression = parametersGenerator.IsOptional ? " = null" : string.Empty;
-        return $"{parametersGenerator.ClassName}{terny} query{defaultExpression},"; 
+        return $"{parametersGenerator.ClassName}{terny} {parametersGenerator.ClassName.ToCamelCase()}{defaultExpression},"; 
     }
 }

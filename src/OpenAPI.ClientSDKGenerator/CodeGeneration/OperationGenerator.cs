@@ -10,4 +10,5 @@ internal sealed class OperationGenerator(
     public OpenApiOperation Operation { get; } = operation;
     public RequestBodyGenerator RequestBodyGenerator { get; } = requestBodyGenerator;
     public QueryGenerator QueryGenerator { get; } = new(parameterGenerators);
+    public HeadersGenerator HeadersGenerator { get; } = new(parameterGenerators);
 }

@@ -56,6 +56,24 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
         _validationContext = nonNullableValue.Validate(schemaLocation, true, _validationContext, _validationLevel);
         _queryParameters[name] = () => Serialize(nonNullableValue, parameterSpecificationAsJson);
     }
+    
+    private readonly Dictionary<string, Func<string>> _headerParameters = new();
+    internal void AddHeader<T>(
+        string name,
+        T? value,
+        bool isRequired,
+        string schemaLocation, 
+        string parameterSpecificationAsJson)
+        where T : struct, IJsonValue<T>
+    {
+        var nonNullableValue = value ?? T.Undefined;
+        if (!isRequired && nonNullableValue.ValueKind == JsonValueKind.Undefined)
+        {
+            return;
+        }
+        _validationContext = nonNullableValue.Validate(schemaLocation, true, _validationContext, _validationLevel);
+        _headerParameters[name] = () => Serialize(nonNullableValue, parameterSpecificationAsJson);
+    }
 
     internal Task SendAsync(string pathTemplate, 
         string httpMethod,

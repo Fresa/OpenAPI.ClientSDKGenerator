@@ -58,13 +58,15 @@ internal sealed partial class Pets
     internal sealed partial class Pets0(RequestBuilder requestBuilder)
     {
         internal Task GetAsync(
-            CancellationToken cancellation = default) =>
-            requestBuilder
+            CancellationToken cancellation = default)
+        {
+            return requestBuilder
                 .SendAsync(
                     "/pets",
                     "GET",
                     null,
                     cancellation);
+        }
     }
 
     internal Pets1 Pets_(
@@ -90,13 +92,15 @@ internal sealed partial class Pets
     internal sealed partial class Pets1(RequestBuilder requestBuilder)
     {
         internal Task GetAsync(
-            CancellationToken cancellation = default) =>
-            requestBuilder
+            CancellationToken cancellation = default)
+        {
+            return requestBuilder
                 .SendAsync(
                     "/pets/{petId}",
                     "GET",
                     null,
                     cancellation);
+        }
     }
 }
 #nullable restore
@@ -145,13 +149,15 @@ internal sealed partial class TestClient
     internal sealed partial class Foo0(RequestBuilder requestBuilder)
     {
         internal Task GetAsync(
-            CancellationToken cancellation = default) =>
-            requestBuilder
+            CancellationToken cancellation = default)
+        {
+            return requestBuilder
                 .SendAsync(
                     "/foo",
                     "GET",
                     null,
                     cancellation);
+        }
     }
 }
 #nullable restore
@@ -176,13 +182,15 @@ internal sealed partial class TestClient
     internal sealed partial class Bar0(RequestBuilder requestBuilder)
     {
         internal Task GetAsync(
-            CancellationToken cancellation = default) =>
-            requestBuilder
+            CancellationToken cancellation = default)
+        {
+            return requestBuilder
                 .SendAsync(
                     "/bar",
                     "GET",
                     null,
                     cancellation);
+        }
     }
 }
 #nullable restore
@@ -207,13 +215,15 @@ internal sealed partial class TestClient
     internal sealed partial class Baz0(RequestBuilder requestBuilder)
     {
         internal Task GetAsync(
-            CancellationToken cancellation = default) =>
-            requestBuilder
+            CancellationToken cancellation = default)
+        {
+            return requestBuilder
                 .SendAsync(
                     "/baz",
                     "GET",
                     null,
                     cancellation);
+        }
     }
 }
 #nullable restore
@@ -281,31 +291,37 @@ internal sealed partial class TestClient
     internal sealed partial class Items1(RequestBuilder requestBuilder)
     {
         internal Task GetAsync(
-            CancellationToken cancellation = default) =>
-            requestBuilder
+            CancellationToken cancellation = default)
+        {
+            return requestBuilder
                 .SendAsync(
                     "/items/{id}",
                     "GET",
                     null,
                     cancellation);
+        }
 
         internal Task PutAsync(
-            CancellationToken cancellation = default) =>
-            requestBuilder
+            CancellationToken cancellation = default)
+        {
+            return requestBuilder
                 .SendAsync(
                     "/items/{id}",
                     "PUT",
                     null,
                     cancellation);
+        }
 
         internal Task DeleteAsync(
-            CancellationToken cancellation = default) =>
-            requestBuilder
+            CancellationToken cancellation = default)
+        {
+            return requestBuilder
                 .SendAsync(
                     "/items/{id}",
                     "DELETE",
                     null,
                     cancellation);
+        }
     }
 }
 #nullable restore
@@ -395,13 +411,15 @@ internal sealed partial class TestClient
         internal sealed partial class Child0(RequestBuilder requestBuilder)
         {
             internal Task GetAsync(
-                CancellationToken cancellation = default) =>
-                requestBuilder
+                CancellationToken cancellation = default)
+            {
+                return requestBuilder
                     .SendAsync(
                         "/parent/{id}/child",
                         "GET",
                         null,
                         cancellation);
+            }
         }
     }
 }
@@ -468,13 +486,15 @@ internal sealed partial class TestClient
     internal sealed partial class Items1(RequestBuilder requestBuilder)
     {
         internal Task GetAsync(
-            CancellationToken cancellation = default) =>
-            requestBuilder
+            CancellationToken cancellation = default)
+        {
+            return requestBuilder
                 .SendAsync(
                     "/items/{id}",
                     "GET",
                     null,
                     cancellation);
+        }
     }
 }
 #nullable restore
@@ -534,13 +554,15 @@ internal sealed partial class TestClient
                 internal sealed partial class Items0(RequestBuilder requestBuilder)
                 {
                     internal Task PostAsync(Content content, 
-                        CancellationToken cancellation = default) =>
-                        requestBuilder
+                        CancellationToken cancellation = default)
+                    {
+                        return requestBuilder
                             .SendAsync(
                                 "/items",
                                 "POST",
                                 content.Get(),
                                 cancellation);
+                    }
 
                     internal abstract class Content
                     {
@@ -652,13 +674,16 @@ internal sealed partial class TestClient
     internal sealed partial class Items0(RequestBuilder requestBuilder)
     {
         internal Task GetAsync(Query query,
-            CancellationToken cancellation = default) =>
-            query.AddTo(requestBuilder)
+            CancellationToken cancellation = default)
+        {
+            query.AddTo(requestBuilder);
+            return requestBuilder
                 .SendAsync(
                     "/items",
                     "GET",
                     null,
                     cancellation);
+        }
 
         internal sealed class Query
         {
@@ -667,7 +692,7 @@ internal sealed partial class TestClient
 
             internal RequestBuilder AddTo(RequestBuilder requestBuilder)
             {
-                requestBuilder.AddQuery("limit",
+                requestBuilder.AddQuery<Corvus.Json.JsonInteger>("limit",
                     Limit,
                     true,
                     "#/paths/~1items/get/parameters/0/schema",
@@ -681,7 +706,7 @@ internal sealed partial class TestClient
                       }
                     }
                     """);
-                requestBuilder.AddQuery("filter",
+                requestBuilder.AddQuery<Corvus.Json.JsonString>("filter",
                     Filter,
                     false,
                     "#/paths/~1items/get/parameters/1/schema",

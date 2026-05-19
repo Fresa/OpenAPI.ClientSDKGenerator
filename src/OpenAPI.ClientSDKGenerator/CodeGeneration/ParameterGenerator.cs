@@ -14,7 +14,7 @@ internal sealed class ParameterGenerator(
     internal string FullyQualifiedTypeName =>
         $"{FullyQualifiedTypeDeclarationIdentifier}{(parameter.Required ? "" : "?")}";
 
-    private string FullyQualifiedTypeDeclarationIdentifier => typeDeclaration.FullyQualifiedDotnetTypeName();
+    internal string FullyQualifiedTypeDeclarationIdentifier => typeDeclaration.FullyQualifiedDotnetTypeName();
 
     internal string ParameterName { get; } = parameter.GetName();
     internal bool IsParameterRequired { get; } = parameter.Required;
