@@ -89,11 +89,16 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
             path += $"?{query}";
         }
         
-        return httpClient.SendAsync(new HttpRequestMessage
+        var message = new HttpRequestMessage
         {
             Method = new HttpMethod(httpMethod),
             RequestUri = new Uri(path, UriKind.Relative) 
-        }, cancellation);
+        };
+        foreach (var header in _headerParameters)
+        {
+            message.Headers.Add(header.Key, header.Value());
+        }
+        return httpClient.SendAsync(message, cancellation);
     }
     
     private string Serialize<T>(T value, string parameterSpecificationAsJson)
