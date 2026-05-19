@@ -49,11 +49,7 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
         where T : struct, IJsonValue<T>
     {
         var nonNullableValue = value ?? T.Undefined;
-        if (!isRequired && nonNullableValue.ValueKind == JsonValueKind.Undefined)
-        {
-            return;
-        }
-        _validationContext = nonNullableValue.Validate(schemaLocation, true, _validationContext, _validationLevel);
+        _validationContext = nonNullableValue.Validate(schemaLocation, isRequired, _validationContext, _validationLevel);
         _queryParameters[name] = () => Serialize(nonNullableValue, parameterSpecificationAsJson);
     }
     
@@ -67,11 +63,7 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
         where T : struct, IJsonValue<T>
     {
         var nonNullableValue = value ?? T.Undefined;
-        if (!isRequired && nonNullableValue.ValueKind == JsonValueKind.Undefined)
-        {
-            return;
-        }
-        _validationContext = nonNullableValue.Validate(schemaLocation, true, _validationContext, _validationLevel);
+        _validationContext = nonNullableValue.Validate(schemaLocation, isRequired, _validationContext, _validationLevel);
         _headerParameters[name] = () => Serialize(nonNullableValue, parameterSpecificationAsJson);
     }
 
