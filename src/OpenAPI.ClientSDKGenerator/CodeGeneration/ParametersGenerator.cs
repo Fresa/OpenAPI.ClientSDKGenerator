@@ -4,15 +4,27 @@ using OpenAPI.ClientSDKGenerator.Extensions;
 
 namespace OpenAPI.ClientSDKGenerator.CodeGeneration;
 
-internal abstract class ParametersGenerator(ParameterGenerator[] parameters)
+internal abstract class ParametersGenerator
 {
-    internal bool IsEmpty { get; } = parameters.Length == 0;
-    internal string ClassName => IsEmpty ? string.Empty : parameters[0].Location.GetDisplayName().ToPascalCase();
-    internal bool IsOptional { get; } = parameters.All(generator => !generator.IsParameterRequired);
+    protected ParametersGenerator(ParameterGenerator[] parameters)
+    {
+        Parameters = parameters.Where(generator => 
+                generator.Location == Location)
+            .ToArray();
+        IsEmpty = Parameters.Length == 0;
+        IsOptional = Parameters.All(generator => !generator.IsParameterRequired);
+    }
+
+    protected abstract ParameterLocation Location { get; }
+    private ParameterGenerator[] Parameters { get; }
+    
+    internal bool IsEmpty { get; }
+    internal string ClassName => Location.GetDisplayName().ToPascalCase();
+    internal bool IsOptional { get; }
 
     internal string GenerateClass()
     {
-        if (parameters.Length == 0)
+        if (Parameters.Length == 0)
         {
             return string.Empty;
         }
@@ -22,13 +34,13 @@ internal abstract class ParametersGenerator(ParameterGenerator[] parameters)
         return
 $$""""
 internal sealed class {{className}}
-{{{parameters.AggregateToString(parameter =>
+{{{Parameters.AggregateToString(parameter =>
 $$"""
     internal {{(parameter.IsParameterRequired ? "required " : "")}}{{parameter.FullyQualifiedTypeName}} {{parameter.ParameterName.ToPascalCase()}} { get; init; }
 """)}}
 
     internal RequestBuilder AddTo(RequestBuilder requestBuilder)
-    {{{parameters.AggregateToString(parameter =>
+    {{{Parameters.AggregateToString(parameter =>
 $$""""
         requestBuilder.Add{{className}}("{{parameter.ParameterName}}",
             {{parameter.ParameterName.ToPascalCase()}},
