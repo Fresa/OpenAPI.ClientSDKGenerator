@@ -587,14 +587,14 @@ internal sealed partial class TestClient
                         internal abstract ValidationContext Validate(ValidationContext validationContext, ValidationLevel validationLevel);
             
                         /// <summary>
-                        /// Response for content application/json
+                        /// Request for content application/json
                         /// </summary>
                         internal sealed class ApplicationJson : Content
                         {
                             private Example.Paths.Items.Post.RequestBody.Content.ApplicationJson _content;
 
                             /// <summary>
-                            /// Construct response for content application/json
+                            /// Construct request for content application/json
                             /// </summary>
                             /// <param name="applicationJson">Content</param>
                             public ApplicationJson(Example.Paths.Items.Post.RequestBody.Content.ApplicationJson applicationJson)

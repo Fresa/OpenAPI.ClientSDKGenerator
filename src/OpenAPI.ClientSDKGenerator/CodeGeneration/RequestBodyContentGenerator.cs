@@ -119,14 +119,14 @@ $"""
 
 $$"""
 /// <summary>
-/// Response for content {{ContentType}}
+/// Request for content {{ContentType}}
 /// </summary>
 internal sealed class {{ClassName}} : Content
 {
     private {{_typeDeclaration.FullyQualifiedDotnetTypeName()}} _content;
     
     /// <summary>
-    /// Construct response for content {{ContentType}}
+    /// Construct request for content {{ContentType}}
     /// </summary>
     /// <param name="{{_contentVariableName}}">Content</param>{{(_isContentTypeRange ? 
 $"""
