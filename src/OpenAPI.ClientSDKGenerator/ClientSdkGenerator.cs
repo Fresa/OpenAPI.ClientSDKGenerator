@@ -161,7 +161,8 @@ public sealed class ClientSdkGenerator : IIncrementalGenerator
                     {
                         var contentMediaType = mediaContent.Value;
                         var contentSchemaReference = openApiResponseVisitor.GetSchemaReference(contentMediaType);
-                        return contentSchemaReference;
+                        var typeDeclaration = schemaGenerator.Generate(contentSchemaReference);
+                        return new ResponseBodyContentGenerator(mediaContent, typeDeclaration);
                     }).ToList();
 
                     var responseHeaderGenerators = response.Headers?.Select(valuePair =>
@@ -172,11 +173,16 @@ public sealed class ClientSdkGenerator : IIncrementalGenerator
                         return responseHeaderSchema;
                     }).ToList() ?? [];
 
-                    return responseHeaderGenerators;
+                    return new ResponseContentGenerator(
+                        content,
+                        responseBodyGenerators);
                 }).ToList();
                 
+                var responseGenerator = new ResponseGenerator(
+                    responseBodyGenerators);
+                responseGenerator.GenerateResponseClass(operationNamespace, operationDirectory)
+                    .AddTo(context);
                 operations.Add((operationNamespace, openApiOperation));
-
             }
         }
 
