@@ -148,35 +148,37 @@ public sealed class ClientSdkGenerator : IIncrementalGenerator
                                 throw new InvalidOperationException(
                                     $"No responses defined for operation at {openApiOperationVisitor.Pointer}");
                 var responseBodyGenerators = responses.Select(content =>
-                {
-                    var response = content.Value;
-                    var openApiResponseVisitor = openApiOperationVisitor.Visit(response);
-                    
-                    var responseContent =
-                        // OpenAPI.NET is incorrectly adding content where there is none defined. 
-                        // No content definition means NO content.
-                        response.Content?.Where(responseContent => 
-                            openApiResponseVisitor.HasContent(responseContent.Value)) ?? [];
-                    var responseBodyGenerators = responseContent.Select(mediaContent =>
                     {
-                        var contentMediaType = mediaContent.Value;
-                        var contentSchemaReference = openApiResponseVisitor.GetSchemaReference(contentMediaType);
-                        var typeDeclaration = schemaGenerator.Generate(contentSchemaReference);
-                        return new ResponseBodyContentGenerator(mediaContent, typeDeclaration);
-                    }).ToList();
+                        var response = content.Value;
+                        var openApiResponseVisitor = openApiOperationVisitor.Visit(response);
 
-                    var responseHeaderGenerators = response.Headers?.Select(valuePair =>
-                    {
-                        var name = valuePair.Key;
-                        var header = valuePair.Value;
-                        var responseHeaderSchema = openApiResponseVisitor.GetSchemaReference(header);
-                        return responseHeaderSchema;
-                    }).ToList() ?? [];
+                        var responseContent =
+                            // OpenAPI.NET is incorrectly adding content where there is none defined. 
+                            // No content definition means NO content.
+                            response.Content?.Where(responseContent =>
+                                openApiResponseVisitor.HasContent(responseContent.Value)) ?? [];
+                        var responseBodyGenerators = responseContent.Select(mediaContent =>
+                        {
+                            var contentMediaType = mediaContent.Value;
+                            var contentSchemaReference = openApiResponseVisitor.GetSchemaReference(contentMediaType);
+                            var typeDeclaration = schemaGenerator.Generate(contentSchemaReference);
+                            return new ResponseBodyContentGenerator(mediaContent, typeDeclaration);
+                        }).ToList();
 
-                    return new ResponseContentGenerator(
-                        content,
-                        responseBodyGenerators);
-                }).ToList();
+                        var responseHeaderGenerators = response.Headers?.Select(valuePair =>
+                        {
+                            var name = valuePair.Key;
+                            var header = valuePair.Value;
+                            var responseHeaderSchema = openApiResponseVisitor.GetSchemaReference(header);
+                            return responseHeaderSchema;
+                        }).ToList() ?? [];
+
+                        return new ResponseContentGenerator(
+                            content,
+                            responseBodyGenerators);
+                    })
+                    .OrderBy(generator => generator.Precedence)
+                    .ToList();
                 
                 var responseGenerator = new ResponseGenerator(
                     responseBodyGenerators);
