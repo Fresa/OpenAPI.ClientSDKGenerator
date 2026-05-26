@@ -77,15 +77,22 @@ internal abstract class {{{_responseClassName}}} : Response
     {
         internal Corvus.Json.JsonAny Content { get; }
         
-        /// <summary>
-        /// Construct response for unknown content
-        /// </summary>
-        /// <param name="content">Content</param>
-        /// <param name="response">Response message</param>
-        internal Unknown(JsonElement content, HttpResponseMessage response)
+        private Unknown(JsonElement content, HttpResponseMessage response)
         {
             Content = Corvus.Json.JsonAny.FromJson(content);
             StatusCode = response.StatusCode;
+        }
+        
+        /// <summary>
+        /// Construct response for content {{_contentType}}
+        /// </summary>
+        /// <param name="response">Response message</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        internal static async Task<{{{_responseClassName}}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+        {
+            var content = await Response.ReadJsonAsync(response, cancellationToken)
+                .ConfigureAwait(false);
+            return new Unknown(content, response);
         }
         
         internal static MediaTypeHeaderValue MediaType { get; } = MediaTypeHeaderValue.Parse("*/*");
@@ -105,24 +112,23 @@ internal abstract class {{{_responseClassName}}} : Response
     /// </summary> 
     internal HttpStatusCode StatusCode { get; private set; }
 
-    /// <inheritdoc/>
-    internal static async Task<{{{_responseClassName}}}> BindAsync(HttpResponseMessage response, CancellationToken cancellation = default)
+    /// <summary>
+    /// Bind content from http response
+    /// </summary>
+    /// <param name="response">Http response message to bind from</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>An awaitable task for the response content</returns>
+    internal static Task<{{{_responseClassName}}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
     {
-        var stream = await response.Content.ReadAsStreamAsync(cancellation)
-            .ConfigureAwait(false);
-        var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellation)
-            .ConfigureAwait(false);
-        var content = document.RootElement.Clone();
-        
         var contentType = response.Content.Headers.ContentType;
         return contentType switch
         {
-            null => new Unknown(content, response),{{{_contentGenerators.AggregateToString(generator => 
+            null => Unknown.BindAsync(response, cancellationToken),{{{_contentGenerators.AggregateToString(generator => 
 $"""
-            _ when contentType.IsSubset({generator.ClassName}.MediaType) => new {generator.ClassName}(content, response),
+            _ when contentType.IsSubset({generator.ClassName}.MediaType) => {generator.ClassName}.BindAsync(response, cancellationToken),
 """)
 }}}
-            _ => new Unknown(content, response)
+            _ => Unknown.BindAsync(response, cancellationToken)
         };
     }
     

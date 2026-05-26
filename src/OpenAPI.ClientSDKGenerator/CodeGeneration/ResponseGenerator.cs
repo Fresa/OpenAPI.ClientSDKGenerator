@@ -42,6 +42,20 @@ $$"""
     /// <param name="validationLevel">Validation level</param>
     /// <returns>The validation result</returns>
     internal abstract ValidationContext Validate(ValidationLevel validationLevel);
+        
+    /// <summary>
+    /// Read response content as json
+    /// </summary>
+    /// <param name="response">Response message</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    protected static async Task<JsonElement> ReadJsonAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+    {
+        var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
+            .ConfigureAwait(false);
+        var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+        return document.RootElement.Clone();
+    }
     {{
     responseBodyGenerators.AggregateToString(generator => 
         generator.GenerateResponseContentClass()).Indent(4)

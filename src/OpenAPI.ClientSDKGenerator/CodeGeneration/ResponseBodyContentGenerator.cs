@@ -44,7 +44,25 @@ $$"""
 /// </summary>
 internal sealed class {{ClassName}} : {{responseClassName}}
 {
-    private readonly {{ClassName}}Reader<{{_typeDeclaration.FullyQualifiedDotnetTypeName()}}> _content;
+    internal {{ClassName}}Enumerable<{{_typeDeclaration.FullyQualifiedDotnetTypeName()}}> Content { get; }
+
+    private {{ClassName}}(Stream stream, HttpResponseMessage response)
+    {
+        Content = new(stream);
+        StatusCode = response.StatusCode;
+    }
+    
+    /// <summary>
+    /// Construct response for content {{_contentType}}
+    /// </summary>
+    /// <param name="response">Response message</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    internal static async Task<{{responseClassName}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+    {
+        var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
+            .ConfigureAwait(false);
+        return new {{ClassName}}(stream, response);
+    }
     
     internal static MediaTypeHeaderValue MediaType { get; } = MediaTypeHeaderValue.Parse("{{_contentType}}");
     
@@ -53,7 +71,7 @@ internal sealed class {{ClassName}} : {{responseClassName}}
     internal override ValidationContext Validate(ValidationLevel validationLevel)
     {
         var validationContext = base.Validate(validationLevel);
-        return _content.Validate(ContentSchemaLocation, true, validationContext, validationLevel);
+        return Content.Validate(ContentSchemaLocation, true, validationContext, validationLevel);
     }
 }                              
 """ :
@@ -67,15 +85,22 @@ internal sealed class {{ClassName}} : {{responseClassName}}
 {
     internal {{_typeDeclaration.FullyQualifiedDotnetTypeName()}} Content { get; }
     
-    /// <summary>
-    /// Construct response for content {{_contentType}}
-    /// </summary>
-    /// <param name="content">Content</param>
-    /// <param name="response">Response message</param>
-    internal {{ClassName}}(JsonElement content, HttpResponseMessage response)
+    private {{ClassName}}(JsonElement content, HttpResponseMessage response)
     {
         Content = {{_typeDeclaration.FullyQualifiedDotnetTypeName()}}.FromJson(content);
         StatusCode = response.StatusCode;
+    }
+    
+    /// <summary>
+    /// Construct response for content {{_contentType}}
+    /// </summary>
+    /// <param name="response">Response message</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    internal static async Task<{{responseClassName}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+    {
+        var content = await Response.ReadJsonAsync(response, cancellationToken)
+            .ConfigureAwait(false);
+        return new {{ClassName}}(content, response);
     }
     
     internal static MediaTypeHeaderValue MediaType { get; } = MediaTypeHeaderValue.Parse("{{_contentType}}");

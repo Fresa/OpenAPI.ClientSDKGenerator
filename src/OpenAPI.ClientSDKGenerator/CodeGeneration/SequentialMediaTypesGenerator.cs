@@ -1,25 +1,7 @@
-﻿using System.Net.Http.Headers;
-using Corvus.Json.CodeGeneration;
-using Corvus.Json.CodeGeneration.CSharp;
-using OpenAPI.ClientSDKGenerator.Extensions;
-
-namespace OpenAPI.ClientSDKGenerator.CodeGeneration;
+﻿namespace OpenAPI.ClientSDKGenerator.CodeGeneration;
 
 internal sealed class SequentialMediaTypesGenerator(string @namespace)
 {
-    internal string GenerateConstructorInstance(
-        MediaTypeHeaderValue mediaType, 
-        TypeDeclaration itemTypeDeclaration,
-        string streamParameterReference) =>
-$"""
-new {GetFullyQualifiedTypeName(mediaType, itemTypeDeclaration)}({streamParameterReference})
-""";
-
-    internal string GetFullyQualifiedTypeName(
-        MediaTypeHeaderValue mediaType,
-        TypeDeclaration itemTypeDeclaration) =>
-        $"{@namespace}.{mediaType.MediaType.ToLower().ToPascalCase()}Enumerable<{itemTypeDeclaration.FullyQualifiedDotnetTypeName()}>";
-    
     internal SourceCode GenerateClasses() => new("SequentialMediaTypes.g.cs",
 $$"""
 #nullable enable
