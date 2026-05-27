@@ -1,14 +1,12 @@
-﻿using Microsoft.OpenApi;
-
-namespace OpenAPI.ClientSDKGenerator.CodeGeneration;
+﻿namespace OpenAPI.ClientSDKGenerator.CodeGeneration;
 
 internal sealed class OperationGenerator(
-    OpenApiOperation operation,
     ParameterGenerator[] parameterGenerators,
-    RequestBodyGenerator requestBodyGenerator)
+    RequestBodyGenerator requestBodyGenerator,
+    ResponseGenerator responseGenerator)
 {
-    public OpenApiOperation Operation { get; } = operation;
     public RequestBodyGenerator RequestBodyGenerator { get; } = requestBodyGenerator;
     public QueryGenerator QueryGenerator { get; } = new(parameterGenerators);
     public HeadersGenerator HeadersGenerator { get; } = new(parameterGenerators);
+    public ResponseGenerator ResponseGenerator { get; } = responseGenerator;
 }

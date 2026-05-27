@@ -8,23 +8,15 @@ internal sealed class ResponseGenerator(
     List<ResponseContentGenerator> responseBodyGenerators
     )
 {
-    public SourceCode GenerateResponseClass(string @namespace, string path)
+    public string GenerateClass(string operation)
     {
-        return new SourceCode($"{path}/Response.g.cs",
+        var className = $"{operation}Response";
+        return 
 $$"""
-#nullable enable
-using Corvus.Json;
-using System.Diagnostics.CodeAnalysis;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Text.Json;
-
-namespace {{@namespace}};
-
 /// <summary>
 /// Contains the operation's response objects
 /// </summary>
-internal abstract partial class Response
+internal abstract partial class {{className}}
 {{{Enumerable.Range(1, 5).AggregateToString(i => 
 $$"""
     /// <summary>
@@ -58,10 +50,9 @@ $$"""
     }
     {{
     responseBodyGenerators.AggregateToString(generator => 
-        generator.GenerateResponseContentClass()).Indent(4)
+        generator.GenerateResponseContentClass(className)).Indent(4)
     }}
 }
-#nullable restore
-""");
+""";
     }
 }

@@ -71,8 +71,11 @@ internal sealed partial class {{className}}
 $$"""
 #nullable enable
 using Corvus.Json;
+using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
 
 namespace {{@namespace}};
 {{GenerateNestedClassStructure(nestedClassNames, () =>
@@ -102,7 +105,7 @@ $$""""
 internal sealed partial class {{className}}(RequestBuilder requestBuilder)
 {{{methodGenerator.Operations.AggregateToString(operation => 
 $$"""
-    internal Task {{operation.Key.Method.ToLower().ToPascalCase()}}Async({{
+    internal async Task<{{operation.Key.Method.ToLower().ToPascalCase()}}Response> {{operation.Key.Method.ToLower().ToPascalCase()}}Async({{
         (operation.Value.RequestBodyGenerator.HasBody ? "Content content, " : "")}}{{
             new ParametersGenerator []
             {
@@ -125,18 +128,22 @@ $$"""
             .AggregateToString()
             .Indent(8)
         }}
-        return requestBuilder
+        var response = await requestBuilder
             .SendAsync(
                 "{{methodGenerator.PathExpression}}",
                 "{{operation.Key.Method}}",
                 {{(operation.Value.RequestBodyGenerator.HasBody ? "content.Get()" : "null")}},
-                cancellation);
+                cancellation)
+            .ConfigureAwait(false);
+        return await {{operation.Key.Method.ToLower().ToPascalCase()}}Response.BindAsync(response, cancellation)
+            .ConfigureAwait(false);
     }
 {{ new[] 
     { 
         operation.Value.RequestBodyGenerator.GenerateClass(),
         operation.Value.QueryGenerator.GenerateClass(), 
-        operation.Value.HeadersGenerator.GenerateClass()
+        operation.Value.HeadersGenerator.GenerateClass(),
+        operation.Value.ResponseGenerator.GenerateClass(operation.Key.Method.ToLower().ToPascalCase())
     }
     .AggregateToString()
     .Trim()

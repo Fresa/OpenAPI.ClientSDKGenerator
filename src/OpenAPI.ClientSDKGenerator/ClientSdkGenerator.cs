@@ -87,7 +87,6 @@ public sealed class ClientSdkGenerator : IIncrementalGenerator
 
         var openApiVisitor = OpenApiVisitor.ForSpecification(openApiSpecification);
 
-        var operations = new List<(string Namespace, KeyValuePair<HttpMethod, OpenApiOperation> Operation)>();
         foreach (var path in openApi.Paths)
         {
             var pathExpression = path.Key;
@@ -121,7 +120,6 @@ public sealed class ClientSdkGenerator : IIncrementalGenerator
                         new ParameterGenerator(openApiVersion, typeDeclaration,
                             parameter);
                 }
-
                 
                 var methodGenerator = pathsGenerator.GetMethodGenerator(pathExpression, operationParameterGenerators.Values.ToArray());
                 
@@ -140,9 +138,6 @@ public sealed class ClientSdkGenerator : IIncrementalGenerator
                         body,
                         contentGenerators);
                 }
-                
-                var operationGenerator = new OperationGenerator(operation, operationParameterGenerators.Values.ToArray(), requestBodyGenerator);
-                methodGenerator.AddOperation(openApiOperation.Key, operationGenerator);
                 
                 var responses = operation.Responses ??
                                 throw new InvalidOperationException(
@@ -182,9 +177,12 @@ public sealed class ClientSdkGenerator : IIncrementalGenerator
                 
                 var responseGenerator = new ResponseGenerator(
                     responseBodyGenerators);
-                responseGenerator.GenerateResponseClass(operationNamespace, operationDirectory)
-                    .AddTo(context);
-                operations.Add((operationNamespace, openApiOperation));
+                
+                var operationGenerator = new OperationGenerator(
+                    operationParameterGenerators.Values.ToArray(),
+                    requestBodyGenerator,
+                    responseGenerator);
+                methodGenerator.AddOperation(openApiOperation.Key, operationGenerator);
             }
         }
 

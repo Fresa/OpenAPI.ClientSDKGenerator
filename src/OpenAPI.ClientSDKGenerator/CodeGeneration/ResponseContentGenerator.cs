@@ -55,7 +55,7 @@ internal sealed class ResponseContentGenerator
         // _headerGenerators = headerGenerators;
     }
     
-    public string GenerateResponseContentClass()
+    public string GenerateResponseContentClass(string baseClassName)
     {
         // var anyHeaders = _headerGenerators.Any();
         // var anyRequiredHeader = _headerGenerators.Any(generator => generator.IsRequired);
@@ -64,7 +64,7 @@ internal sealed class ResponseContentGenerator
         return 
 $$$"""
 {{{_response.Description.AsComment("summary", "para")}}}
-internal abstract class {{{_responseClassName}}} : Response
+internal abstract class {{{_responseClassName}}} : {{{baseClassName}}}
 {{{{
     _contentGenerators.AggregateToString(generator =>
         generator.GenerateResponseClass(_responseClassName)).Indent(4)
@@ -88,9 +88,9 @@ internal abstract class {{{_responseClassName}}} : Response
         /// </summary>
         /// <param name="response">Response message</param>
         /// <param name="cancellationToken">Cancellation token</param>
-        internal static async Task<{{{_responseClassName}}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+        internal new static async Task<{{{_responseClassName}}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
         {
-            var content = await Response.ReadJsonAsync(response, cancellationToken)
+            var content = await {{{baseClassName}}}.ReadJsonAsync(response, cancellationToken)
                 .ConfigureAwait(false);
             return new Unknown(content, response);
         }

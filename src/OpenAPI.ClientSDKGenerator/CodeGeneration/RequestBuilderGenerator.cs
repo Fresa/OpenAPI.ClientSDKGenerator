@@ -67,7 +67,7 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
         _headerParameters[name] = () => Serialize(nonNullableValue, parameterSpecificationAsJson);
     }
 
-    internal Task SendAsync(string pathTemplate, 
+    internal Task<HttpResponseMessage> SendAsync(string pathTemplate, 
         string httpMethod,
         HttpContent? content,
         CancellationToken cancellation = default)

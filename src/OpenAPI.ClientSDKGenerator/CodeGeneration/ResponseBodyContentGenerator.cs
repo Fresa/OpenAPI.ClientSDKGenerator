@@ -57,7 +57,7 @@ internal sealed class {{ClassName}} : {{responseClassName}}
     /// </summary>
     /// <param name="response">Response message</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    internal static async Task<{{responseClassName}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+    internal new static async Task<{{responseClassName}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
     {
         var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
             .ConfigureAwait(false);
@@ -96,9 +96,9 @@ internal sealed class {{ClassName}} : {{responseClassName}}
     /// </summary>
     /// <param name="response">Response message</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    internal static async Task<{{responseClassName}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+    internal new static async Task<{{responseClassName}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
     {
-        var content = await Response.ReadJsonAsync(response, cancellationToken)
+        var content = await {{responseClassName}}.ReadJsonAsync(response, cancellationToken)
             .ConfigureAwait(false);
         return new {{ClassName}}(content, response);
     }
