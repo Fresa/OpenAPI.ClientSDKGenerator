@@ -11,7 +11,7 @@ internal sealed class ResponseContentGenerator
 {
     private readonly List<ResponseBodyContentGenerator> _contentGenerators = [];
     // private readonly List<ResponseHeaderGenerator> _headerGenerators = [];
-    private readonly string _responseClassName;
+    internal string ClassName { get; }
     private readonly string _responseStatusCodePattern;
     private readonly IOpenApiResponse _response;
     private readonly bool _hasExplicitStatusCode;
@@ -36,7 +36,7 @@ internal sealed class ResponseContentGenerator
         var responseClassName = $"{classNamePrefix}{responseStatusCodePattern}";
         
         _responseStatusCodePattern = responseStatusCodePattern;
-        _responseClassName = responseClassName;
+        ClassName = responseClassName;
         _response = response.Value;
         _hasExplicitStatusCode = int.TryParse(_responseStatusCodePattern, out _);
         _hasDefaultStatusCode = _responseStatusCodePattern == "default";
@@ -64,22 +64,22 @@ internal sealed class ResponseContentGenerator
         return 
 $$$"""
 {{{_response.Description.AsComment("summary", "para")}}}
-internal abstract class {{{_responseClassName}}} : {{{baseClassName}}}
+internal abstract class {{{ClassName}}} : {{{baseClassName}}}
 {{{{
     _contentGenerators.AggregateToString(generator =>
-        generator.GenerateResponseClass(_responseClassName)).Indent(4)
+        generator.GenerateResponseClass(ClassName, baseClassName)).Indent(4)
     }}}
     
     /// <summary>
     /// Response for unknown content
     /// </summary>
-    internal sealed class Unknown : {{{_responseClassName}}}
+    internal sealed class Unknown : {{{ClassName}}}
     {
-        internal Corvus.Json.JsonAny Content { get; }
+        internal Stream Content { get; }
         
-        private Unknown(JsonElement content, HttpResponseMessage response)
+        private Unknown(Stream content, HttpResponseMessage response)
         {
-            Content = Corvus.Json.JsonAny.FromJson(content);
+            Content = content;
             StatusCode = response.StatusCode;
         }
         
@@ -88,11 +88,12 @@ internal abstract class {{{_responseClassName}}} : {{{baseClassName}}}
         /// </summary>
         /// <param name="response">Response message</param>
         /// <param name="cancellationToken">Cancellation token</param>
-        internal new static async Task<{{{_responseClassName}}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+        internal new static async Task<{{{baseClassName}}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
         {
-            var content = await {{{baseClassName}}}.ReadJsonAsync(response, cancellationToken)
+            var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
                 .ConfigureAwait(false);
-            return new Unknown(content, response);
+            
+            return new Unknown(stream, response);
         }
         
         internal static MediaTypeHeaderValue MediaType { get; } = MediaTypeHeaderValue.Parse("*/*");
@@ -118,7 +119,7 @@ internal abstract class {{{_responseClassName}}} : {{{baseClassName}}}
     /// <param name="response">Http response message to bind from</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>An awaitable task for the response content</returns>
-    internal static Task<{{{_responseClassName}}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+    internal static Task<{{{baseClassName}}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
     {
         var contentType = response.Content.Headers.ContentType;
         return contentType switch

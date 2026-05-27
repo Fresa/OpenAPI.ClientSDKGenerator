@@ -60,6 +60,20 @@ $$"""
             .ConfigureAwait(false);
         return document.RootElement.Clone();
     }
+    
+    /// <summary>
+    /// Construct response
+    /// </summary>
+    /// <param name="response">Response message</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    internal static Task<{{className}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default) =>
+        response.StatusCode switch
+        {{{responseBodyGenerators.AggregateToString(generator => 
+$"""
+            _ when {generator.ClassName}.MatchesStatusCode(response.StatusCode) => {generator.ClassName}.BindAsync(response, cancellationToken),
+""")}}
+            _ => {{className}}.Unknown.BindAsync(response, cancellationToken)
+        };
     {{
     responseBodyGenerators.AggregateToString(generator =>
         generator.GenerateResponseContentClass(className)).Indent(4)
