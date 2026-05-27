@@ -74,6 +74,42 @@ $"""
 """)}}
             _ => {{className}}.Unknown.BindAsync(response, cancellationToken)
         };
+        
+    /// <summary>
+    /// Unknown response
+    /// </summary>
+    internal sealed class Unknown : {{className}}
+    {
+        internal Stream Content { get; }
+        
+        private Unknown(Stream content, HttpResponseMessage response)
+        {
+            Content = content;
+            StatusCode = response.StatusCode;
+        }
+        
+        /// <summary>
+        /// Construct unknown response
+        /// </summary>
+        /// <param name="response">Response message</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        internal new static async Task<{{className}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+        {
+            var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
+                .ConfigureAwait(false);
+            
+            return new Unknown(stream, response);
+        }
+        
+        /// <summary>
+        /// Response status code
+        /// </summary> 
+        internal HttpStatusCode StatusCode { get; private set; }
+        
+        /// <inheritdoc/>
+        internal override ValidationContext Validate(ValidationLevel validationLevel) =>
+            ValidationContext.ValidContext.UsingStack().UsingResults();
+    }
     {{
     responseBodyGenerators.AggregateToString(generator =>
         generator.GenerateResponseContentClass(className)).Indent(4)
