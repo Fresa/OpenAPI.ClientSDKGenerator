@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using OpenAPI.ClientSDKGenerator.Extensions;
 
@@ -36,49 +35,38 @@ internal sealed class EntityGenerator(string name)
         var childEntityChain = outerEntityNames.Append(_className).ToArray();
         foreach (var methodGenerator in _methodSignatures.Values)
         {
-            var parentClassName = _className + methodGenerator.Parameters.Length;
-            var childClassChain = outerClassNames.Append(parentClassName).ToArray();
+            var entityClassName = _className + methodGenerator.Parameters.Length;
+            var entityClassChain = outerClassNames.Append(entityClassName).ToArray();
+
+            foreach (var operation in methodGenerator.Operations)
+            {
+                var verb = operation.Key.Method.ToLower().ToPascalCase();
+                yield return operation.Value.ResponseGenerator.GenerateClass(
+                    @namespace,
+                    nestingClassNames: entityClassChain,
+                    className: $"{verb}Response");
+            }
+
             foreach (var source in methodGenerator.Children.Values
-                         .SelectMany(child => 
-                             child.Generate(@namespace, childEntityChain, childClassChain, rootEntity: false)))
+                         .SelectMany(child =>
+                             child.Generate(@namespace, childEntityChain, entityClassChain, rootEntity: false)))
             {
                 yield return source;
             }
         }
     }
 
-    private static string GenerateNestedClassStructure(IReadOnlyList<string> nestedClassNames, Func<string> content, bool isRoot = false)
-    {
-        if (nestedClassNames.Count == 0)
-        {
-            return content().Trim();
-        }
-
-        var className = nestedClassNames[0];
-        var inner = GenerateNestedClassStructure(nestedClassNames.Skip(1).ToArray(), content, isRoot);
-        return 
-$$"""
-internal sealed partial class {{className}}
-{
-{{inner.Indent(4)}}
-}
-""";
-    }
-    
     private string GenerateClass(string @namespace, IReadOnlyList<string> nestedClassNames, bool rootEntity = false)
     {
-        return 
+        return
 $$"""
 #nullable enable
 using Corvus.Json;
-using System.Diagnostics.CodeAnalysis;
-using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Text.Json;
 
 namespace {{@namespace}};
-{{GenerateNestedClassStructure(nestedClassNames, () =>
+{{NestedClassGenerator.Wrap(nestedClassNames, () =>
 $$"""
 {{_methodSignatures.Values.AggregateToString(methodGenerator =>
     {
@@ -142,8 +130,7 @@ $$"""
     { 
         operation.Value.RequestBodyGenerator.GenerateClass(),
         operation.Value.QueryGenerator.GenerateClass(), 
-        operation.Value.HeadersGenerator.GenerateClass(),
-        operation.Value.ResponseGenerator.GenerateClass(operation.Key.Method.ToLower().ToPascalCase())
+        operation.Value.HeadersGenerator.GenerateClass()
     }
     .AggregateToString()
     .Trim()
@@ -157,7 +144,7 @@ $$"""
 """;
     }
 )}}
-""", rootEntity)}}
+""")}}
 #nullable restore
 """;
     }

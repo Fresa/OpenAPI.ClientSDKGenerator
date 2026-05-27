@@ -8,16 +8,28 @@ internal sealed class ResponseGenerator(
     List<ResponseContentGenerator> responseBodyGenerators
     )
 {
-    public string GenerateClass(string operation)
+    public SourceCode GenerateClass(
+        string @namespace,
+        IReadOnlyList<string> nestingClassNames,
+        string className)
     {
-        var className = $"{operation}Response";
-        return 
+        return new SourceCode($"{string.Join(".", nestingClassNames)}.{className}.g.cs",
+$$"""
+#nullable enable
+using Corvus.Json;
+using System.Diagnostics.CodeAnalysis;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Text.Json;
+
+namespace {{@namespace}};
+{{NestedClassGenerator.Wrap(nestingClassNames, () =>
 $$"""
 /// <summary>
 /// Contains the operation's response objects
 /// </summary>
 internal abstract partial class {{className}}
-{{{Enumerable.Range(1, 5).AggregateToString(i => 
+{{{Enumerable.Range(1, 5).AggregateToString(i =>
 $$"""
     /// <summary>
     /// Check if status code is {{i}}xx
@@ -49,10 +61,12 @@ $$"""
         return document.RootElement.Clone();
     }
     {{
-    responseBodyGenerators.AggregateToString(generator => 
+    responseBodyGenerators.AggregateToString(generator =>
         generator.GenerateResponseContentClass(className)).Indent(4)
     }}
 }
-""";
+""")}}
+#nullable restore
+""");
     }
 }
