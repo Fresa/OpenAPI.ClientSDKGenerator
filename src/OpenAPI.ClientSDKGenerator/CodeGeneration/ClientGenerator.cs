@@ -10,6 +10,7 @@ internal sealed class ClientGenerator(string clientName, string @namespace)
     internal SourceCode Generate()
     {
         return new SourceCode($"{ClassName}.g.cs", $$"""
+#nullable enable
 using System.Net.Http;
 
 namespace {{Namespace}};
@@ -20,6 +21,7 @@ internal sealed partial class {{ClassName}}(
 {
     private ClientSdkConfiguration _configuration = configuration ?? new();
 }
+#nullable restore
 """);
     }
 
