@@ -94,7 +94,7 @@ internal sealed partial class {{className}}(RequestBuilder requestBuilder)
 {{{methodGenerator.Operations.AggregateToString(operation => 
 $$"""
     internal async Task<{{operation.Key.Method.ToLower().ToPascalCase()}}Response> {{operation.Key.Method.ToLower().ToPascalCase()}}Async({{
-        (operation.Value.RequestBodyGenerator.HasBody ? "Content content, " : "")}}{{
+        (operation.Value.RequestBodyGenerator.HasBody ? "Content content," : "")}}{{
             new ParametersGenerator []
             {
                 operation.Value.QueryGenerator,

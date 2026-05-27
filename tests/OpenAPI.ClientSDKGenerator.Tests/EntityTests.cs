@@ -57,15 +57,18 @@ internal sealed partial class Pets
 
     internal sealed partial class Pets0(RequestBuilder requestBuilder)
     {
-        internal Task GetAsync(
+        internal async Task<GetResponse> GetAsync(
             CancellationToken cancellation = default)
         {
-            return requestBuilder
+            var response = await requestBuilder
                 .SendAsync(
                     "/pets",
                     "GET",
                     null,
-                    cancellation);
+                    cancellation)
+                .ConfigureAwait(false);
+            return await GetResponse.BindAsync(response, cancellation)
+                .ConfigureAwait(false);
         }
     }
 
@@ -91,15 +94,18 @@ internal sealed partial class Pets
 
     internal sealed partial class Pets1(RequestBuilder requestBuilder)
     {
-        internal Task GetAsync(
+        internal async Task<GetResponse> GetAsync(
             CancellationToken cancellation = default)
         {
-            return requestBuilder
+            var response = await requestBuilder
                 .SendAsync(
                     "/pets/{petId}",
                     "GET",
                     null,
-                    cancellation);
+                    cancellation)
+                .ConfigureAwait(false);
+            return await GetResponse.BindAsync(response, cancellation)
+                .ConfigureAwait(false);
         }
     }
 }
@@ -148,15 +154,18 @@ internal sealed partial class TestClient
 
     internal sealed partial class Foo0(RequestBuilder requestBuilder)
     {
-        internal Task GetAsync(
+        internal async Task<GetResponse> GetAsync(
             CancellationToken cancellation = default)
         {
-            return requestBuilder
+            var response = await requestBuilder
                 .SendAsync(
                     "/foo",
                     "GET",
                     null,
-                    cancellation);
+                    cancellation)
+                .ConfigureAwait(false);
+            return await GetResponse.BindAsync(response, cancellation)
+                .ConfigureAwait(false);
         }
     }
 }
@@ -181,15 +190,18 @@ internal sealed partial class TestClient
 
     internal sealed partial class Bar0(RequestBuilder requestBuilder)
     {
-        internal Task GetAsync(
+        internal async Task<GetResponse> GetAsync(
             CancellationToken cancellation = default)
         {
-            return requestBuilder
+            var response = await requestBuilder
                 .SendAsync(
                     "/bar",
                     "GET",
                     null,
-                    cancellation);
+                    cancellation)
+                .ConfigureAwait(false);
+            return await GetResponse.BindAsync(response, cancellation)
+                .ConfigureAwait(false);
         }
     }
 }
@@ -214,15 +226,18 @@ internal sealed partial class TestClient
 
     internal sealed partial class Baz0(RequestBuilder requestBuilder)
     {
-        internal Task GetAsync(
+        internal async Task<GetResponse> GetAsync(
             CancellationToken cancellation = default)
         {
-            return requestBuilder
+            var response = await requestBuilder
                 .SendAsync(
                     "/baz",
                     "GET",
                     null,
-                    cancellation);
+                    cancellation)
+                .ConfigureAwait(false);
+            return await GetResponse.BindAsync(response, cancellation)
+                .ConfigureAwait(false);
         }
     }
 }
@@ -290,37 +305,46 @@ internal sealed partial class TestClient
 
     internal sealed partial class Items1(RequestBuilder requestBuilder)
     {
-        internal Task GetAsync(
+        internal async Task<GetResponse> GetAsync(
             CancellationToken cancellation = default)
         {
-            return requestBuilder
+            var response = await requestBuilder
                 .SendAsync(
                     "/items/{id}",
                     "GET",
                     null,
-                    cancellation);
+                    cancellation)
+                .ConfigureAwait(false);
+            return await GetResponse.BindAsync(response, cancellation)
+                .ConfigureAwait(false);
         }
 
-        internal Task PutAsync(
+        internal async Task<PutResponse> PutAsync(
             CancellationToken cancellation = default)
         {
-            return requestBuilder
+            var response = await requestBuilder
                 .SendAsync(
                     "/items/{id}",
                     "PUT",
                     null,
-                    cancellation);
+                    cancellation)
+                .ConfigureAwait(false);
+            return await PutResponse.BindAsync(response, cancellation)
+                .ConfigureAwait(false);
         }
 
-        internal Task DeleteAsync(
+        internal async Task<DeleteResponse> DeleteAsync(
             CancellationToken cancellation = default)
         {
-            return requestBuilder
+            var response = await requestBuilder
                 .SendAsync(
                     "/items/{id}",
                     "DELETE",
                     null,
-                    cancellation);
+                    cancellation)
+                .ConfigureAwait(false);
+            return await DeleteResponse.BindAsync(response, cancellation)
+                .ConfigureAwait(false);
         }
     }
 }
@@ -410,15 +434,18 @@ internal sealed partial class TestClient
 
         internal sealed partial class Child0(RequestBuilder requestBuilder)
         {
-            internal Task GetAsync(
+            internal async Task<GetResponse> GetAsync(
                 CancellationToken cancellation = default)
             {
-                return requestBuilder
+                var response = await requestBuilder
                     .SendAsync(
                         "/parent/{id}/child",
                         "GET",
                         null,
-                        cancellation);
+                        cancellation)
+                    .ConfigureAwait(false);
+                return await GetResponse.BindAsync(response, cancellation)
+                    .ConfigureAwait(false);
             }
         }
     }
@@ -485,15 +512,18 @@ internal sealed partial class TestClient
 
     internal sealed partial class Items1(RequestBuilder requestBuilder)
     {
-        internal Task GetAsync(
+        internal async Task<GetResponse> GetAsync(
             CancellationToken cancellation = default)
         {
-            return requestBuilder
+            var response = await requestBuilder
                 .SendAsync(
                     "/items/{id}",
                     "GET",
                     null,
-                    cancellation);
+                    cancellation)
+                .ConfigureAwait(false);
+            return await GetResponse.BindAsync(response, cancellation)
+                .ConfigureAwait(false);
         }
     }
 }
@@ -553,15 +583,18 @@ internal sealed partial class TestClient
             
                 internal sealed partial class Items0(RequestBuilder requestBuilder)
                 {
-                    internal Task PostAsync(Content content, 
+                    internal async Task<PostResponse> PostAsync(Content content,
                         CancellationToken cancellation = default)
                     {
-                        return requestBuilder
+                        var response = await requestBuilder
                             .SendAsync(
                                 "/items",
                                 "POST",
                                 content.Get(),
-                                cancellation);
+                                cancellation)
+                            .ConfigureAwait(false);
+                        return await PostResponse.BindAsync(response, cancellation)
+                            .ConfigureAwait(false);
                     }
 
                     internal abstract class Content
@@ -673,16 +706,19 @@ internal sealed partial class TestClient
 
     internal sealed partial class Items0(RequestBuilder requestBuilder)
     {
-        internal Task GetAsync(Query query,
+        internal async Task<GetResponse> GetAsync(Query query,
             CancellationToken cancellation = default)
         {
             query.AddTo(requestBuilder);
-            return requestBuilder
+            var response = await requestBuilder
                 .SendAsync(
                     "/items",
                     "GET",
                     null,
-                    cancellation);
+                    cancellation)
+                .ConfigureAwait(false);
+            return await GetResponse.BindAsync(response, cancellation)
+                .ConfigureAwait(false);
         }
 
         internal sealed class Query
