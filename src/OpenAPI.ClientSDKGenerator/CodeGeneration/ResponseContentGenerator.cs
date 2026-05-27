@@ -68,8 +68,8 @@ internal abstract class {{{ClassName}}} : {{{baseClassName}}}
 {{{{
     _contentGenerators.AggregateToString(generator =>
         generator.GenerateResponseClass(ClassName, baseClassName)).Indent(4)
-    }}}
-    
+    }}}{{{(_contentGenerators.Any() ? 
+$$$"""
     /// <summary>
     /// Response for unknown content
     /// </summary>
@@ -84,7 +84,7 @@ internal abstract class {{{ClassName}}} : {{{baseClassName}}}
         }
         
         /// <summary>
-        /// Construct response for content {{_contentType}}
+        /// Construct response for unknown content
         /// </summary>
         /// <param name="response">Response message</param>
         /// <param name="cancellationToken">Cancellation token</param>
@@ -92,19 +92,38 @@ internal abstract class {{{ClassName}}} : {{{baseClassName}}}
         {
             var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
                 .ConfigureAwait(false);
-            
             return new Unknown(stream, response);
         }
         
-        internal static MediaTypeHeaderValue MediaType { get; } = MediaTypeHeaderValue.Parse("*/*");
+        /// <inheritdoc/>
+        internal override ValidationContext Validate(ValidationLevel validationLevel) =>
+            base.Validate(validationLevel);
+    }
+""" : 
+$$$"""
+    /// <summary>
+    /// Response with empty content
+    /// </summary>
+    internal sealed class Empty : {{{ClassName}}}
+    {
+        private Empty(HttpResponseMessage response)
+        {
+            StatusCode = response.StatusCode;
+        }
+        
+        /// <summary>
+        /// Construct response for empty content
+        /// </summary>
+        /// <param name="response">Response message</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        internal new static Task<{{{baseClassName}}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default) =>
+            Task.FromResult<{{{baseClassName}}}>(new Empty(response));
         
         /// <inheritdoc/>
-        internal override ValidationContext Validate(ValidationLevel validationLevel)
-        {
-            return base.Validate(validationLevel);
-        }
+        internal override ValidationContext Validate(ValidationLevel validationLevel) =>
+            base.Validate(validationLevel);
     }
-
+""")}}}
     internal static bool MatchesStatusCode(HttpStatusCode statusCode) =>
         {{{(_hasDefaultStatusCode ? "true" : _hasExplicitStatusCode ? $"((int)statusCode) == {_responseStatusCodePattern}" : $"Matches{_responseStatusCodePattern.First()}xxStatusCode((int)statusCode)")}}};
     
@@ -121,16 +140,21 @@ internal abstract class {{{ClassName}}} : {{{baseClassName}}}
     /// <returns>An awaitable task for the response content</returns>
     internal static Task<{{{baseClassName}}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
     {
+        {{{(_contentGenerators.Any() ? 
+$$$"""
         var contentType = response.Content.Headers.ContentType;
         return contentType switch
         {
             null => Unknown.BindAsync(response, cancellationToken),{{{_contentGenerators.AggregateToString(generator => 
 $"""
             _ when contentType.IsSubset({generator.ClassName}.MediaType) => {generator.ClassName}.BindAsync(response, cancellationToken),
-""")
-}}}
+""")}}}
             _ => Unknown.BindAsync(response, cancellationToken)
         };
+""" : 
+"""
+        return Empty.BindAsync(response, cancellationToken);        
+""")}}}
     }
     
     /// <summary>
