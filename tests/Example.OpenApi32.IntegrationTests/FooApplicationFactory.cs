@@ -23,11 +23,9 @@ public sealed class FooApplicationFactory : IAsyncLifetime
         var builder = WebApplication.CreateBuilder();                                 
         builder.WebHost
             .UseTestServer()
-            .AddLogging()
-            .ConfigureTestServices(services =>
-        {
-            services.InjectJwtBackChannelHandler();
-        });
+            .AddLogging();
+        builder.Services.InjectJwtBackChannelHandler();
+        
         builder.Services.AddAuthentication()
             .AddJwtBearer(SecuritySchemes.PetstoreAuthKey, options =>
             {
