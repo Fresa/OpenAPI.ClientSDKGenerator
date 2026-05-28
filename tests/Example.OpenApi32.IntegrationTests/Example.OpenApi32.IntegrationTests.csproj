@@ -23,7 +23,7 @@
         <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
         <PackageReference Include="JsonPointer.Net" Version="7.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.Certificate" Version="10.0.7" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.7" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.8" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.7" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.7" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.4.0" />
@@ -54,6 +54,7 @@
         <ClientSDKGenerator Include="openapi.json" ClientName="Foo" Namespace="Example.Foo" />
         <AdditionalFiles Include="openapi.json" />
         <ProjectReference Include="..\Example.OpenApi\Example.OpenApi.csproj" />
+        <ProjectReference Include="..\OpenAPI.IntegrationTestHelpers\OpenAPI.IntegrationTestHelpers.csproj" />
     </ItemGroup>
 
     <Import Project="..\..\src\OpenAPI.ClientSDKGenerator\build\ClientSDKGenerator.OpenAPI.targets" />

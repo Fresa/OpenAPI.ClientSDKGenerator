@@ -4,6 +4,8 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.IdentityModel.Tokens;
+using OpenAPI.IntegrationTestHelpers.Auth;
+using OpenAPI.IntegrationTestHelpers.Observability;
 
 namespace Example.OpenApi32.IntegrationTests;
 
@@ -19,7 +21,13 @@ public sealed class FooApplicationFactory : IAsyncLifetime
     public ValueTask InitializeAsync()
     {
         var builder = WebApplication.CreateBuilder();                                 
-        builder.WebHost.UseTestServer();
+        builder.WebHost
+            .UseTestServer()
+            .AddLogging()
+            .ConfigureTestServices(services =>
+        {
+            services.InjectJwtBackChannelHandler();
+        });
         builder.Services.AddAuthentication()
             .AddJwtBearer(SecuritySchemes.PetstoreAuthKey, options =>
             {
