@@ -50,6 +50,8 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
     {
         var nonNullableValue = value ?? T.Undefined;
         _validationContext = nonNullableValue.Validate(schemaLocation, isRequired, _validationContext, _validationLevel);
+        if (value is null)
+            return;
         _queryParameters[name] = () => Serialize(nonNullableValue, parameterSpecificationAsJson);
     }
     
@@ -75,7 +77,7 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
         Validate();
         var path = _pathParameters.Aggregate(pathTemplate, (uri, parameter) => 
             uri.Replace("{" + parameter.Key + "}", parameter.Value()));
-        var query = string.Join("&", _queryParameters.Values);
+        var query = string.Join("&", _queryParameters.Values.Select(serializeValue => serializeValue()));
         if (query != string.Empty)
         {
             path += $"?{query}";
