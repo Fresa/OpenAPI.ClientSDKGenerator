@@ -110,7 +110,7 @@ internal sealed partial class Pets
     }
 }
 #nullable restore
-"""");
+"""".ReplaceLineEndings("\n"));
     }
 
     [Fact]
@@ -170,7 +170,7 @@ internal sealed partial class TestClient
     }
 }
 #nullable restore
-"""");
+"""".ReplaceLineEndings("\n"));
 
         compilation.GetSource("TestClient.Bar.g.cs", Cancellation).Should().Be(
 """"
@@ -206,7 +206,7 @@ internal sealed partial class TestClient
     }
 }
 #nullable restore
-"""");
+"""".ReplaceLineEndings("\n"));
 
         compilation.GetSource("TestClient.Baz.g.cs", Cancellation).Should().Be(
 """"
@@ -242,7 +242,7 @@ internal sealed partial class TestClient
     }
 }
 #nullable restore
-"""");
+"""".ReplaceLineEndings("\n"));
     }
 
     [Fact]
@@ -349,7 +349,7 @@ internal sealed partial class TestClient
     }
 }
 #nullable restore
-"""");
+"""".ReplaceLineEndings("\n"));
     }
 
     [Fact]
@@ -413,7 +413,7 @@ internal sealed partial class TestClient
     }
 }
 #nullable restore
-"""");
+"""".ReplaceLineEndings("\n"));
 
         compilation.GetSource("TestClient.Parent.Child.g.cs", Cancellation).Should().Be(
 """"
@@ -451,7 +451,7 @@ internal sealed partial class TestClient
     }
 }
 #nullable restore
-"""");
+"""".ReplaceLineEndings("\n"));
     }
 
     [Fact]
@@ -528,7 +528,7 @@ internal sealed partial class TestClient
     }
 }
 #nullable restore
-"""");
+"""".ReplaceLineEndings("\n"));
     }
 
     [Fact]
@@ -653,7 +653,7 @@ internal sealed partial class TestClient
                 }
             }
             #nullable restore
-            """);
+            """.ReplaceLineEndings("\n"));
     }
 
     [Fact]
@@ -761,6 +761,6 @@ internal sealed partial class TestClient
     }
 }
 #nullable restore
-"""");
+"""".ReplaceLineEndings("\n"));
     }
 }
