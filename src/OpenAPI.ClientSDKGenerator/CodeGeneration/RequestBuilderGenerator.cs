@@ -86,7 +86,8 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
         var message = new HttpRequestMessage
         {
             Method = new HttpMethod(httpMethod),
-            RequestUri = new Uri(path, UriKind.Relative) 
+            RequestUri = new Uri(path, UriKind.Relative),
+            Content = content
         };
         foreach (var header in _headerParameters)
         {
