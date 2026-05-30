@@ -29,17 +29,17 @@ $$"""
 /// Contains the operation's response objects
 /// </summary>
 internal abstract partial class {{className}}
-{{{Enumerable.Range(1, 5).AggregateToString(i =>
+{{{Enumerable.Range(1, 5).AggregateToStringAsIs(i =>
 $$"""
+
     /// <summary>
     /// Check if status code is {{i}}xx
     /// </summary>
     /// <param name="code">Status code to match</param>
     /// <returns>true if code matches</returns>
-    protected static bool Matches{{i}}xxStatusCode(int code) => 
+    protected static bool Matches{{i}}xxStatusCode(int code) =>
         code >= {{i}}00 && code <= {{i}}99;
 """)}}
-
     /// <summary>
     /// Validate the response
     /// </summary>

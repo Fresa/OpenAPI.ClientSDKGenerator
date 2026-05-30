@@ -9,16 +9,26 @@ internal static class EnumerableExtensions
 {
     internal static string AggregateToString(this IEnumerable<string> items) =>
         items.AggregateToString(str => str);
-    internal static string AggregateToString<T>(this IEnumerable<T> items, Func<T, string> convert) =>
-        items.AggregateToString(new StringBuilder().AppendLine(), convert);
+    internal static string AggregateToString<T>(this IEnumerable<T> items, Func<T, string> convert, bool trimEnd = true)
+    {
+        var str = items.AggregateToString(new StringBuilder().AppendLine(), convert);
+        return trimEnd ? str.TrimEnd() : str;
+    }
+    
+    internal static string AggregateToStringAsIs<T>(this IEnumerable<T> items, Func<T, string> convert) => 
+        items.AggregateToString(new StringBuilder(), convert);
+
     internal static string AggregateToString<T>(this IEnumerable<T> items, string firstLine, Func<T, string> convert) =>
-        items.AggregateToString(new StringBuilder().AppendLine(firstLine), convert);
+        items
+            .AggregateToString(new StringBuilder()
+                .AppendLine(firstLine), convert)
+            .TrimEnd();
+
     private static string AggregateToString<T>(this IEnumerable<T> items, StringBuilder stringBuilder, Func<T, string> convert) =>
         items
             .Aggregate(stringBuilder, (builder, item) =>
                 builder.AppendLine(convert(item)))
-            .ToString()
-            .TrimEnd();
+            .ToString();
     
     internal static IEnumerable<(T item, int i)> WithIndex<T>(this IEnumerable<T> items) =>
         items.Select((arg1, i) => (arg1, i));
