@@ -256,6 +256,7 @@ internal sealed partial class TestClient
 
         diagnostics.Should().BeEmpty();
 
+        compilation.Output("TestClient.Foo0.GetResponse.g.cs", testOutputHelper, Cancellation);
         compilation.GetSource("TestClient.Foo0.GetResponse.g.cs", Cancellation).Should().Be(
 """"
 #nullable enable

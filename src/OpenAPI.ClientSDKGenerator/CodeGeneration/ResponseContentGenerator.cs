@@ -68,21 +68,22 @@ internal abstract class {{{ClassName}}} : {{{baseClassName}}}
 {{{{
     _contentGenerators.AggregateToString(generator =>
         generator.GenerateResponseClass(ClassName, baseClassName)).Indent(4)
-    }}}{{{(_contentGenerators.Any() ? 
+    }}}{{{(_contentGenerators.Any() ?
 $$$"""
+
     /// <summary>
     /// Response for unknown content
     /// </summary>
     internal sealed class Unknown : {{{ClassName}}}
     {
         internal Stream Content { get; }
-        
+
         private Unknown(Stream content, HttpResponseMessage response)
         {
             Content = content;
             StatusCode = response.StatusCode;
         }
-        
+
         /// <summary>
         /// Construct response for unknown content
         /// </summary>
@@ -94,13 +95,14 @@ $$$"""
                 .ConfigureAwait(false);
             return new Unknown(stream, response);
         }
-        
+
         /// <inheritdoc/>
         internal override ValidationContext Validate(ValidationLevel validationLevel) =>
             base.Validate(validationLevel);
     }
-""" : 
+""" :
 $$$"""
+
     /// <summary>
     /// Response with empty content
     /// </summary>
@@ -110,7 +112,7 @@ $$$"""
         {
             StatusCode = response.StatusCode;
         }
-        
+
         /// <summary>
         /// Construct response for empty content
         /// </summary>
@@ -118,18 +120,19 @@ $$$"""
         /// <param name="cancellationToken">Cancellation token</param>
         internal new static Task<{{{baseClassName}}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default) =>
             Task.FromResult<{{{baseClassName}}}>(new Empty(response));
-        
+
         /// <inheritdoc/>
         internal override ValidationContext Validate(ValidationLevel validationLevel) =>
             base.Validate(validationLevel);
     }
 """)}}}
+
     internal static bool MatchesStatusCode(HttpStatusCode statusCode) =>
         {{{(_hasDefaultStatusCode ? "true" : _hasExplicitStatusCode ? $"((int)statusCode) == {_responseStatusCodePattern}" : $"Matches{_responseStatusCodePattern.First()}xxStatusCode((int)statusCode)")}}};
     
     /// <summary>
     /// Response status code
-    /// </summary> 
+    /// </summary>
     internal HttpStatusCode StatusCode { get; private set; }
 
     /// <summary>
@@ -153,7 +156,7 @@ $"""
         };
 """ : 
 """
-        return Empty.BindAsync(response, cancellationToken);        
+        return Empty.BindAsync(response, cancellationToken);
 """)}}}
     }
     
@@ -161,14 +164,13 @@ $"""
     /// Create a validation context
     /// </summary>
     /// <returns>Validation context</returns>
-    protected ValidationContext CreateValidationContext() => 
+    protected ValidationContext CreateValidationContext() =>
         ValidationContext.ValidContext.UsingStack().UsingResults();
     
     /// <inheritdoc/>
     internal override ValidationContext Validate(ValidationLevel validationLevel)
     {
         var validationContext = CreateValidationContext();
-        
         return validationContext;
     }
 }

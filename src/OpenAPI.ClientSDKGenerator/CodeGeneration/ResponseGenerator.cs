@@ -97,13 +97,12 @@ $"""
         {
             var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
                 .ConfigureAwait(false);
-            
             return new Unknown(stream, response);
         }
         
         /// <summary>
         /// Response status code
-        /// </summary> 
+        /// </summary>
         internal HttpStatusCode StatusCode { get; private set; }
         
         /// <inheritdoc/>
