@@ -39,7 +39,7 @@ internal sealed class ResponseContentGenerator
         ClassName = responseClassName;
         _response = response.Value;
         _hasExplicitStatusCode = int.TryParse(_responseStatusCodePattern, out _);
-        _hasDefaultStatusCode = _responseStatusCodePattern == "default";
+        _hasDefaultStatusCode = response.Key == "default";
         Precedence = _hasExplicitStatusCode ? 0 : _hasDefaultStatusCode ? 10 : 5;
     }
     
