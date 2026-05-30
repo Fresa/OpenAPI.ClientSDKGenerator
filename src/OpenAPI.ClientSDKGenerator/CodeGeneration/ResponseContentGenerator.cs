@@ -140,7 +140,7 @@ $$$"""
     /// <returns>An awaitable task for the response content</returns>
     internal static Task<{{{baseClassName}}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
     {
-        {{{(_contentGenerators.Any() ? 
+{{{(_contentGenerators.Any() ? 
 $$$"""
         var contentType = response.Content.Headers.ContentType;
         return contentType switch
