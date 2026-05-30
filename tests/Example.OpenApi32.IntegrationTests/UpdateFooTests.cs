@@ -1,5 +1,7 @@
+using AwesomeAssertions;
 using Corvus.Json;
 using Example.Foo.Components.Schemas;
+using OpenAPI.IntegrationTestHelpers.Auth;
 
 namespace Example.OpenApi32.IntegrationTests;
 
@@ -8,10 +10,11 @@ public class UpdateFooTests(FooApplicationFactory app) : FooTestSpecification, I
     [Fact]
     public async Task UpdatingFoo_ReturnsUpdatedFoo()
     {
-        using var httpClient = app.CreateClient();
+        using var httpClient = app.CreateClient()
+            .WithOAuth2ImplicitFlowAuthentication("update");;
 
         var client = new Foo.Foo(httpClient);
-        await client.Foo_(1)
+        var response = await client.Foo_(1)
             .PutAsync(
                 content: new Foo.Foo.Foo1.Content.ApplicationJson(
                     FooProperties.Create(name: "test")),
@@ -20,11 +23,12 @@ public class UpdateFooTests(FooApplicationFactory app) : FooTestSpecification, I
                     Bar = new JsonString("foo")
                 },
                 cancellation: CancellationToken);
+        var anyApplicationResponse = response.Should().BeOfType<Foo.Foo.Foo1.PutResponse.OK200.AnyApplication>()
+            .Subject;
+        anyApplicationResponse.Content.Name
+            .Should().NotBeNull()
+            .And.Be(new JsonString("test"));
         
-        // result.StatusCode.Should().Be(HttpStatusCode.OK);
-        // var responseContent = await result.Content.ReadAsJsonNodeAsync(CancellationToken);
-        // responseContent.Should().NotBeNull();
-        // responseContent.GetValue<string>("#/Name").Should().Be("test");
         // result.Headers.Should().HaveCount(1);
         // result.Headers.Should().ContainKey("Status")
         //     .WhoseValue.Should().HaveCount(1)
