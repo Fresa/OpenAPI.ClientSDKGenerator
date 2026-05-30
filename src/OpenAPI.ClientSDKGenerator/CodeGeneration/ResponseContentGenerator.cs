@@ -71,6 +71,7 @@ internal abstract class {{{ClassName}}} : {{{baseClassName}}}
     }}}{{{(_contentGenerators.Any() ?
 $$$"""
 
+
     /// <summary>
     /// Response for unknown content
     /// </summary>
