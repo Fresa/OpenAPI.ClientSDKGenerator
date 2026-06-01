@@ -15,6 +15,10 @@ internal sealed class ResponseGenerator(
     {
         yield return GenerateBaseClass(@namespace, nestingClassNames, className);
         yield return GenerateUnknown(@namespace, nestingClassNames, className);
+        foreach (var generator in responseBodyGenerators)
+        {
+            yield return generator.GenerateClass(@namespace, nestingClassNames, className);
+        }
     }
 
     private SourceCode GenerateBaseClass(
@@ -82,14 +86,12 @@ $"""
 """)}}
             _ => {{className}}.Unknown.BindAsync(response, cancellationToken)
         };
-{{responseBodyGenerators.AggregateToString(generator =>
-    generator.GenerateResponseContentClass(className)).Indent(4)}}
 }
 """)}}
 #nullable restore
 """);
 
-    private SourceCode GenerateUnknown(
+    private static SourceCode GenerateUnknown(
         string @namespace,
         IReadOnlyList<string> nestingClassNames,
         string className) =>

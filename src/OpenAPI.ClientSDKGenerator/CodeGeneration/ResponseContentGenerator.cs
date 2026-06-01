@@ -55,6 +55,24 @@ internal sealed class ResponseContentGenerator
         // _headerGenerators = headerGenerators;
     }
     
+    public SourceCode GenerateClass(
+        string @namespace,
+        IReadOnlyList<string> nestingClassNames,
+        string baseClassName) =>
+        new($"{string.Join(".", nestingClassNames)}.{baseClassName}.{ClassName}.g.cs",
+$$"""
+#nullable enable
+using Corvus.Json;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Text.Json;
+
+namespace {{@namespace}};
+{{NestedClassGenerator.Wrap(nestingClassNames.Append(baseClassName).ToArray(), () =>
+    GenerateResponseContentClass(baseClassName))}}
+#nullable restore
+""");
+
     public string GenerateResponseContentClass(string baseClassName)
     {
         // var anyHeaders = _headerGenerators.Any();

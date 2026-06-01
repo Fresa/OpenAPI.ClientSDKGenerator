@@ -176,7 +176,30 @@ internal partial class TestClient
                     _ when OK200.MatchesStatusCode(response.StatusCode) => OK200.BindAsync(response, cancellationToken),
                     _ => GetResponse.Unknown.BindAsync(response, cancellationToken)
                 };
+        }
+    }
+}
+#nullable restore
+"""".ReplaceLineEndings("\n"));
 
+        compilation.GetSource("TestClient.Foo0.GetResponse.Unknown.g.cs", Cancellation)
+            .Should().Be(ExpectedUnknownClass.ReplaceLineEndings("\n"));
+
+        compilation.GetSource("TestClient.Foo0.GetResponse.OK200.g.cs", Cancellation).Should().Be(
+""""
+#nullable enable
+using Corvus.Json;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Text.Json;
+
+namespace Example;
+internal partial class TestClient
+{
+    internal partial class Foo0
+    {
+        internal partial class GetResponse
+        {
             /// <summary>
             /// <para>
             /// OK
@@ -245,9 +268,6 @@ internal partial class TestClient
 }
 #nullable restore
 """".ReplaceLineEndings("\n"));
-
-        compilation.GetSource("TestClient.Foo0.GetResponse.Unknown.g.cs", Cancellation)
-            .Should().Be(ExpectedUnknownClass.ReplaceLineEndings("\n"));
     }
 
     [Fact]
@@ -369,7 +389,30 @@ internal partial class TestClient
                     _ when Default.MatchesStatusCode(response.StatusCode) => Default.BindAsync(response, cancellationToken),
                     _ => GetResponse.Unknown.BindAsync(response, cancellationToken)
                 };
+        }
+    }
+}
+#nullable restore
+"""".ReplaceLineEndings("\n"));
 
+        compilation.GetSource("TestClient.Foo0.GetResponse.Unknown.g.cs", Cancellation)
+            .Should().Be(ExpectedUnknownClass.ReplaceLineEndings("\n"));
+
+        compilation.GetSource("TestClient.Foo0.GetResponse.Default.g.cs", Cancellation).Should().Be(
+""""
+#nullable enable
+using Corvus.Json;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Text.Json;
+
+namespace Example;
+internal partial class TestClient
+{
+    internal partial class Foo0
+    {
+        internal partial class GetResponse
+        {
             /// <summary>
             /// <para>
             /// Default response
@@ -438,9 +481,6 @@ internal partial class TestClient
 }
 #nullable restore
 """".ReplaceLineEndings("\n"));
-
-        compilation.GetSource("TestClient.Foo0.GetResponse.Unknown.g.cs", Cancellation)
-            .Should().Be(ExpectedUnknownClass.ReplaceLineEndings("\n"));
     }
 
     [Fact]
@@ -573,7 +613,30 @@ internal partial class TestClient
                     _ when OK200.MatchesStatusCode(response.StatusCode) => OK200.BindAsync(response, cancellationToken),
                     _ => GetResponse.Unknown.BindAsync(response, cancellationToken)
                 };
+        }
+    }
+}
+#nullable restore
+"""".ReplaceLineEndings("\n"));
 
+        compilation.GetSource("TestClient.Foo0.GetResponse.Unknown.g.cs", Cancellation)
+            .Should().Be(ExpectedUnknownClass.ReplaceLineEndings("\n"));
+
+        compilation.GetSource("TestClient.Foo0.GetResponse.OK200.g.cs", Cancellation).Should().Be(
+""""
+#nullable enable
+using Corvus.Json;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Text.Json;
+
+namespace Example;
+internal partial class TestClient
+{
+    internal partial class Foo0
+    {
+        internal partial class GetResponse
+        {
             /// <summary>
             /// <para>
             /// OK
@@ -691,8 +754,5 @@ internal partial class TestClient
 }
 #nullable restore
 """".ReplaceLineEndings("\n"));
-
-        compilation.GetSource("TestClient.Foo0.GetResponse.Unknown.g.cs", Cancellation)
-            .Should().Be(ExpectedUnknownClass.ReplaceLineEndings("\n"));
     }
 }
