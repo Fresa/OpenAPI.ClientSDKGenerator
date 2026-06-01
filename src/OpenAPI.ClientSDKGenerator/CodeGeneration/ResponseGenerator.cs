@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using OpenAPI.ClientSDKGenerator.Extensions;
 
@@ -8,12 +8,20 @@ internal sealed class ResponseGenerator(
     List<ResponseContentGenerator> responseBodyGenerators
     )
 {
-    public SourceCode GenerateClass(
+    public IEnumerable<SourceCode> Generate(
         string @namespace,
         IReadOnlyList<string> nestingClassNames,
         string className)
     {
-        return new SourceCode($"{string.Join(".", nestingClassNames)}.{className}.g.cs",
+        yield return GenerateBaseClass(@namespace, nestingClassNames, className);
+        yield return GenerateUnknown(@namespace, nestingClassNames, className);
+    }
+
+    private SourceCode GenerateBaseClass(
+        string @namespace,
+        IReadOnlyList<string> nestingClassNames,
+        string className) =>
+        new($"{string.Join(".", nestingClassNames)}.{className}.g.cs",
 $$"""
 #nullable enable
 using Corvus.Json;
@@ -46,7 +54,7 @@ $$"""
     /// <param name="validationLevel">Validation level</param>
     /// <returns>The validation result</returns>
     internal abstract ValidationContext Validate(ValidationLevel validationLevel);
-        
+
     /// <summary>
     /// Read response content as json
     /// </summary>
@@ -60,7 +68,7 @@ $$"""
             .ConfigureAwait(false);
         return document.RootElement.Clone();
     }
-    
+
     /// <summary>
     /// Construct response
     /// </summary>
@@ -68,54 +76,67 @@ $$"""
     /// <param name="cancellationToken">Cancellation token</param>
     internal static Task<{{className}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default) =>
         response.StatusCode switch
-        {{{responseBodyGenerators.AggregateToString(generator => 
+        {{{responseBodyGenerators.AggregateToString(generator =>
 $"""
             _ when {generator.ClassName}.MatchesStatusCode(response.StatusCode) => {generator.ClassName}.BindAsync(response, cancellationToken),
 """)}}
             _ => {{className}}.Unknown.BindAsync(response, cancellationToken)
         };
-        
-    /// <summary>
-    /// Unknown response
-    /// </summary>
-    internal sealed class Unknown : {{className}}
-    {
-        internal Stream Content { get; }
-        
-        private Unknown(Stream content, HttpResponseMessage response)
-        {
-            Content = content;
-            StatusCode = response.StatusCode;
-        }
-        
-        /// <summary>
-        /// Construct unknown response
-        /// </summary>
-        /// <param name="response">Response message</param>
-        /// <param name="cancellationToken">Cancellation token</param>
-        internal new static async Task<{{className}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
-        {
-            var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
-                .ConfigureAwait(false);
-            return new Unknown(stream, response);
-        }
-        
-        /// <summary>
-        /// Response status code
-        /// </summary>
-        internal HttpStatusCode StatusCode { get; private set; }
-        
-        /// <inheritdoc/>
-        internal override ValidationContext Validate(ValidationLevel validationLevel) =>
-            ValidationContext.ValidContext.UsingStack().UsingResults();
-    }
-    {{
-    responseBodyGenerators.AggregateToString(generator =>
-        generator.GenerateResponseContentClass(className)).Indent(4)
-    }}
+{{responseBodyGenerators.AggregateToString(generator =>
+    generator.GenerateResponseContentClass(className)).Indent(4)}}
 }
 """)}}
 #nullable restore
 """);
+
+    private SourceCode GenerateUnknown(
+        string @namespace,
+        IReadOnlyList<string> nestingClassNames,
+        string className) =>
+        new($"{string.Join(".", nestingClassNames)}.{className}.Unknown.g.cs",
+$$"""
+#nullable enable
+using Corvus.Json;
+using System.Net;
+
+namespace {{@namespace}};
+{{NestedClassGenerator.Wrap(nestingClassNames.Append(className).ToArray(), () =>
+$$"""
+/// <summary>
+/// Unknown response
+/// </summary>
+internal sealed class Unknown : {{className}}
+{
+    internal Stream Content { get; }
+
+    private Unknown(Stream content, HttpResponseMessage response)
+    {
+        Content = content;
+        StatusCode = response.StatusCode;
     }
+
+    /// <summary>
+    /// Construct unknown response
+    /// </summary>
+    /// <param name="response">Response message</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    internal new static async Task<{{className}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+    {
+        var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
+            .ConfigureAwait(false);
+        return new Unknown(stream, response);
+    }
+
+    /// <summary>
+    /// Response status code
+    /// </summary>
+    internal HttpStatusCode StatusCode { get; private set; }
+
+    /// <inheritdoc/>
+    internal override ValidationContext Validate(ValidationLevel validationLevel) =>
+        ValidationContext.ValidContext.UsingStack().UsingResults();
+}
+""")}}
+#nullable restore
+""");
 }

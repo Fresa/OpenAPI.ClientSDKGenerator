@@ -9,6 +9,59 @@ public class ResponseTests(ITestOutputHelper testOutputHelper)
 {
     private CancellationToken Cancellation => TestContext.Current.CancellationToken;
 
+    private const string ExpectedUnknownClass =
+""""
+#nullable enable
+using Corvus.Json;
+using System.Net;
+
+namespace Example;
+internal partial class TestClient
+{
+    internal partial class Foo0
+    {
+        internal partial class GetResponse
+        {
+            /// <summary>
+            /// Unknown response
+            /// </summary>
+            internal sealed class Unknown : GetResponse
+            {
+                internal Stream Content { get; }
+
+                private Unknown(Stream content, HttpResponseMessage response)
+                {
+                    Content = content;
+                    StatusCode = response.StatusCode;
+                }
+
+                /// <summary>
+                /// Construct unknown response
+                /// </summary>
+                /// <param name="response">Response message</param>
+                /// <param name="cancellationToken">Cancellation token</param>
+                internal new static async Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+                {
+                    var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
+                        .ConfigureAwait(false);
+                    return new Unknown(stream, response);
+                }
+
+                /// <summary>
+                /// Response status code
+                /// </summary>
+                internal HttpStatusCode StatusCode { get; private set; }
+
+                /// <inheritdoc/>
+                internal override ValidationContext Validate(ValidationLevel validationLevel) =>
+                    ValidationContext.ValidContext.UsingStack().UsingResults();
+            }
+        }
+    }
+}
+#nullable restore
+"""";
+
     [Fact]
     public void SingleOkResponseWithoutContent_GeneratesEmptyResponseClass()
     {
@@ -42,9 +95,9 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 
 namespace Example;
-internal sealed partial class TestClient
+internal partial class TestClient
 {
-    internal sealed partial class Foo0
+    internal partial class Foo0
     {
         /// <summary>
         /// Contains the operation's response objects
@@ -125,41 +178,6 @@ internal sealed partial class TestClient
                 };
 
             /// <summary>
-            /// Unknown response
-            /// </summary>
-            internal sealed class Unknown : GetResponse
-            {
-                internal Stream Content { get; }
-
-                private Unknown(Stream content, HttpResponseMessage response)
-                {
-                    Content = content;
-                    StatusCode = response.StatusCode;
-                }
-
-                /// <summary>
-                /// Construct unknown response
-                /// </summary>
-                /// <param name="response">Response message</param>
-                /// <param name="cancellationToken">Cancellation token</param>
-                internal new static async Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
-                {
-                    var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
-                        .ConfigureAwait(false);
-                    return new Unknown(stream, response);
-                }
-
-                /// <summary>
-                /// Response status code
-                /// </summary>
-                internal HttpStatusCode StatusCode { get; private set; }
-
-                /// <inheritdoc/>
-                internal override ValidationContext Validate(ValidationLevel validationLevel) =>
-                    ValidationContext.ValidContext.UsingStack().UsingResults();
-            }
-
-            /// <summary>
             /// <para>
             /// OK
             /// </para>
@@ -227,6 +245,9 @@ internal sealed partial class TestClient
 }
 #nullable restore
 """".ReplaceLineEndings("\n"));
+
+        compilation.GetSource("TestClient.Foo0.GetResponse.Unknown.g.cs", Cancellation)
+            .Should().Be(ExpectedUnknownClass.ReplaceLineEndings("\n"));
     }
 
     [Fact]
@@ -267,9 +288,9 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 
 namespace Example;
-internal sealed partial class TestClient
+internal partial class TestClient
 {
-    internal sealed partial class Foo0
+    internal partial class Foo0
     {
         /// <summary>
         /// Contains the operation's response objects
@@ -350,41 +371,6 @@ internal sealed partial class TestClient
                 };
 
             /// <summary>
-            /// Unknown response
-            /// </summary>
-            internal sealed class Unknown : GetResponse
-            {
-                internal Stream Content { get; }
-
-                private Unknown(Stream content, HttpResponseMessage response)
-                {
-                    Content = content;
-                    StatusCode = response.StatusCode;
-                }
-
-                /// <summary>
-                /// Construct unknown response
-                /// </summary>
-                /// <param name="response">Response message</param>
-                /// <param name="cancellationToken">Cancellation token</param>
-                internal new static async Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
-                {
-                    var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
-                        .ConfigureAwait(false);
-                    return new Unknown(stream, response);
-                }
-
-                /// <summary>
-                /// Response status code
-                /// </summary>
-                internal HttpStatusCode StatusCode { get; private set; }
-
-                /// <inheritdoc/>
-                internal override ValidationContext Validate(ValidationLevel validationLevel) =>
-                    ValidationContext.ValidContext.UsingStack().UsingResults();
-            }
-
-            /// <summary>
             /// <para>
             /// Default response
             /// </para>
@@ -452,6 +438,9 @@ internal sealed partial class TestClient
 }
 #nullable restore
 """".ReplaceLineEndings("\n"));
+
+        compilation.GetSource("TestClient.Foo0.GetResponse.Unknown.g.cs", Cancellation)
+            .Should().Be(ExpectedUnknownClass.ReplaceLineEndings("\n"));
     }
 
     [Fact]
@@ -503,9 +492,9 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 
 namespace Example;
-internal sealed partial class TestClient
+internal partial class TestClient
 {
-    internal sealed partial class Foo0
+    internal partial class Foo0
     {
         /// <summary>
         /// Contains the operation's response objects
@@ -584,41 +573,6 @@ internal sealed partial class TestClient
                     _ when OK200.MatchesStatusCode(response.StatusCode) => OK200.BindAsync(response, cancellationToken),
                     _ => GetResponse.Unknown.BindAsync(response, cancellationToken)
                 };
-
-            /// <summary>
-            /// Unknown response
-            /// </summary>
-            internal sealed class Unknown : GetResponse
-            {
-                internal Stream Content { get; }
-
-                private Unknown(Stream content, HttpResponseMessage response)
-                {
-                    Content = content;
-                    StatusCode = response.StatusCode;
-                }
-
-                /// <summary>
-                /// Construct unknown response
-                /// </summary>
-                /// <param name="response">Response message</param>
-                /// <param name="cancellationToken">Cancellation token</param>
-                internal new static async Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
-                {
-                    var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
-                        .ConfigureAwait(false);
-                    return new Unknown(stream, response);
-                }
-
-                /// <summary>
-                /// Response status code
-                /// </summary>
-                internal HttpStatusCode StatusCode { get; private set; }
-
-                /// <inheritdoc/>
-                internal override ValidationContext Validate(ValidationLevel validationLevel) =>
-                    ValidationContext.ValidContext.UsingStack().UsingResults();
-            }
 
             /// <summary>
             /// <para>
@@ -737,5 +691,8 @@ internal sealed partial class TestClient
 }
 #nullable restore
 """".ReplaceLineEndings("\n"));
+
+        compilation.GetSource("TestClient.Foo0.GetResponse.Unknown.g.cs", Cancellation)
+            .Should().Be(ExpectedUnknownClass.ReplaceLineEndings("\n"));
     }
 }

@@ -47,7 +47,7 @@ using System.Net.Http.Headers;
 using System.Text;
 
 namespace Example;
-internal sealed partial class Pets
+internal partial class Pets
 {
     internal Pets0 Pets_()
     {
@@ -55,7 +55,7 @@ internal sealed partial class Pets
         return new(requestBuilder);
     }
 
-    internal sealed partial class Pets0(RequestBuilder requestBuilder)
+    internal partial class Pets0(RequestBuilder requestBuilder)
     {
         internal async Task<GetResponse> GetAsync(
             CancellationToken cancellation = default)
@@ -92,7 +92,7 @@ internal sealed partial class Pets
         return new(requestBuilder);
     }
 
-    internal sealed partial class Pets1(RequestBuilder requestBuilder)
+    internal partial class Pets1(RequestBuilder requestBuilder)
     {
         internal async Task<GetResponse> GetAsync(
             CancellationToken cancellation = default)
@@ -144,7 +144,7 @@ using System.Net.Http.Headers;
 using System.Text;
 
 namespace Example;
-internal sealed partial class TestClient
+internal partial class TestClient
 {
     internal Foo0 Foo()
     {
@@ -152,7 +152,7 @@ internal sealed partial class TestClient
         return new(requestBuilder);
     }
 
-    internal sealed partial class Foo0(RequestBuilder requestBuilder)
+    internal partial class Foo0(RequestBuilder requestBuilder)
     {
         internal async Task<GetResponse> GetAsync(
             CancellationToken cancellation = default)
@@ -180,7 +180,7 @@ using System.Net.Http.Headers;
 using System.Text;
 
 namespace Example;
-internal sealed partial class TestClient
+internal partial class TestClient
 {
     internal Bar0 Bar()
     {
@@ -188,7 +188,7 @@ internal sealed partial class TestClient
         return new(requestBuilder);
     }
 
-    internal sealed partial class Bar0(RequestBuilder requestBuilder)
+    internal partial class Bar0(RequestBuilder requestBuilder)
     {
         internal async Task<GetResponse> GetAsync(
             CancellationToken cancellation = default)
@@ -216,7 +216,7 @@ using System.Net.Http.Headers;
 using System.Text;
 
 namespace Example;
-internal sealed partial class TestClient
+internal partial class TestClient
 {
     internal Baz0 Baz()
     {
@@ -224,7 +224,7 @@ internal sealed partial class TestClient
         return new(requestBuilder);
     }
 
-    internal sealed partial class Baz0(RequestBuilder requestBuilder)
+    internal partial class Baz0(RequestBuilder requestBuilder)
     {
         internal async Task<GetResponse> GetAsync(
             CancellationToken cancellation = default)
@@ -281,7 +281,7 @@ using System.Net.Http.Headers;
 using System.Text;
 
 namespace Example;
-internal sealed partial class TestClient
+internal partial class TestClient
 {
     internal Items1 Items(
         Corvus.Json.JsonString id)
@@ -303,7 +303,7 @@ internal sealed partial class TestClient
         return new(requestBuilder);
     }
 
-    internal sealed partial class Items1(RequestBuilder requestBuilder)
+    internal partial class Items1(RequestBuilder requestBuilder)
     {
         internal async Task<GetResponse> GetAsync(
             CancellationToken cancellation = default)
@@ -386,7 +386,7 @@ using System.Net.Http.Headers;
 using System.Text;
 
 namespace Example;
-internal sealed partial class TestClient
+internal partial class TestClient
 {
     internal Parent1 Parent(
         Corvus.Json.JsonString id)
@@ -408,7 +408,7 @@ internal sealed partial class TestClient
         return new(requestBuilder);
     }
 
-    internal sealed partial class Parent1(RequestBuilder requestBuilder)
+    internal partial class Parent1(RequestBuilder requestBuilder)
     {
     }
 }
@@ -423,16 +423,16 @@ using System.Net.Http.Headers;
 using System.Text;
 
 namespace Example;
-internal sealed partial class TestClient
+internal partial class TestClient
 {
-    internal sealed partial class Parent1
+    internal partial class Parent1
     {
         internal Child0 Child()
         {
             return new(requestBuilder);
         }
 
-        internal sealed partial class Child0(RequestBuilder requestBuilder)
+        internal partial class Child0(RequestBuilder requestBuilder)
         {
             internal async Task<GetResponse> GetAsync(
                 CancellationToken cancellation = default)
@@ -488,7 +488,7 @@ using System.Net.Http.Headers;
 using System.Text;
 
 namespace Example;
-internal sealed partial class TestClient
+internal partial class TestClient
 {
     internal Items1 Items(
         Corvus.Json.JsonString id)
@@ -510,7 +510,7 @@ internal sealed partial class TestClient
         return new(requestBuilder);
     }
 
-    internal sealed partial class Items1(RequestBuilder requestBuilder)
+    internal partial class Items1(RequestBuilder requestBuilder)
     {
         internal async Task<GetResponse> GetAsync(
             CancellationToken cancellation = default)
@@ -573,7 +573,7 @@ internal sealed partial class TestClient
             using System.Text;
             
             namespace Example;
-            internal sealed partial class TestClient
+            internal partial class TestClient
             {
                 internal Items0 Items()
                 {
@@ -581,7 +581,7 @@ internal sealed partial class TestClient
                     return new(requestBuilder);
                 }
             
-                internal sealed partial class Items0(RequestBuilder requestBuilder)
+                internal partial class Items0(RequestBuilder requestBuilder)
                 {
                     internal async Task<PostResponse> PostAsync(Content content,
                         CancellationToken cancellation = default)
@@ -696,7 +696,7 @@ using System.Net.Http.Headers;
 using System.Text;
 
 namespace Example;
-internal sealed partial class TestClient
+internal partial class TestClient
 {
     internal Items0 Items()
     {
@@ -704,7 +704,7 @@ internal sealed partial class TestClient
         return new(requestBuilder);
     }
 
-    internal sealed partial class Items0(RequestBuilder requestBuilder)
+    internal partial class Items0(RequestBuilder requestBuilder)
     {
         internal async Task<GetResponse> GetAsync(Query query,
             CancellationToken cancellation = default)

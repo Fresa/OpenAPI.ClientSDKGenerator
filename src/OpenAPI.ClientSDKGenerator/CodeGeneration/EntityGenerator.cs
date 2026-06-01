@@ -41,10 +41,13 @@ internal sealed class EntityGenerator(string name)
             foreach (var operation in methodGenerator.Operations)
             {
                 var verb = operation.Key.Method.ToLower().ToPascalCase();
-                yield return operation.Value.ResponseGenerator.GenerateClass(
+                foreach (var source in operation.Value.ResponseGenerator.Generate(
                     @namespace,
                     nestingClassNames: entityClassChain,
-                    className: $"{verb}Response");
+                    className: $"{verb}Response"))
+                {
+                    yield return source;
+                }
             }
 
             foreach (var source in methodGenerator.Children.Values
@@ -90,7 +93,7 @@ $$""""
     return new(requestBuilder);
 }
 
-internal sealed partial class {{className}}(RequestBuilder requestBuilder)
+internal partial class {{className}}(RequestBuilder requestBuilder)
 {{{methodGenerator.Operations.AggregateToString(operation => 
 $$"""
     internal async Task<{{operation.Key.Method.ToLower().ToPascalCase()}}Response> {{operation.Key.Method.ToLower().ToPascalCase()}}Async({{

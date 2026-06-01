@@ -18,7 +18,7 @@ internal static class NestedClassGenerator
         var inner = Wrap(classNames.Skip(1).ToArray(), content);
         return
 $$"""
-internal sealed partial class {{className}}
+internal partial class {{className}}
 {
 {{inner.Indent(4)}}
 }
