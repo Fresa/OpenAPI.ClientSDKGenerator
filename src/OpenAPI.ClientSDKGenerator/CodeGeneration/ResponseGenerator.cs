@@ -17,7 +17,10 @@ internal sealed class ResponseGenerator(
         yield return GenerateUnknown(@namespace, nestingClassNames, className);
         foreach (var generator in responseBodyGenerators)
         {
-            yield return generator.GenerateClass(@namespace, nestingClassNames, className);
+            foreach (var source in generator.Generate(@namespace, nestingClassNames, className))
+            {
+                yield return source;
+            }
         }
     }
 

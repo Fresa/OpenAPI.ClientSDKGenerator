@@ -9,6 +9,49 @@ public class ResponseTests(ITestOutputHelper testOutputHelper)
 {
     private CancellationToken Cancellation => TestContext.Current.CancellationToken;
 
+    private static string ExpectedEmptyClass(string parentClassName) =>
+$$""""
+#nullable enable
+using Corvus.Json;
+
+namespace Example;
+internal partial class TestClient
+{
+    internal partial class Foo0
+    {
+        internal partial class GetResponse
+        {
+            internal partial class {{parentClassName}}
+            {
+                /// <summary>
+                /// Response with empty content
+                /// </summary>
+                internal sealed class Empty : {{parentClassName}}
+                {
+                    private Empty(HttpResponseMessage response)
+                    {
+                        StatusCode = response.StatusCode;
+                    }
+
+                    /// <summary>
+                    /// Construct response for empty content
+                    /// </summary>
+                    /// <param name="response">Response message</param>
+                    /// <param name="cancellationToken">Cancellation token</param>
+                    internal new static Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default) =>
+                        Task.FromResult<GetResponse>(new Empty(response));
+
+                    /// <inheritdoc/>
+                    internal override ValidationContext Validate(ValidationLevel validationLevel) =>
+                        base.Validate(validationLevel);
+                }
+            }
+        }
+    }
+}
+#nullable restore
+"""";
+
     private const string ExpectedUnknownClass =
 """"
 #nullable enable
@@ -205,31 +248,8 @@ internal partial class TestClient
             /// OK
             /// </para>
             /// </summary>
-            internal abstract class OK200 : GetResponse
+            internal abstract partial class OK200 : GetResponse
             {
-                /// <summary>
-                /// Response with empty content
-                /// </summary>
-                internal sealed class Empty : OK200
-                {
-                    private Empty(HttpResponseMessage response)
-                    {
-                        StatusCode = response.StatusCode;
-                    }
-
-                    /// <summary>
-                    /// Construct response for empty content
-                    /// </summary>
-                    /// <param name="response">Response message</param>
-                    /// <param name="cancellationToken">Cancellation token</param>
-                    internal new static Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default) =>
-                        Task.FromResult<GetResponse>(new Empty(response));
-
-                    /// <inheritdoc/>
-                    internal override ValidationContext Validate(ValidationLevel validationLevel) =>
-                        base.Validate(validationLevel);
-                }
-
                 internal static bool MatchesStatusCode(HttpStatusCode statusCode) =>
                     ((int)statusCode) == 200;
 
@@ -268,6 +288,9 @@ internal partial class TestClient
 }
 #nullable restore
 """".ReplaceLineEndings("\n"));
+
+        compilation.GetSource("TestClient.Foo0.GetResponse.OK200.Empty.g.cs", Cancellation)
+            .Should().Be(ExpectedEmptyClass("OK200").ReplaceLineEndings("\n"));
     }
 
     [Fact]
@@ -418,31 +441,8 @@ internal partial class TestClient
             /// Default response
             /// </para>
             /// </summary>
-            internal abstract class Default : GetResponse
+            internal abstract partial class Default : GetResponse
             {
-                /// <summary>
-                /// Response with empty content
-                /// </summary>
-                internal sealed class Empty : Default
-                {
-                    private Empty(HttpResponseMessage response)
-                    {
-                        StatusCode = response.StatusCode;
-                    }
-
-                    /// <summary>
-                    /// Construct response for empty content
-                    /// </summary>
-                    /// <param name="response">Response message</param>
-                    /// <param name="cancellationToken">Cancellation token</param>
-                    internal new static Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default) =>
-                        Task.FromResult<GetResponse>(new Empty(response));
-
-                    /// <inheritdoc/>
-                    internal override ValidationContext Validate(ValidationLevel validationLevel) =>
-                        base.Validate(validationLevel);
-                }
-
                 internal static bool MatchesStatusCode(HttpStatusCode statusCode) =>
                     true;
 
@@ -481,6 +481,9 @@ internal partial class TestClient
 }
 #nullable restore
 """".ReplaceLineEndings("\n"));
+
+        compilation.GetSource("TestClient.Foo0.GetResponse.Default.Empty.g.cs", Cancellation)
+            .Should().Be(ExpectedEmptyClass("Default").ReplaceLineEndings("\n"));
     }
 
     [Fact]
@@ -642,74 +645,8 @@ internal partial class TestClient
             /// OK
             /// </para>
             /// </summary>
-            internal abstract class OK200 : GetResponse
+            internal abstract partial class OK200 : GetResponse
             {
-                /// <summary>
-                /// Response for content application/json
-                /// </summary>
-                internal sealed class ApplicationJson : OK200
-                {
-                    internal Example.Paths.Foo.Get.Responses._200.Content.ApplicationJson Content { get; }
-
-                    private ApplicationJson(JsonElement content, HttpResponseMessage response)
-                    {
-                        Content = Example.Paths.Foo.Get.Responses._200.Content.ApplicationJson.FromJson(content);
-                        StatusCode = response.StatusCode;
-                    }
-
-                    /// <summary>
-                    /// Construct response for content application/json
-                    /// </summary>
-                    /// <param name="response">Response message</param>
-                    /// <param name="cancellationToken">Cancellation token</param>
-                    internal new static async Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
-                    {
-                        var content = await OK200.ReadJsonAsync(response, cancellationToken)
-                            .ConfigureAwait(false);
-                        return new ApplicationJson(content, response);
-                    }
-
-                    internal static MediaTypeHeaderValue MediaType { get; } = MediaTypeHeaderValue.Parse("application/json");
-
-                    private const string ContentSchemaLocation = "#/paths/~1foo/get/responses/200/content/application~1json/schema";
-                    /// <inheritdoc/>
-                    internal override ValidationContext Validate(ValidationLevel validationLevel)
-                    {
-                        var validationContext = base.Validate(validationLevel);
-                        return Content.Validate(ContentSchemaLocation, true, validationContext, validationLevel);
-                    }
-                }
-
-                /// <summary>
-                /// Response for unknown content
-                /// </summary>
-                internal sealed class Unknown : OK200
-                {
-                    internal Stream Content { get; }
-
-                    private Unknown(Stream content, HttpResponseMessage response)
-                    {
-                        Content = content;
-                        StatusCode = response.StatusCode;
-                    }
-
-                    /// <summary>
-                    /// Construct response for unknown content
-                    /// </summary>
-                    /// <param name="response">Response message</param>
-                    /// <param name="cancellationToken">Cancellation token</param>
-                    internal new static async Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
-                    {
-                        var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
-                            .ConfigureAwait(false);
-                        return new Unknown(stream, response);
-                    }
-
-                    /// <inheritdoc/>
-                    internal override ValidationContext Validate(ValidationLevel validationLevel) =>
-                        base.Validate(validationLevel);
-                }
-
                 internal static bool MatchesStatusCode(HttpStatusCode statusCode) =>
                     ((int)statusCode) == 200;
 
@@ -747,6 +684,114 @@ internal partial class TestClient
                 {
                     var validationContext = CreateValidationContext();
                     return validationContext;
+                }
+            }
+        }
+    }
+}
+#nullable restore
+"""".ReplaceLineEndings("\n"));
+
+        compilation.GetSource("TestClient.Foo0.GetResponse.OK200.Unknown.g.cs", Cancellation).Should().Be(
+""""
+#nullable enable
+using Corvus.Json;
+
+namespace Example;
+internal partial class TestClient
+{
+    internal partial class Foo0
+    {
+        internal partial class GetResponse
+        {
+            internal partial class OK200
+            {
+                /// <summary>
+                /// Response for unknown content
+                /// </summary>
+                internal sealed class Unknown : OK200
+                {
+                    internal Stream Content { get; }
+
+                    private Unknown(Stream content, HttpResponseMessage response)
+                    {
+                        Content = content;
+                        StatusCode = response.StatusCode;
+                    }
+
+                    /// <summary>
+                    /// Construct response for unknown content
+                    /// </summary>
+                    /// <param name="response">Response message</param>
+                    /// <param name="cancellationToken">Cancellation token</param>
+                    internal new static async Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+                    {
+                        var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
+                            .ConfigureAwait(false);
+                        return new Unknown(stream, response);
+                    }
+
+                    /// <inheritdoc/>
+                    internal override ValidationContext Validate(ValidationLevel validationLevel) =>
+                        base.Validate(validationLevel);
+                }
+            }
+        }
+    }
+}
+#nullable restore
+"""".ReplaceLineEndings("\n"));
+
+        compilation.GetSource("TestClient.Foo0.GetResponse.OK200.ApplicationJson.g.cs", Cancellation).Should().Be(
+""""
+#nullable enable
+using Corvus.Json;
+using System.Net.Http.Headers;
+using System.Text.Json;
+
+namespace Example;
+internal partial class TestClient
+{
+    internal partial class Foo0
+    {
+        internal partial class GetResponse
+        {
+            internal partial class OK200
+            {
+                /// <summary>
+                /// Response for content application/json
+                /// </summary>
+                internal sealed class ApplicationJson : OK200
+                {
+                    internal Example.Paths.Foo.Get.Responses._200.Content.ApplicationJson Content { get; }
+
+                    private ApplicationJson(JsonElement content, HttpResponseMessage response)
+                    {
+                        Content = Example.Paths.Foo.Get.Responses._200.Content.ApplicationJson.FromJson(content);
+                        StatusCode = response.StatusCode;
+                    }
+
+                    /// <summary>
+                    /// Construct response for content application/json
+                    /// </summary>
+                    /// <param name="response">Response message</param>
+                    /// <param name="cancellationToken">Cancellation token</param>
+                    internal new static async Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+                    {
+                        var content = await OK200.ReadJsonAsync(response, cancellationToken)
+                            .ConfigureAwait(false);
+                        return new ApplicationJson(content, response);
+                    }
+
+                    internal static MediaTypeHeaderValue MediaType { get; } = MediaTypeHeaderValue.Parse("application/json");
+
+                    private const string ContentSchemaLocation = "#/paths/~1foo/get/responses/200/content/application~1json/schema";
+                    /// <inheritdoc/>
+                    internal override ValidationContext Validate(ValidationLevel validationLevel)
+                    {
+                        var validationContext = base.Validate(validationLevel);
+                        return Content.Validate(ContentSchemaLocation, true, validationContext, validationLevel);
+                    }
                 }
             }
         }

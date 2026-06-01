@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http.Headers;
 using Corvus.Json.CodeGeneration;
 using Corvus.Json.CodeGeneration.CSharp;
@@ -10,33 +11,53 @@ namespace OpenAPI.ClientSDKGenerator.CodeGeneration;
 
 internal sealed class ResponseBodyContentGenerator
 {
-    private readonly string _contentVariableName;
     internal string ClassName { get; }
     private readonly MediaTypeHeaderValue _contentType;
     private readonly TypeDeclaration _typeDeclaration;
-    private readonly bool _isContentTypeRange;
     private readonly bool _isSequentialMediaType;
     
     public ResponseBodyContentGenerator(KeyValuePair<string, IOpenApiMediaType> contentMediaType, TypeDeclaration typeDeclaration)
-    { 
+    {
         _contentType = MediaTypeHeaderValue.Parse(contentMediaType.Key);
         _typeDeclaration = typeDeclaration;
         _isSequentialMediaType = contentMediaType.Value.ItemSchema != null;
-        _isContentTypeRange = _contentType.MediaType.EndsWith("*");
-        _contentVariableName = _contentType.MediaType switch
+        var isContentTypeRange = _contentType.MediaType.EndsWith("*");
+        var contentVariableName = _contentType.MediaType switch
         {
             "*/*" => "any",
-            not null when _isContentTypeRange =>
+            not null when isContentTypeRange =>
                 $"any{_contentType.MediaType.TrimEnd('*').TrimEnd('/').ToLower().ToPascalCase()}",
             null => throw new InvalidOperationException("Content type is null"),
             _ => _contentType.MediaType.ToLower().ToCamelCase()
         };
 
-        ClassName = _contentVariableName.ToPascalCase();
+        ClassName = contentVariableName.ToPascalCase();
     }
 
     private string SchemaLocation => _typeDeclaration.RelativeSchemaLocation;
-    public string GenerateResponseClass(string responseClassName, string rootBaseClassName) =>
+
+    public SourceCode GenerateContent(
+        string @namespace,
+        IReadOnlyList<string> nestingClassNames,
+        string responseClassName)
+    {
+        var rootBaseClassName = nestingClassNames[^1];
+        return new SourceCode(
+            $"{string.Join(".", nestingClassNames)}.{responseClassName}.{ClassName}.g.cs",
+$$"""
+#nullable enable
+using Corvus.Json;
+using System.Net.Http.Headers;
+using System.Text.Json;
+
+namespace {{@namespace}};
+{{NestedClassGenerator.Wrap(nestingClassNames.Append(responseClassName).ToArray(), () =>
+    GenerateResponseClass(responseClassName, rootBaseClassName))}}
+#nullable restore
+""");
+    }
+
+    private string GenerateResponseClass(string responseClassName, string rootBaseClassName) =>
         _isSequentialMediaType ? 
 $$"""
 /// <summary>
