@@ -264,7 +264,7 @@ internal partial class TestClient
                 /// <param name="response">Http response message to bind from</param>
                 /// <param name="cancellationToken">Cancellation token</param>
                 /// <returns>An awaitable task for the response content</returns>
-                internal static Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+                internal new static Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
                 {
                     return Empty.BindAsync(response, cancellationToken);
                 }
@@ -457,7 +457,7 @@ internal partial class TestClient
                 /// <param name="response">Http response message to bind from</param>
                 /// <param name="cancellationToken">Cancellation token</param>
                 /// <returns>An awaitable task for the response content</returns>
-                internal static Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+                internal new static Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
                 {
                     return Empty.BindAsync(response, cancellationToken);
                 }
@@ -661,7 +661,7 @@ internal partial class TestClient
                 /// <param name="response">Http response message to bind from</param>
                 /// <param name="cancellationToken">Cancellation token</param>
                 /// <returns>An awaitable task for the response content</returns>
-                internal static Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+                internal new static Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
                 {
                     var contentType = response.Content.Headers.ContentType;
                     return contentType switch

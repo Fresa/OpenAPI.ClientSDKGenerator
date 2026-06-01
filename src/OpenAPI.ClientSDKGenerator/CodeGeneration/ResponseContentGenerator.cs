@@ -111,7 +111,7 @@ internal abstract partial class {{ClassName}} : {{baseClassName}}
     /// <param name="response">Http response message to bind from</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>An awaitable task for the response content</returns>
-    internal static Task<{{baseClassName}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+    internal new static Task<{{baseClassName}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
     {
 {{(_contentGenerators.Any() ?
 $$"""
