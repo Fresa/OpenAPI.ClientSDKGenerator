@@ -201,7 +201,7 @@ $$"""
 /// <summary>
 /// Response for unknown content
 /// </summary>
-internal sealed class Unknown : {{ClassName}}
+internal new sealed class Unknown : {{ClassName}}
 {
     internal Stream Content { get; }
 

@@ -709,7 +709,7 @@ internal partial class TestClient
                 /// <summary>
                 /// Response for unknown content
                 /// </summary>
-                internal sealed class Unknown : OK200
+                internal new sealed class Unknown : OK200
                 {
                     internal Stream Content { get; }
 
