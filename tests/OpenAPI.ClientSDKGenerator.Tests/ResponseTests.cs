@@ -491,6 +491,7 @@ internal sealed partial class TestClient
             cancellationToken: Cancellation,
             diagnostics: out var diagnostics);
 
+        compilation.Output("TestClient.Foo0.GetResponse.g.cs", testOutputHelper, Cancellation);
         diagnostics.Should().BeEmpty();
         compilation.GetSource("TestClient.Foo0.GetResponse.g.cs", Cancellation).Should().Be(
 """"
@@ -631,11 +632,11 @@ internal sealed partial class TestClient
                 /// </summary>
                 internal sealed class ApplicationJson : OK200
                 {
-                    internal Components.Schemas.FooGet200ApplicationJson Content { get; }
+                    internal Example.Paths.Foo.Get.Responses._200.Content.ApplicationJson Content { get; }
 
                     private ApplicationJson(JsonElement content, HttpResponseMessage response)
                     {
-                        Content = Components.Schemas.FooGet200ApplicationJson.FromJson(content);
+                        Content = Example.Paths.Foo.Get.Responses._200.Content.ApplicationJson.FromJson(content);
                         StatusCode = response.StatusCode;
                     }
 
@@ -654,7 +655,6 @@ internal sealed partial class TestClient
                     internal static MediaTypeHeaderValue MediaType { get; } = MediaTypeHeaderValue.Parse("application/json");
 
                     private const string ContentSchemaLocation = "#/paths/~1foo/get/responses/200/content/application~1json/schema";
-
                     /// <inheritdoc/>
                     internal override ValidationContext Validate(ValidationLevel validationLevel)
                     {
