@@ -5,7 +5,7 @@ using OpenAPI.ClientSDKGenerator.Extensions;
 namespace OpenAPI.ClientSDKGenerator.CodeGeneration;
 
 internal sealed class ResponseGenerator(
-    List<ResponseContentGenerator> responseBodyGenerators
+    List<ResponseContentGenerator> responseContentGenerators
     )
 {
     public IEnumerable<SourceCode> Generate(
@@ -15,7 +15,7 @@ internal sealed class ResponseGenerator(
     {
         yield return GenerateBaseClass(@namespace, nestingClassNames, className);
         yield return GenerateUnknown(@namespace, nestingClassNames, className);
-        foreach (var generator in responseBodyGenerators)
+        foreach (var generator in responseContentGenerators)
         {
             foreach (var source in generator.Generate(@namespace, nestingClassNames, className))
             {
@@ -83,12 +83,26 @@ $$"""
     /// <param name="cancellationToken">Cancellation token</param>
     internal static Task<{{className}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default) =>
         response.StatusCode switch
-        {{{responseBodyGenerators.AggregateToString(generator =>
+        {{{responseContentGenerators.AggregateToString(generator =>
 $"""
             _ when {generator.ClassName}.MatchesStatusCode(response.StatusCode) => {generator.ClassName}.BindAsync(response, cancellationToken),
 """)}}
             _ => {{className}}.Unknown.BindAsync(response, cancellationToken)
-        };
+        };{{(responseContentGenerators.Any(generator => generator.HasBodies) ? 
+"""
+
+
+    internal sealed class Accept(MediaTypeHeaderValue contentType)
+    {
+        MediaTypeHeaderValue Content { get; } = contentType;
+        MediaTypeHeaderValue SubContent { get; } = MediaTypeHeaderValue.Parse($"{contentType.MediaType?.Split('/', 1).First() ?? "*"}/*");
+        MediaTypeHeaderValue Any { get; } = MediaTypeHeaderValue.Parse("*/*");
+        Accept WithQuality(double quality) => new Accept(new MediaTypeWithQualityHeaderValue(Content.MediaType ?? "*/*", quality)
+        {
+            CharSet = Content.CharSet
+        });
+    }
+""" : "")}}
 }
 """)}}
 #nullable restore

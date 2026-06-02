@@ -12,6 +12,7 @@ internal sealed class ResponseContentGenerator
     private readonly List<ResponseBodyContentGenerator> _contentGenerators = [];
     // private readonly List<ResponseHeaderGenerator> _headerGenerators = [];
     internal string ClassName { get; }
+    internal bool HasBodies { get; }
     private readonly string _responseStatusCodePattern;
     private readonly IOpenApiResponse _response;
     private readonly bool _hasExplicitStatusCode;
@@ -52,6 +53,7 @@ internal sealed class ResponseContentGenerator
         ) : this(response)
     {
         _contentGenerators = contentGenerators;
+        HasBodies = _contentGenerators.Any();
         // _headerGenerators = headerGenerators;
     }
 
