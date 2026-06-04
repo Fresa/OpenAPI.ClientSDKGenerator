@@ -12,23 +12,23 @@ namespace OpenAPI.ClientSDKGenerator.CodeGeneration;
 internal sealed class ResponseBodyContentGenerator
 {
     internal string ClassName { get; }
-    private readonly MediaTypeHeaderValue _contentType;
+    internal MediaTypeHeaderValue ContentType { get; }
     private readonly TypeDeclaration _typeDeclaration;
     private readonly bool _isSequentialMediaType;
     
     public ResponseBodyContentGenerator(KeyValuePair<string, IOpenApiMediaType> contentMediaType, TypeDeclaration typeDeclaration)
     {
-        _contentType = MediaTypeHeaderValue.Parse(contentMediaType.Key);
+        ContentType = MediaTypeHeaderValue.Parse(contentMediaType.Key);
         _typeDeclaration = typeDeclaration;
         _isSequentialMediaType = contentMediaType.Value.ItemSchema != null;
-        var isContentTypeRange = _contentType.MediaType.EndsWith("*");
-        var contentVariableName = _contentType.MediaType switch
+        var isContentTypeRange = ContentType.MediaType.EndsWith("*");
+        var contentVariableName = ContentType.MediaType switch
         {
             "*/*" => "any",
             not null when isContentTypeRange =>
-                $"any{_contentType.MediaType.TrimEnd('*').TrimEnd('/').ToLower().ToPascalCase()}",
+                $"any{ContentType.MediaType.TrimEnd('*').TrimEnd('/').ToLower().ToPascalCase()}",
             null => throw new InvalidOperationException("Content type is null"),
-            _ => _contentType.MediaType.ToLower().ToCamelCase()
+            _ => ContentType.MediaType.ToLower().ToCamelCase()
         };
 
         ClassName = contentVariableName.ToPascalCase();
@@ -61,7 +61,7 @@ namespace {{@namespace}};
         _isSequentialMediaType ? 
 $$"""
 /// <summary>
-/// Response for content {{_contentType}}
+/// Response for content {{ContentType}}
 /// </summary>
 internal sealed class {{ClassName}} : {{responseClassName}}, IAcceptContent
 {
@@ -74,7 +74,7 @@ internal sealed class {{ClassName}} : {{responseClassName}}, IAcceptContent
     }
     
     /// <summary>
-    /// Construct response for content {{_contentType}}
+    /// Construct response for content {{ContentType}}
     /// </summary>
     /// <param name="response">Response message</param>
     /// <param name="cancellationToken">Cancellation token</param>
@@ -85,7 +85,7 @@ internal sealed class {{ClassName}} : {{responseClassName}}, IAcceptContent
         return new {{ClassName}}(stream, response);
     }
     
-    public static MediaTypeWithQualityHeaderValue MediaType { get; } = MediaTypeWithQualityHeaderValue.Parse("{{_contentType}}");
+    public static MediaTypeWithQualityHeaderValue MediaType { get; } = MediaTypeWithQualityHeaderValue.Parse("{{ContentType}}");
     
     private const string ContentSchemaLocation = "{{SchemaLocation}}";
     /// <inheritdoc/>
@@ -100,7 +100,7 @@ internal sealed class {{ClassName}} : {{responseClassName}}, IAcceptContent
 
 $$"""
 /// <summary>
-/// Response for content {{_contentType}}
+/// Response for content {{ContentType}}
 /// </summary>
 internal sealed class {{ClassName}} : {{responseClassName}}, IAcceptContent
 {
@@ -113,7 +113,7 @@ internal sealed class {{ClassName}} : {{responseClassName}}, IAcceptContent
     }
     
     /// <summary>
-    /// Construct response for content {{_contentType}}
+    /// Construct response for content {{ContentType}}
     /// </summary>
     /// <param name="response">Response message</param>
     /// <param name="cancellationToken">Cancellation token</param>
@@ -124,7 +124,7 @@ internal sealed class {{ClassName}} : {{responseClassName}}, IAcceptContent
         return new {{ClassName}}(content, response);
     }
     
-    public static MediaTypeWithQualityHeaderValue MediaType { get; } = MediaTypeWithQualityHeaderValue.Parse("{{_contentType}}");
+    public static MediaTypeWithQualityHeaderValue MediaType { get; } = MediaTypeWithQualityHeaderValue.Parse("{{ContentType}}");
     
     private const string ContentSchemaLocation = "{{SchemaLocation}}";
     /// <inheritdoc/>

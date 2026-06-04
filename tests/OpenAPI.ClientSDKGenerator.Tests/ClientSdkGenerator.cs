@@ -1,3 +1,5 @@
+extern alias OpenAPIClientSDKGenerator;
+
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
@@ -33,7 +35,7 @@ internal static class ClientSdkGenerator
         out ImmutableArray<Diagnostic> diagnostics,
         CancellationToken cancellationToken)
     {
-        var generator = new ClientSDKGenerator.ClientSdkGenerator();
+        var generator = new OpenAPIClientSDKGenerator::OpenAPI.ClientSDKGenerator.ClientSdkGenerator();
 
         var metadata = ImmutableDictionary<string, string>.Empty
             .Add("build_metadata.AdditionalFiles.SourceItemGroup", "ClientSDKGenerator")

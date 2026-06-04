@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.Http;
-using Corvus.Json.CodeGeneration;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
-using Microsoft.OpenApi;
 using OpenAPI.ClientSDKGenerator.CodeGeneration;
+using OpenAPI.ClientSDKGenerator.Extensions;
 using OpenAPI.ClientSDKGenerator.OpenApi;
 using OpenAPI.ClientSDKGenerator.OpenApi.Visitor;
 using IIncrementalGenerator = Microsoft.CodeAnalysis.IIncrementalGenerator;
@@ -158,7 +156,9 @@ public sealed class ClientSdkGenerator : IIncrementalGenerator
                             var contentSchemaReference = openApiResponseVisitor.GetSchemaReference(contentMediaType);
                             var typeDeclaration = schemaGenerator.Generate(contentSchemaReference);
                             return new ResponseBodyContentGenerator(mediaContent, typeDeclaration);
-                        }).ToList();
+                        })
+                        .OrderByDescending(generator => generator.ContentType.GetPrecedence())
+                        .ToList();
 
                         var responseHeaderGenerators = response.Headers?.Select(valuePair =>
                         {
