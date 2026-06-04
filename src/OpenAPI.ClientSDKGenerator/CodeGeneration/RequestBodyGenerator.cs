@@ -44,7 +44,7 @@ internal abstract class Content
     /// <param name="expectedContentType">Expected content type</param>
     protected void EnsureExpectedContentType(MediaTypeHeaderValue contentType, MediaTypeHeaderValue expectedContentType)
     {
-        if (!contentType.IsSubset(expectedContentType))
+        if (!contentType.IsSubsetOf(expectedContentType))
         {
             throw new ArgumentOutOfRangeException($"Expected content type {contentType.MediaType} to be a subset of {expectedContentType.MediaType}");
         }

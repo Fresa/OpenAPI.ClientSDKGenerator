@@ -667,7 +667,7 @@ internal partial class TestClient
                     return contentType switch
                     {
                         null => Unknown.BindAsync(response, cancellationToken),
-                        _ when contentType.IsSubset(ApplicationJson.MediaType) => ApplicationJson.BindAsync(response, cancellationToken),
+                        _ when contentType.IsSubsetOf(ApplicationJson.MediaType) => ApplicationJson.BindAsync(response, cancellationToken),
                         _ => Unknown.BindAsync(response, cancellationToken)
                     };
                 }

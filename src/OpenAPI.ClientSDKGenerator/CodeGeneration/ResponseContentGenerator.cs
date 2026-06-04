@@ -122,7 +122,7 @@ $$"""
         {
             null => Unknown.BindAsync(response, cancellationToken),{{_contentGenerators.AggregateToString(generator =>
 $"""
-            _ when contentType.IsSubset({generator.ClassName}.MediaType) => {generator.ClassName}.BindAsync(response, cancellationToken),
+            _ when contentType.IsSubsetOf({generator.ClassName}.MediaType) => {generator.ClassName}.BindAsync(response, cancellationToken),
 """)}}
             _ => Unknown.BindAsync(response, cancellationToken)
         };

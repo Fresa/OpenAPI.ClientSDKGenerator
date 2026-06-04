@@ -20,7 +20,7 @@ internal static class {{ClassName}}
     private const char ForwardSlash = '/';
     private const char Plus = '+';
 
-    internal static bool IsSubset(this MediaTypeHeaderValue self, MediaTypeHeaderValue? otherMediaType)
+    internal static bool IsSubsetOf(this MediaTypeHeaderValue self, MediaTypeHeaderValue? otherMediaType)
     {
         if (otherMediaType is null)
             return false;
