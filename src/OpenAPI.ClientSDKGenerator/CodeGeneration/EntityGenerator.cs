@@ -107,7 +107,11 @@ $$"""
             .AggregateToString()
             .Indent(8)
             .TrimStart()
-        }}
+        }}{{(operation.Value.ResponseGenerator.GeneratesContent ? 
+$"""
+
+        Accept? accepts = null,
+""" : "")}}
         CancellationToken cancellation = default)
     {{{
             new ParametersGenerator []
@@ -118,7 +122,11 @@ $$"""
             .Select(GetParameterBuilderMethod)
             .AggregateToString()
             .Indent(8)
-        }}
+        }}{{(operation.Value.ResponseGenerator.GeneratesContent ? 
+"""
+
+        requestBuilder.AcceptMediaTypes(accepts?.MediaTypes ?? []);
+""" : "")}}
         var response = await requestBuilder
             .SendAsync(
                 "{{methodGenerator.PathExpression}}",
@@ -128,7 +136,29 @@ $$"""
             .ConfigureAwait(false);
         return await {{operation.Key.Method.ToLower().ToPascalCase()}}Response.BindAsync(response, cancellation)
             .ConfigureAwait(false);
+    }{{(operation.Value.ResponseGenerator.GeneratesContent ? 
+$$"""
+    
+    internal sealed class Accept
+    {
+        private Accept() {}
+        internal static Accept Content<T>()
+            where T : {{operation.Key.Method.ToLower().ToPascalCase()}}Response.IAcceptContent =>
+            new Accept().And<T>();
+
+        internal Accept And<T>()
+            where T : {{operation.Key.Method.ToLower().ToPascalCase()}}Response.IAcceptContent
+        {
+            _mediaTypes.Add(T.MediaType);
+            return this;
+        }
+        
+        private readonly List<MediaTypeWithQualityHeaderValue> _mediaTypes = [];
+        internal MediaTypeWithQualityHeaderValue[] MediaTypes => _mediaTypes.ToArray();
     }
+""" : "")}}
+    
+    
 {{ new[] 
     { 
         operation.Value.RequestBodyGenerator.GenerateClass(),

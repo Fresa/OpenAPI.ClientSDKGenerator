@@ -17,6 +17,7 @@ using Corvus.Json;
 using OpenAPI.ParameterStyleParsers;
 using System.Collections.Concurrent;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -68,6 +69,12 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
         _validationContext = nonNullableValue.Validate(schemaLocation, isRequired, _validationContext, _validationLevel);
         _headerParameters[name] = () => Serialize(nonNullableValue, parameterSpecificationAsJson);
     }
+    
+    private MediaTypeWithQualityHeaderValue[] _acceptMediaTypes = [];
+    internal void AcceptMediaTypes(MediaTypeWithQualityHeaderValue[] mediaTypes)
+    {
+        _acceptMediaTypes = mediaTypes;
+    }
 
     internal Task<HttpResponseMessage> SendAsync(string pathTemplate, 
         string httpMethod,
@@ -92,6 +99,10 @@ internal sealed class RequestBuilder(HttpClient httpClient, ClientSdkConfigurati
         foreach (var header in _headerParameters)
         {
             message.Headers.Add(header.Key, header.Value());
+        }
+        foreach (var accept in _acceptMediaTypes)
+        {
+            message.Headers.Accept.Add(accept);
         }
         return httpClient.SendAsync(message, cancellation);
     }

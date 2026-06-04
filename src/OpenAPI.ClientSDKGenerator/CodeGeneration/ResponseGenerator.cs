@@ -8,6 +8,8 @@ internal sealed class ResponseGenerator(
     List<ResponseContentGenerator> responseContentGenerators
     )
 {
+    internal bool GeneratesContent { get; } = responseContentGenerators.Any(generator => generator.HasBodies);
+    
     public IEnumerable<SourceCode> Generate(
         string @namespace,
         IReadOnlyList<string> nestingClassNames,
@@ -88,19 +90,13 @@ $"""
             _ when {generator.ClassName}.MatchesStatusCode(response.StatusCode) => {generator.ClassName}.BindAsync(response, cancellationToken),
 """)}}
             _ => {{className}}.Unknown.BindAsync(response, cancellationToken)
-        };{{(responseContentGenerators.Any(generator => generator.HasBodies) ? 
+        };{{(GeneratesContent ? 
 """
 
 
-    internal sealed class Accept(MediaTypeHeaderValue contentType)
+    internal interface IAcceptContent
     {
-        MediaTypeHeaderValue Content { get; } = contentType;
-        MediaTypeHeaderValue SubContent { get; } = MediaTypeHeaderValue.Parse($"{contentType.MediaType?.Split('/', 1).First() ?? "*"}/*");
-        MediaTypeHeaderValue Any { get; } = MediaTypeHeaderValue.Parse("*/*");
-        Accept WithQuality(double quality) => new Accept(new MediaTypeWithQualityHeaderValue(Content.MediaType ?? "*/*", quality)
-        {
-            CharSet = Content.CharSet
-        });
+        public abstract static MediaTypeWithQualityHeaderValue MediaType { get; }
     }
 """ : "")}}
 }

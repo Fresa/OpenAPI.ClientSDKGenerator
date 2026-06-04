@@ -18,20 +18,9 @@ public class ExportFooEventsTests(FooApplicationFactory app, ITestOutputHelper t
     {
         using var httpClient = app.CreateClient();
         var client = new Foo.Foo(httpClient);
-        var response = await client.Foo_(1).Events().GetAsync(CancellationToken);
-        Foo.Foo.Foo1.Events0.GetResponse.OK200.ApplicationGeoJsonSeq.MediaType
-        httpClient.Send(new HttpRequestMessage()
-        {
-            // Headers = { Accept = { MediaTypeWithQualityHeaderValue() }}
-        });
-        // var request = new HttpRequestMessage
-        // {
-        //     RequestUri = new Uri(client.BaseAddress!, "/foo/1/events"),
-        //     Method = HttpMethod.Get
-        // };
-        // request.Headers.Accept.ParseAdd(mediaType);
-
-        // var result = await client.SendAsync(request, CancellationToken);
+        var response = await client.Foo_(1).Events().GetAsync(
+            accepts: Foo.Foo.Foo1.Events0.Accept.Content<Foo.Foo.Foo1.Events0.GetResponse.OK200.ApplicationJsonSeq>(), 
+            cancellation: CancellationToken);
 
         // result.StatusCode.Should().Be(HttpStatusCode.OK);
         // result.Content.Headers.ContentType?.MediaType.Should().Be(mediaType);

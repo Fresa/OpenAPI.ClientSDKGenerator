@@ -63,7 +63,7 @@ $$"""
 /// <summary>
 /// Response for content {{_contentType}}
 /// </summary>
-internal sealed class {{ClassName}} : {{responseClassName}}
+internal sealed class {{ClassName}} : {{responseClassName}}, IAcceptContent
 {
     internal {{ClassName}}Enumerable<{{_typeDeclaration.FullyQualifiedDotnetTypeName()}}> Content { get; }
 
@@ -85,7 +85,7 @@ internal sealed class {{ClassName}} : {{responseClassName}}
         return new {{ClassName}}(stream, response);
     }
     
-    internal static MediaTypeHeaderValue MediaType { get; } = MediaTypeHeaderValue.Parse("{{_contentType}}");
+    public static MediaTypeWithQualityHeaderValue MediaType { get; } = MediaTypeWithQualityHeaderValue.Parse("{{_contentType}}");
     
     private const string ContentSchemaLocation = "{{SchemaLocation}}";
     /// <inheritdoc/>
@@ -102,7 +102,7 @@ $$"""
 /// <summary>
 /// Response for content {{_contentType}}
 /// </summary>
-internal sealed class {{ClassName}} : {{responseClassName}}
+internal sealed class {{ClassName}} : {{responseClassName}}, IAcceptContent
 {
     internal {{_typeDeclaration.FullyQualifiedDotnetTypeName()}} Content { get; }
     
@@ -124,7 +124,7 @@ internal sealed class {{ClassName}} : {{responseClassName}}
         return new {{ClassName}}(content, response);
     }
     
-    internal static MediaTypeHeaderValue MediaType { get; } = MediaTypeHeaderValue.Parse("{{_contentType}}");
+    public static MediaTypeWithQualityHeaderValue MediaType { get; } = MediaTypeWithQualityHeaderValue.Parse("{{_contentType}}");
     
     private const string ContentSchemaLocation = "{{SchemaLocation}}";
     /// <inheritdoc/>
