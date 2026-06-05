@@ -54,4 +54,4 @@ TestResult.xml
 nunit-*.xml
 .idea/
 .claude/
-.NCrunch_OpenAPI.ClientSDKGenerator/
+.NCrunch_OpenAPI.WebClientGenerator/

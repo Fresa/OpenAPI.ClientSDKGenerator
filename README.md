@@ -1,4 +1,4 @@
-# OpenApi.ClientSDKGenerator
+# OpenApi.WebClientGenerator
 Generates client SDKs from OpenAPI specifications. 
 
 # Contributing

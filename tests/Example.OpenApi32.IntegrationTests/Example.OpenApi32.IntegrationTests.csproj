@@ -50,13 +50,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\OpenAPI.ClientSDKGenerator\OpenAPI.ClientSDKGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
-        <ClientSDKGenerator Include="openapi.json" ClientName="Foo" Namespace="Example.Foo" />
+        <ProjectReference Include="..\..\src\OpenAPI.WebClientGenerator\OpenAPI.WebClientGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <WebClientGenerator Include="openapi.json" ClientName="Foo" Namespace="Example.Foo" />
         <AdditionalFiles Include="openapi.json" />
         <ProjectReference Include="..\Example.OpenApi\Example.OpenApi.csproj" />
         <ProjectReference Include="..\OpenAPI.IntegrationTestHelpers\OpenAPI.IntegrationTestHelpers.csproj" />
     </ItemGroup>
 
-    <Import Project="..\..\src\OpenAPI.ClientSDKGenerator\build\ClientSDKGenerator.OpenAPI.targets" />
+    <Import Project="..\..\src\OpenAPI.WebClientGenerator\build\WebClientGenerator.OpenAPI.targets" />
 
 </Project>
