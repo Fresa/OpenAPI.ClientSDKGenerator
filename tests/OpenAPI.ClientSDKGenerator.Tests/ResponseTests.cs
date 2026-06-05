@@ -616,6 +616,11 @@ internal partial class TestClient
                     _ when OK200.MatchesStatusCode(response.StatusCode) => OK200.BindAsync(response, cancellationToken),
                     _ => GetResponse.Unknown.BindAsync(response, cancellationToken)
                 };
+
+            internal interface IAcceptContent
+            {
+                public abstract static MediaTypeWithQualityHeaderValue MediaType { get; }
+            }
         }
     }
 }
@@ -761,7 +766,7 @@ internal partial class TestClient
                 /// <summary>
                 /// Response for content application/json
                 /// </summary>
-                internal sealed class ApplicationJson : OK200
+                internal sealed class ApplicationJson : OK200, IAcceptContent
                 {
                     internal Example.Paths.Foo.Get.Responses._200.Content.ApplicationJson Content { get; }
 
@@ -783,7 +788,7 @@ internal partial class TestClient
                         return new ApplicationJson(content, response);
                     }
 
-                    internal static MediaTypeHeaderValue MediaType { get; } = MediaTypeHeaderValue.Parse("application/json");
+                    public static MediaTypeWithQualityHeaderValue MediaType { get; } = MediaTypeWithQualityHeaderValue.Parse("application/json");
 
                     private const string ContentSchemaLocation = "#/paths/~1foo/get/responses/200/content/application~1json/schema";
                     /// <inheritdoc/>

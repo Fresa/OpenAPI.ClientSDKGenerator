@@ -157,8 +157,6 @@ $$"""
         internal MediaTypeWithQualityHeaderValue[] MediaTypes => _mediaTypes.ToArray();
     }
 """ : "")}}
-    
-    
 {{ new[] 
     { 
         operation.Value.RequestBodyGenerator.GenerateClass(),
