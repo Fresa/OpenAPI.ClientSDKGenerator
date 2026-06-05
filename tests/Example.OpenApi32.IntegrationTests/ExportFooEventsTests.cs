@@ -1,9 +1,6 @@
 using System.Net;
-using System.Net.Http.Headers;
-using System.Text.Json.Nodes;
 using AwesomeAssertions;
 using Corvus.Json;
-using Example.OpenApi32.IntegrationTests.Json;
 
 namespace Example.OpenApi32.IntegrationTests;
 
@@ -12,39 +9,39 @@ public class ExportFooEventsTests(FooApplicationFactory app, ITestOutputHelper t
     [Fact]
     internal async Task ExportingFooEventsAsJsonl_ShouldReturnOk()
     {
-        var response = await GetResponse<Foo.Foo.Foo1.Events0.GetResponse.OK200.ApplicationJsonl>();
-        await AssertContent(response.Content);
+        var response = await SendAsync<Foo.Foo.Foo1.Events0.GetResponse.OK200.ApplicationJsonl>();
+        await AssertContentAsync(response.Content);
     }
 
     [Fact]
     internal async Task ExportingFooEventsAsXJsonlines_ShouldReturnOk()
     {
-        var response = await GetResponse<Foo.Foo.Foo1.Events0.GetResponse.OK200.ApplicationXJsonlines>();
-        await AssertContent(response.Content);
+        var response = await SendAsync<Foo.Foo.Foo1.Events0.GetResponse.OK200.ApplicationXJsonlines>();
+        await AssertContentAsync(response.Content);
     }
 
     [Fact]
     internal async Task ExportingFooEventsAsXNdjson_ShouldReturnOk()
     {
-        var response = await GetResponse<Foo.Foo.Foo1.Events0.GetResponse.OK200.ApplicationXNdjson>();
-        await AssertContent(response.Content);
+        var response = await SendAsync<Foo.Foo.Foo1.Events0.GetResponse.OK200.ApplicationXNdjson>();
+        await AssertContentAsync(response.Content);
     }
 
     [Fact]
     internal async Task ExportingFooEventsAsJsonSeq_ShouldReturnOk()
     {
-        var response = await GetResponse<Foo.Foo.Foo1.Events0.GetResponse.OK200.ApplicationJsonSeq>();
-        await AssertContent(response.Content);
+        var response = await SendAsync<Foo.Foo.Foo1.Events0.GetResponse.OK200.ApplicationJsonSeq>();
+        await AssertContentAsync(response.Content);
     }
 
     [Fact]
     internal async Task ExportingFooEventsAsGeoJsonSeq_ShouldReturnOk()
     {
-        var response = await GetResponse<Foo.Foo.Foo1.Events0.GetResponse.OK200.ApplicationGeoJsonSeq>();
-        await AssertContent(response.Content);
+        var response = await SendAsync<Foo.Foo.Foo1.Events0.GetResponse.OK200.ApplicationGeoJsonSeq>();
+        await AssertContentAsync(response.Content);
     }
     
-    private async Task<T> GetResponse<T>()
+    private async Task<T> SendAsync<T>()
         where T : Foo.Foo.Foo1.Events0.GetResponse.OK200, Foo.Foo.Foo1.Events0.GetResponse.IAcceptContent
     {
         using var httpClient = app.CreateClient();
@@ -60,7 +57,7 @@ public class ExportFooEventsTests(FooApplicationFactory app, ITestOutputHelper t
         return typedResponse;
     }
 
-    private static async Task AssertContent(Foo.SequentialJsonEnumerable<Example.Foo.Components.Schemas.FooProperties> enumerable)
+    private static async Task AssertContentAsync(Foo.SequentialJsonEnumerable<Example.Foo.Components.Schemas.FooProperties> enumerable)
     {
         var expectedNames = new Queue<string>(["foo1", "foo2"]);
         await foreach (var (content, contentValidationContext) in enumerable.ConfigureAwait(false))
