@@ -12,8 +12,8 @@ public class ImportFooEventsTests(FooApplicationFactory app) : FooTestSpecificat
     {
         var content = new Foo.Foo.Foo1.Events0.Content.ApplicationJsonl();
         var sendTask = SendAsync(content);
-        content.WriteItem(FooProperties.Create(name: "test"));
-        content.WriteItem(FooProperties.Create(name: "another test"));
+        await content.WriteItemAsync(FooProperties.Create(name: "test"), CancellationToken);
+        await content.WriteItemAsync(FooProperties.Create(name: "another test"), CancellationToken);
         content.Dispose();
         await sendTask;
     }
@@ -23,8 +23,8 @@ public class ImportFooEventsTests(FooApplicationFactory app) : FooTestSpecificat
     {
         var content = new Foo.Foo.Foo1.Events0.Content.ApplicationXJsonlines();
         var sendTask = SendAsync(content);
-        content.WriteItem(FooProperties.Create(name: "test"));
-        content.WriteItem(FooProperties.Create(name: "another test"));
+        await content.WriteItemAsync(FooProperties.Create(name: "test"), CancellationToken);
+        await content.WriteItemAsync(FooProperties.Create(name: "another test"), CancellationToken);
         content.Dispose();
         await sendTask;
     }
@@ -34,8 +34,8 @@ public class ImportFooEventsTests(FooApplicationFactory app) : FooTestSpecificat
     {
         var content = new Foo.Foo.Foo1.Events0.Content.ApplicationXNdjson();
         var sendTask = SendAsync(content);
-        content.WriteItem(FooProperties.Create(name: "test"));
-        content.WriteItem(FooProperties.Create(name: "another test"));
+        await content.WriteItemAsync(FooProperties.Create(name: "test"), CancellationToken);
+        await content.WriteItemAsync(FooProperties.Create(name: "another test"), CancellationToken);
         content.Dispose();
         await sendTask;
     }
@@ -45,8 +45,8 @@ public class ImportFooEventsTests(FooApplicationFactory app) : FooTestSpecificat
     {
         var content = new Foo.Foo.Foo1.Events0.Content.ApplicationJsonSeq();
         var sendTask = SendAsync(content);
-        content.WriteItem(FooProperties.Create(name: "test"));
-        content.WriteItem(FooProperties.Create(name: "another test"));
+        await content.WriteItemAsync(FooProperties.Create(name: "test"), CancellationToken);
+        await content.WriteItemAsync(FooProperties.Create(name: "another test"), CancellationToken);
         content.Dispose();
         await sendTask;
     }
@@ -56,8 +56,8 @@ public class ImportFooEventsTests(FooApplicationFactory app) : FooTestSpecificat
     {
         var content = new Foo.Foo.Foo1.Events0.Content.ApplicationGeoJsonSeq();
         var sendTask = SendAsync(content);
-        content.WriteItem(FooProperties.Create(name: "test"));
-        content.WriteItem(FooProperties.Create(name: "another test"));
+        await content.WriteItemAsync(FooProperties.Create(name: "test"), CancellationToken);
+        await content.WriteItemAsync(FooProperties.Create(name: "another test"), CancellationToken);
         content.Dispose();
         await sendTask;
     }

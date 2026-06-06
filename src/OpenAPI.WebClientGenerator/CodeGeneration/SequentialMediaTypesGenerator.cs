@@ -175,7 +175,7 @@ internal class ApplicationGeoJsonSeqEnumerable<T>(Stream stream) : ApplicationJs
 /// </summary>
 /// <param name="writer"></param>
 /// <typeparam name="T">Item type of the sequence</typeparam>
-internal abstract class SequentialJsonWriter<T>(Stream writer) : IDisposable
+internal abstract class SequentialJsonWriter<T>(PipeWriter writer) : IDisposable
     where T : struct, IJsonValue<T>
 {
     private readonly Utf8JsonWriter _jsonWriter = new(writer, new JsonWriterOptions
@@ -212,19 +212,30 @@ internal abstract class SequentialJsonWriter<T>(Stream writer) : IDisposable
     /// Write an item to the sequence
     /// </summary>
     /// <param name="item">Item to write</param>
-    internal void WriteItem(T item)
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>An awaitable task for the write operation</returns>
+    internal async ValueTask WriteItemAsync(T item, CancellationToken cancellationToken = default)
     {
         if (Prefix != null)
         {
-            var prefix = Prefix.Value;
-            writer.Write(new ReadOnlySpan<byte>(ref prefix));
+            writer.GetSpan(1)[0] = Prefix.Value;
+            writer.Advance(1);
         }
         item.WriteTo(_jsonWriter);
         _jsonWriter.Flush();
         _jsonWriter.Reset();
-        var delimiter = Delimiter;
-        writer.Write(new ReadOnlySpan<byte>(ref delimiter));
+        writer.GetSpan(1)[0] = Delimiter;
+        writer.Advance(1);
         _writtenItems++;
+        var result = await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
+        if (result.IsCanceled)
+        {
+            throw new OperationCanceledException("The pending flush was canceled");
+        }
+        if (result.IsCompleted)
+        {
+            throw new OperationCanceledException("The sequence is no longer being read");
+        }
     }
 
     /// <inheritdoc/>
@@ -237,7 +248,7 @@ internal abstract class SequentialJsonWriter<T>(Stream writer) : IDisposable
 /// <summary>
 /// Sequential json writer for jsonl
 /// </summary>
-internal class ApplicationJsonlWriter<T>(Stream writer) : SequentialJsonWriter<T>(writer) 
+internal class ApplicationJsonlWriter<T>(PipeWriter writer) : SequentialJsonWriter<T>(writer)
     where T : struct, IJsonValue<T>
 {
     protected override byte Delimiter => 0x0A;
@@ -246,19 +257,19 @@ internal class ApplicationJsonlWriter<T>(Stream writer) : SequentialJsonWriter<T
 /// <summary>
 /// Sequential json writer for x-ndjson
 /// </summary>
-internal class ApplicationXNdjsonWriter<T>(Stream writer) : ApplicationJsonlWriter<T>(writer) 
+internal class ApplicationXNdjsonWriter<T>(PipeWriter writer) : ApplicationJsonlWriter<T>(writer)
     where T : struct, IJsonValue<T>;
 
 /// <summary>
 /// Sequential json writer for x-jsonlines
 /// </summary>
-internal class ApplicationXJsonlinesWriter<T>(Stream writer) : ApplicationJsonlWriter<T>(writer) 
+internal class ApplicationXJsonlinesWriter<T>(PipeWriter writer) : ApplicationJsonlWriter<T>(writer)
     where T : struct, IJsonValue<T>;
 
 /// <summary>
 /// Sequential json writer for json-seq
 /// </summary>
-internal class ApplicationJsonSeqWriter<T>(Stream writer) : SequentialJsonWriter<T>(writer) where T : struct, IJsonValue<T>
+internal class ApplicationJsonSeqWriter<T>(PipeWriter writer) : SequentialJsonWriter<T>(writer) where T : struct, IJsonValue<T>
 {
     protected override byte Delimiter => 0x0A;
     protected override byte? Prefix => 0x1E;
@@ -267,7 +278,7 @@ internal class ApplicationJsonSeqWriter<T>(Stream writer) : SequentialJsonWriter
 /// <summary>
 /// Sequential json writer for geo+json-seq
 /// </summary>
-internal class ApplicationGeoJsonSeqWriter<T>(Stream writer) : ApplicationJsonSeqWriter<T>(writer) 
+internal class ApplicationGeoJsonSeqWriter<T>(PipeWriter writer) : ApplicationJsonSeqWriter<T>(writer)
     where T : struct, IJsonValue<T>;
 
 #nullable restore

@@ -61,7 +61,7 @@ $"""
         
         EnsureExpectedContentType(MediaTypeHeaderValue.Parse(contentType), ContentMediaType);
 """ : "")}}
-        _content = new(_pipe.Writer.AsStream());
+        _content = new(_pipe.Writer);
         MediaType = {{(_isContentTypeRange ? "contentType" : $"\"{ContentType.MediaType}\"")}};
     }
 
@@ -71,13 +71,15 @@ $"""
     /// Write an item to the sequence
     /// </summary>
     /// <param name="item">Item to write</param>
-    internal void WriteItem({{_typeDeclaration.FullyQualifiedDotnetTypeName()}} item)
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>An awaitable task for the write operation</returns>
+    internal async ValueTask WriteItemAsync({{_typeDeclaration.FullyQualifiedDotnetTypeName()}} item, CancellationToken cancellationToken = default)
     {
         _currentItem = item;
         // todo: Validate
         //ValidateCurrentItem();
-        
-        _content.WriteItem(item);
+
+        await _content.WriteItemAsync(item, cancellationToken).ConfigureAwait(false);
         _currentItem = null;
     }
     
