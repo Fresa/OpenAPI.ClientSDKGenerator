@@ -10,56 +10,56 @@ public class ImportFooEventsTests(FooApplicationFactory app) : FooTestSpecificat
     [Fact]
     internal async Task ImportingFooEventsAsJsonl_ShouldReturnAccepted()
     {
-        using var stream = new MemoryStream();
-        using var content = new Foo.Foo.Foo1.Events0.Content.ApplicationJsonl(stream);
+        var content = new Foo.Foo.Foo1.Events0.Content.ApplicationJsonl();
+        var sendTask = SendAsync(content);
         content.WriteItem(FooProperties.Create(name: "test"));
         content.WriteItem(FooProperties.Create(name: "another test"));
-        stream.Position = 0;
-        await SendAsync(content);
+        content.Dispose();
+        await sendTask;
     }
 
     [Fact]
     internal async Task ImportingFooEventsAsXJsonlines_ShouldReturnAccepted()
     {
-        using var stream = new MemoryStream();
-        using var content = new Foo.Foo.Foo1.Events0.Content.ApplicationXJsonlines(stream);
+        var content = new Foo.Foo.Foo1.Events0.Content.ApplicationXJsonlines();
+        var sendTask = SendAsync(content);
         content.WriteItem(FooProperties.Create(name: "test"));
         content.WriteItem(FooProperties.Create(name: "another test"));
-        stream.Position = 0;
-        await SendAsync(content);
+        content.Dispose();
+        await sendTask;
     }
 
     [Fact]
     internal async Task ImportingFooEventsAsXNdjson_ShouldReturnAccepted()
     {
-        using var stream = new MemoryStream();
-        using var content = new Foo.Foo.Foo1.Events0.Content.ApplicationXNdjson(stream);
+        var content = new Foo.Foo.Foo1.Events0.Content.ApplicationXNdjson();
+        var sendTask = SendAsync(content);
         content.WriteItem(FooProperties.Create(name: "test"));
         content.WriteItem(FooProperties.Create(name: "another test"));
-        stream.Position = 0;
-        await SendAsync(content);
+        content.Dispose();
+        await sendTask;
     }
 
     [Fact]
     internal async Task ImportingFooEventsAsJsonSeq_ShouldReturnAccepted()
     {
-        using var stream = new MemoryStream();
-        using var content = new Foo.Foo.Foo1.Events0.Content.ApplicationJsonSeq(stream);
+        var content = new Foo.Foo.Foo1.Events0.Content.ApplicationJsonSeq();
+        var sendTask = SendAsync(content);
         content.WriteItem(FooProperties.Create(name: "test"));
         content.WriteItem(FooProperties.Create(name: "another test"));
-        stream.Position = 0;
-        await SendAsync(content);
+        content.Dispose();
+        await sendTask;
     }
 
     [Fact]
     internal async Task ImportingFooEventsAsGeoJsonSeq_ShouldReturnAccepted()
     {
-        using var stream = new MemoryStream();
-        using var content = new Foo.Foo.Foo1.Events0.Content.ApplicationGeoJsonSeq(stream);
+        var content = new Foo.Foo.Foo1.Events0.Content.ApplicationGeoJsonSeq();
+        var sendTask = SendAsync(content);
         content.WriteItem(FooProperties.Create(name: "test"));
         content.WriteItem(FooProperties.Create(name: "another test"));
-        stream.Position = 0;
-        await SendAsync(content);
+        content.Dispose();
+        await sendTask;
     }
 
     private async Task SendAsync(Foo.Foo.Foo1.Events0.Content content)

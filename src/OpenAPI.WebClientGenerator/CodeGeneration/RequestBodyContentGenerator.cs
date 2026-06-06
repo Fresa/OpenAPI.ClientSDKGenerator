@@ -46,8 +46,8 @@ internal sealed class {{ClassName}} : Content, IDisposable
 {
     private readonly {{ClassName}}Writer<{{_typeDeclaration.FullyQualifiedDotnetTypeName()}}> _content;
     private {{_typeDeclaration.FullyQualifiedDotnetTypeName()}}? _currentItem;
-    private readonly Stream _stream;
-    
+    private readonly Pipe _pipe = new();
+
     /// <summary>
     /// Construct request for content {{ContentType}}
     /// </summary>{{(_isContentTypeRange ? 
@@ -55,14 +55,13 @@ $"""
 
    /// <param name="contentType">Content type must match range {ContentType.MediaType}</param>
 """ : "")}}
-    public {{ClassName}}(Stream stream{{(_isContentTypeRange ? ", string contentType" : "")}})
-    {{{(_isContentTypeRange ? 
+    public {{ClassName}}({{(_isContentTypeRange ? "string contentType" : "")}})
+    {{{(_isContentTypeRange ?
 """
         
         EnsureExpectedContentType(MediaTypeHeaderValue.Parse(contentType), ContentMediaType);
 """ : "")}}
-        _content = new(stream);
-        _stream = stream;
+        _content = new(_pipe.Writer.AsStream());
         MediaType = {{(_isContentTypeRange ? "contentType" : $"\"{ContentType.MediaType}\"")}};
     }
 
@@ -85,7 +84,7 @@ $"""
     private static MediaTypeHeaderValue ContentMediaType { get; } = MediaTypeHeaderValue.Parse("{{ContentType}}");
     
     internal override HttpContent Get() =>
-        new StreamContent(_stream)
+        new StreamContent(_pipe.Reader.AsStream())
         {
             Headers =
             {
@@ -112,6 +111,7 @@ $"""
     public void Dispose()
     {
         _content.Dispose();
+        _pipe.Writer.Complete();
     }
 }                              
 """ :

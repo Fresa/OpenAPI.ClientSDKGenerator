@@ -65,6 +65,7 @@ internal sealed class EntityGenerator(string name)
 $$"""
 #nullable enable
 using Corvus.Json;
+using System.IO.Pipelines;
 using System.Net.Http.Headers;
 using System.Text;
 
