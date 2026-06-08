@@ -4,7 +4,7 @@ using Corvus.Json;
 
 namespace Example.OpenApi32.IntegrationTests;
 
-public class ExportFooEventsTests(FooApplicationFactory app, ITestOutputHelper testOutput) : FooTestSpecification, IClassFixture<FooApplicationFactory>
+public class ExportFooEventsTests(FooApplicationFactory app) : FooTestSpecification, IClassFixture<FooApplicationFactory>
 {
     [Fact]
     internal async Task ExportingFooEventsAsJsonl_ShouldReturnOk()

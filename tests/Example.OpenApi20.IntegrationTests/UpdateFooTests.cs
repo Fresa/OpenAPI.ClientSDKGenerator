@@ -1,0 +1,82 @@
+﻿using AwesomeAssertions;
+using Corvus.Json;
+using Example.Foo.Definitions;
+using OpenAPI.IntegrationTestHelpers.Auth;
+
+namespace Example.OpenApi20.IntegrationTests;
+
+public class UpdateFooTests(FooApplicationFactory app) : FooTestSpecification, IClassFixture<FooApplicationFactory>
+{
+    [Fact]
+    public async Task When_Updating_Foo_It_Should_Return_Updated_Foo()
+    {
+        using var httpClient = app.CreateClient()
+            .WithOAuth2ImplicitFlowAuthentication("update");;
+
+        var client = new Foo.Foo(httpClient);
+        var response = await client.Foo_(1)
+            .PutAsync(
+                content: new Foo.Foo.Foo1.Content.ApplicationJson(
+                    FooProperties.Create(name: "test")),
+                header: new Foo.Foo.Foo1.Header
+                {
+                    Bar = new JsonString("foo")
+                },
+                cancellation: CancellationToken);
+        var anyApplicationResponse = response.Should().BeOfType<Foo.Foo.Foo1.PutResponse.OK200.ApplicationJson>()
+            .Subject;
+        anyApplicationResponse.Content.Name
+            .Should().NotBeNull()
+            .And.Be(new JsonString("test"));
+        
+        // result.Headers.Should().HaveCount(1);
+        // result.Headers.Should().ContainKey("Status")
+        //     .WhoseValue.Should().HaveCount(1)
+        //     .And.Contain("2");
+        // result.Content.Headers.ContentType.Should().Be(MediaTypeHeaderValue.Parse("application/json"));
+    }
+    
+    // [Fact]
+    // public async Task Given_unauthenticated_request_When_Updating_Foo_It_Should_Return_401()
+    // {
+    //     using var client = app.CreateClient();
+    //     var result = await client.SendAsync(new HttpRequestMessage()
+    //     {
+    //         RequestUri = new Uri(client.BaseAddress!, "/foo/1"),
+    //         Method = new HttpMethod("PUT"),
+    //         Content = CreateJsonContent(
+    //             """
+    //             {
+    //                 "Name": "test"
+    //             }
+    //             """),
+    //         Headers =
+    //         {
+    //             { "Bar", "test" }
+    //         }
+    //     }, CancellationToken);
+    //     result.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    // }
+    //
+    // [Fact]
+    // public async Task Given_unauthorized_request_When_Updating_Foo_It_Should_Return_403()
+    // {
+    //     using var client = app.CreateClient().WithOAuth2ImplicitFlowAuthentication();
+    //     var result = await client.SendAsync(new HttpRequestMessage()
+    //     {
+    //         RequestUri = new Uri(client.BaseAddress!, "/foo/1"),
+    //         Method = new HttpMethod("PUT"),
+    //         Content = CreateJsonContent(
+    //             """
+    //             {
+    //                 "Name": "test"
+    //             }
+    //             """),
+    //         Headers =
+    //         {
+    //             { "Bar", "test" }
+    //         }
+    //     }, CancellationToken);
+    //     result.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    // }
+}

@@ -1,0 +1,194 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Example API",
+    "version": "2025-11-05",
+    "description": "Foo API"
+  },
+  "paths": {
+    "/foo/{FooId}": {
+      "put": {
+        "operationId": "Update_Foo",
+        "summary": "Update a foo resource",
+        "description": "Updates an existing foo resource by its ID.\n\n## Request\n\nThe request body must contain the **foo properties** to update.\n\n## Notes\n\n- The `FooId` must reference an existing resource\n- Partial updates are *not* supported",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Bar"
+          },
+          {
+            "name": "Fee",
+            "in": "query",
+            "description": "Fee values to associate with the update.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "required": false,
+            "style": "form",
+            "explode": true
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/FooProperties"
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully updated",
+            "headers": {
+              "Status": {
+                "description": "The Status of foo",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "Tag": {
+                "description": "An optional tag",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FooProperties"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          }
+        },
+        "security": [
+          {"petstore_auth":  ["update"]},
+          {"secret_key":  []},
+          {"basicAuth": []},
+          {"mutualTLS": []},
+          {"openIdConnect": []}
+        ]
+      },
+      "delete": {
+        "operationId": "Delete_Foo",
+        "responses": {
+          "200": {
+            "description": "Successfully deleted"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/FooId"
+        }
+      ]
+    }
+  },
+  "components": {
+    "schemas": {
+      "FooProperties": {
+        "description": "Foo properties.",
+        "type": "object",
+        "properties": {
+          "Name": {
+            "description": "Name of foo",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "parameters": {
+      "Bar": {
+        "name": "Bar",
+        "in": "header",
+        "description": "Bar context for the request.",
+        "schema": {
+          "type": "string"
+        },
+        "required": true
+      },
+      "FooId": {
+        "name": "FooId",
+        "in": "path",
+        "description": "The unique identifier of the foo resource.",
+        "schema": {
+          "type": "integer"
+        },
+        "required": true
+      }
+    },
+    "requestBodies": {
+      "FooProperties": {
+        "description": "Foo properties.",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/FooProperties"
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Returned when the request has validation errors",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "error": {
+                    "type": "string"
+                  }
+                },
+                "required": ["name", "error"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "petstore_auth": {
+        "type": "oauth2",
+        "description": "OAuth 2.0 authorization using the implicit flow.\n\nGrants access to pet operations based on the requested scopes:\n- `write:pets` — Create and modify pets\n- `read:pets` — Read pet information",
+        "flows": {
+          "implicit": {
+            "authorizationUrl": "https://localhost/api/oauth/dialog",
+            "scopes": {
+              "write:pets": "modify pets in your account",
+              "read:pets": "read your pets"
+            }
+          }
+        }
+      },
+      "secret_key": {
+        "type": "apiKey",
+        "description": "API key authentication passed via the `Bar` header.\n\nInclude your API key in the `Bar` HTTP header with each request.",
+        "in": "header",
+        "name": "Bar"
+      },
+      "basicAuth": {
+        "type": "http",
+        "description": "HTTP Basic authentication.\n\nProvide a **username** and **password** encoded as `Base64(username:password)` in the `Authorization` header.",
+        "scheme": "basic"
+      },
+      "mutualTLS": {
+        "type": "mutualTLS",
+        "description": "Mutual TLS (mTLS) client certificate authentication.\n\nThe client must present a valid X.509 certificate during the TLS handshake."
+      },
+      "openIdConnect": {
+        "type": "openIdConnect",
+        "description": "OpenID Connect authentication.\n\nDiscovery document is available at the `openIdConnectUrl` endpoint.",
+        "openIdConnectUrl": "https://example.com/.well-known/openid-configuration"
+      }
+    }
+  }
+}

@@ -1,0 +1,154 @@
+﻿{
+  "swagger": "2.0",
+  "info": {
+    "title": "Example API",
+    "version": "2025-11-05"
+  },
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/foo/{FooId}": {
+      "put": {
+        "operationId": "Update_Foo",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/FooProperties"
+          },
+          {
+            "$ref": "#/parameters/Bar"
+          },
+          {
+            "name": "Fee",
+            "in": "query",
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "required": false,
+            "collectionFormat": "multi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated",
+            "schema": {
+              "$ref": "#/definitions/FooProperties"
+            },
+            "headers": {
+              "Status": {
+                "description": "The Status of foo",
+                "type": "integer"
+              },
+              "Tag": {
+                "description": "An optional tag",
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          }
+        },
+        "security": [
+          {"petstore_auth": ["update"]},
+          {"secret_key": []},
+          {"basicAuth": []}
+        ]
+      },
+      "delete": {
+        "operationId": "Delete_Foo",
+        "responses": {
+          "200": {
+            "description": "Successfully deleted"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/FooId"
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "FooProperties": {
+      "description": "Foo properties.",
+      "type": "object",
+      "properties": {
+        "Name": {
+          "description": "Name of foo",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "parameters": {
+    "FooProperties": {
+      "name": "FooProperties",
+      "in": "body",
+      "description": "Foo properties.",
+      "required": true,
+      "schema": {
+        "$ref": "#/definitions/FooProperties"
+      }
+    },
+    "Bar": {
+      "name": "Bar",
+      "in": "header",
+      "type": "string",
+      "required": true
+    },
+    "FooId": {
+      "name": "FooId",
+      "in": "path",
+      "type": "integer",
+      "required": true
+    }
+  },
+  "responses": {
+    "BadRequest": {
+      "description": "Returned when the request has validation errors",
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "error": {
+              "type": "string"
+            }
+          },
+          "required": ["name", "error"]
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "petstore_auth": {
+      "type": "oauth2",
+      "flow": "implicit",
+      "authorizationUrl": "https://localhost/api/oauth/dialog",
+      "scopes": {
+        "write:pets": "modify pets in your account",
+        "read:pets": "read your pets"
+      }
+    },
+    "secret_key": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "Bar"
+    },
+    "basicAuth": {
+      "type": "basic"
+    }
+  }
+}

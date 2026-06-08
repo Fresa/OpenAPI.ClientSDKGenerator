@@ -1,4 +1,4 @@
-namespace Example.OpenApi32.IntegrationTests;
+namespace Example.OpenApi30.IntegrationTests;
 
 public abstract class FooTestSpecification
 {
