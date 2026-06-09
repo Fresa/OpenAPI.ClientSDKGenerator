@@ -91,10 +91,10 @@ $$""""
         {{parameter.ParameterSpecificationAsJson.Indent(8).Trim()}}
         """);
 """").TrimEnd(',')}}
-    return new(requestBuilder);
+    return new(requestBuilder, {{(rootEntity ? "_" : "")}}configuration);
 }
 
-internal partial class {{className}}(RequestBuilder requestBuilder)
+internal partial class {{className}}(RequestBuilder requestBuilder, WebClientConfiguration configuration)
 {{{methodGenerator.Operations.AggregateToString(operation => 
 $$"""
     internal async Task<{{operation.Key.Method.ToLower().ToPascalCase()}}Response> {{operation.Key.Method.ToLower().ToPascalCase()}}Async({{
@@ -128,15 +128,18 @@ $"""
 
         requestBuilder.AcceptMediaTypes(accepts?.MediaTypes ?? []);
 """ : "")}}
-        var response = await requestBuilder
+        var responseMessage = await requestBuilder
             .SendAsync(
                 "{{methodGenerator.PathExpression}}",
                 "{{operation.Key.Method}}",
                 {{(operation.Value.RequestBodyGenerator.HasBody ? "content.Get()" : "null")}},
                 cancellation)
             .ConfigureAwait(false);
-        return await {{operation.Key.Method.ToLower().ToPascalCase()}}Response.BindAsync(response, cancellation)
+        var response = await {{operation.Key.Method.ToLower().ToPascalCase()}}Response.BindAsync(responseMessage, cancellation)
             .ConfigureAwait(false);
+        if (configuration.ValidateResponses)
+            response.Validate(configuration.ValidationLevel);
+        return response;
     }{{(operation.Value.ResponseGenerator.GeneratesContent ? 
 $$"""
     

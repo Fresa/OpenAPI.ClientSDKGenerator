@@ -53,23 +53,26 @@ internal partial class Pets
     internal Pets0 Pets_()
     {
         var requestBuilder = new RequestBuilder(httpClient, _configuration);
-        return new(requestBuilder);
+        return new(requestBuilder, _configuration);
     }
 
-    internal partial class Pets0(RequestBuilder requestBuilder)
+    internal partial class Pets0(RequestBuilder requestBuilder, WebClientConfiguration configuration)
     {
         internal async Task<GetResponse> GetAsync(
             CancellationToken cancellation = default)
         {
-            var response = await requestBuilder
+            var responseMessage = await requestBuilder
                 .SendAsync(
                     "/pets",
                     "GET",
                     null,
                     cancellation)
                 .ConfigureAwait(false);
-            return await GetResponse.BindAsync(response, cancellation)
+            var response = await GetResponse.BindAsync(responseMessage, cancellation)
                 .ConfigureAwait(false);
+            if (configuration.ValidateResponses)
+                response.Validate(configuration.ValidationLevel);
+            return response;
         }
     }
 
@@ -90,23 +93,26 @@ internal partial class Pets
               }
             }
             """);
-        return new(requestBuilder);
+        return new(requestBuilder, _configuration);
     }
 
-    internal partial class Pets1(RequestBuilder requestBuilder)
+    internal partial class Pets1(RequestBuilder requestBuilder, WebClientConfiguration configuration)
     {
         internal async Task<GetResponse> GetAsync(
             CancellationToken cancellation = default)
         {
-            var response = await requestBuilder
+            var responseMessage = await requestBuilder
                 .SendAsync(
                     "/pets/{petId}",
                     "GET",
                     null,
                     cancellation)
                 .ConfigureAwait(false);
-            return await GetResponse.BindAsync(response, cancellation)
+            var response = await GetResponse.BindAsync(responseMessage, cancellation)
                 .ConfigureAwait(false);
+            if (configuration.ValidateResponses)
+                response.Validate(configuration.ValidationLevel);
+            return response;
         }
     }
 }
@@ -151,23 +157,26 @@ internal partial class TestClient
     internal Foo0 Foo()
     {
         var requestBuilder = new RequestBuilder(httpClient, _configuration);
-        return new(requestBuilder);
+        return new(requestBuilder, _configuration);
     }
 
-    internal partial class Foo0(RequestBuilder requestBuilder)
+    internal partial class Foo0(RequestBuilder requestBuilder, WebClientConfiguration configuration)
     {
         internal async Task<GetResponse> GetAsync(
             CancellationToken cancellation = default)
         {
-            var response = await requestBuilder
+            var responseMessage = await requestBuilder
                 .SendAsync(
                     "/foo",
                     "GET",
                     null,
                     cancellation)
                 .ConfigureAwait(false);
-            return await GetResponse.BindAsync(response, cancellation)
+            var response = await GetResponse.BindAsync(responseMessage, cancellation)
                 .ConfigureAwait(false);
+            if (configuration.ValidateResponses)
+                response.Validate(configuration.ValidationLevel);
+            return response;
         }
     }
 }
@@ -188,23 +197,26 @@ internal partial class TestClient
     internal Bar0 Bar()
     {
         var requestBuilder = new RequestBuilder(httpClient, _configuration);
-        return new(requestBuilder);
+        return new(requestBuilder, _configuration);
     }
 
-    internal partial class Bar0(RequestBuilder requestBuilder)
+    internal partial class Bar0(RequestBuilder requestBuilder, WebClientConfiguration configuration)
     {
         internal async Task<GetResponse> GetAsync(
             CancellationToken cancellation = default)
         {
-            var response = await requestBuilder
+            var responseMessage = await requestBuilder
                 .SendAsync(
                     "/bar",
                     "GET",
                     null,
                     cancellation)
                 .ConfigureAwait(false);
-            return await GetResponse.BindAsync(response, cancellation)
+            var response = await GetResponse.BindAsync(responseMessage, cancellation)
                 .ConfigureAwait(false);
+            if (configuration.ValidateResponses)
+                response.Validate(configuration.ValidationLevel);
+            return response;
         }
     }
 }
@@ -225,23 +237,26 @@ internal partial class TestClient
     internal Baz0 Baz()
     {
         var requestBuilder = new RequestBuilder(httpClient, _configuration);
-        return new(requestBuilder);
+        return new(requestBuilder, _configuration);
     }
 
-    internal partial class Baz0(RequestBuilder requestBuilder)
+    internal partial class Baz0(RequestBuilder requestBuilder, WebClientConfiguration configuration)
     {
         internal async Task<GetResponse> GetAsync(
             CancellationToken cancellation = default)
         {
-            var response = await requestBuilder
+            var responseMessage = await requestBuilder
                 .SendAsync(
                     "/baz",
                     "GET",
                     null,
                     cancellation)
                 .ConfigureAwait(false);
-            return await GetResponse.BindAsync(response, cancellation)
+            var response = await GetResponse.BindAsync(responseMessage, cancellation)
                 .ConfigureAwait(false);
+            if (configuration.ValidateResponses)
+                response.Validate(configuration.ValidationLevel);
+            return response;
         }
     }
 }
@@ -305,51 +320,60 @@ internal partial class TestClient
               }
             }
             """);
-        return new(requestBuilder);
+        return new(requestBuilder, _configuration);
     }
 
-    internal partial class Items1(RequestBuilder requestBuilder)
+    internal partial class Items1(RequestBuilder requestBuilder, WebClientConfiguration configuration)
     {
         internal async Task<GetResponse> GetAsync(
             CancellationToken cancellation = default)
         {
-            var response = await requestBuilder
+            var responseMessage = await requestBuilder
                 .SendAsync(
                     "/items/{id}",
                     "GET",
                     null,
                     cancellation)
                 .ConfigureAwait(false);
-            return await GetResponse.BindAsync(response, cancellation)
+            var response = await GetResponse.BindAsync(responseMessage, cancellation)
                 .ConfigureAwait(false);
+            if (configuration.ValidateResponses)
+                response.Validate(configuration.ValidationLevel);
+            return response;
         }
 
         internal async Task<PutResponse> PutAsync(
             CancellationToken cancellation = default)
         {
-            var response = await requestBuilder
+            var responseMessage = await requestBuilder
                 .SendAsync(
                     "/items/{id}",
                     "PUT",
                     null,
                     cancellation)
                 .ConfigureAwait(false);
-            return await PutResponse.BindAsync(response, cancellation)
+            var response = await PutResponse.BindAsync(responseMessage, cancellation)
                 .ConfigureAwait(false);
+            if (configuration.ValidateResponses)
+                response.Validate(configuration.ValidationLevel);
+            return response;
         }
 
         internal async Task<DeleteResponse> DeleteAsync(
             CancellationToken cancellation = default)
         {
-            var response = await requestBuilder
+            var responseMessage = await requestBuilder
                 .SendAsync(
                     "/items/{id}",
                     "DELETE",
                     null,
                     cancellation)
                 .ConfigureAwait(false);
-            return await DeleteResponse.BindAsync(response, cancellation)
+            var response = await DeleteResponse.BindAsync(responseMessage, cancellation)
                 .ConfigureAwait(false);
+            if (configuration.ValidateResponses)
+                response.Validate(configuration.ValidationLevel);
+            return response;
         }
     }
 }
@@ -411,10 +435,10 @@ internal partial class TestClient
               }
             }
             """);
-        return new(requestBuilder);
+        return new(requestBuilder, _configuration);
     }
 
-    internal partial class Parent1(RequestBuilder requestBuilder)
+    internal partial class Parent1(RequestBuilder requestBuilder, WebClientConfiguration configuration)
     {
     }
 }
@@ -436,23 +460,26 @@ internal partial class TestClient
     {
         internal Child0 Child()
         {
-            return new(requestBuilder);
+            return new(requestBuilder, configuration);
         }
 
-        internal partial class Child0(RequestBuilder requestBuilder)
+        internal partial class Child0(RequestBuilder requestBuilder, WebClientConfiguration configuration)
         {
             internal async Task<GetResponse> GetAsync(
                 CancellationToken cancellation = default)
             {
-                var response = await requestBuilder
+                var responseMessage = await requestBuilder
                     .SendAsync(
                         "/parent/{id}/child",
                         "GET",
                         null,
                         cancellation)
                     .ConfigureAwait(false);
-                return await GetResponse.BindAsync(response, cancellation)
+                var response = await GetResponse.BindAsync(responseMessage, cancellation)
                     .ConfigureAwait(false);
+                if (configuration.ValidateResponses)
+                    response.Validate(configuration.ValidationLevel);
+                return response;
             }
         }
     }
@@ -515,23 +542,26 @@ internal partial class TestClient
               }
             }
             """);
-        return new(requestBuilder);
+        return new(requestBuilder, _configuration);
     }
 
-    internal partial class Items1(RequestBuilder requestBuilder)
+    internal partial class Items1(RequestBuilder requestBuilder, WebClientConfiguration configuration)
     {
         internal async Task<GetResponse> GetAsync(
             CancellationToken cancellation = default)
         {
-            var response = await requestBuilder
+            var responseMessage = await requestBuilder
                 .SendAsync(
                     "/items/{id}",
                     "GET",
                     null,
                     cancellation)
                 .ConfigureAwait(false);
-            return await GetResponse.BindAsync(response, cancellation)
+            var response = await GetResponse.BindAsync(responseMessage, cancellation)
                 .ConfigureAwait(false);
+            if (configuration.ValidateResponses)
+                response.Validate(configuration.ValidationLevel);
+            return response;
         }
     }
 }
@@ -587,23 +617,26 @@ internal partial class TestClient
                 internal Items0 Items()
                 {
                     var requestBuilder = new RequestBuilder(httpClient, _configuration);
-                    return new(requestBuilder);
+                    return new(requestBuilder, _configuration);
                 }
             
-                internal partial class Items0(RequestBuilder requestBuilder)
+                internal partial class Items0(RequestBuilder requestBuilder, WebClientConfiguration configuration)
                 {
                     internal async Task<PostResponse> PostAsync(Content content,
                         CancellationToken cancellation = default)
                     {
-                        var response = await requestBuilder
+                        var responseMessage = await requestBuilder
                             .SendAsync(
                                 "/items",
                                 "POST",
                                 content.Get(),
                                 cancellation)
                             .ConfigureAwait(false);
-                        return await PostResponse.BindAsync(response, cancellation)
+                        var response = await PostResponse.BindAsync(responseMessage, cancellation)
                             .ConfigureAwait(false);
+                        if (configuration.ValidateResponses)
+                            response.Validate(configuration.ValidationLevel);
+                        return response;
                     }
 
                     internal abstract class Content
@@ -711,24 +744,27 @@ internal partial class TestClient
     internal Items0 Items()
     {
         var requestBuilder = new RequestBuilder(httpClient, _configuration);
-        return new(requestBuilder);
+        return new(requestBuilder, _configuration);
     }
 
-    internal partial class Items0(RequestBuilder requestBuilder)
+    internal partial class Items0(RequestBuilder requestBuilder, WebClientConfiguration configuration)
     {
         internal async Task<GetResponse> GetAsync(Query query,
             CancellationToken cancellation = default)
         {
             query.AddTo(requestBuilder);
-            var response = await requestBuilder
+            var responseMessage = await requestBuilder
                 .SendAsync(
                     "/items",
                     "GET",
                     null,
                     cancellation)
                 .ConfigureAwait(false);
-            return await GetResponse.BindAsync(response, cancellation)
+            var response = await GetResponse.BindAsync(responseMessage, cancellation)
                 .ConfigureAwait(false);
+            if (configuration.ValidateResponses)
+                response.Validate(configuration.ValidationLevel);
+            return response;
         }
 
         internal sealed class Query
