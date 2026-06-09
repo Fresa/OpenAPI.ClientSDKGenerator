@@ -1,6 +1,6 @@
 ﻿namespace OpenAPI.WebClientGenerator.CodeGeneration;
 
-public class WebClientConfigurationGenerator(string @namespace)
+internal sealed class WebClientConfigurationGenerator(string @namespace, WebClientGeneratorConfig generatorConfig)
 {
     private const string ClassName = "WebClientConfiguration";
     
@@ -26,7 +26,7 @@ public class WebClientConfigurationGenerator(string @namespace)
                   /// <summary>
                   /// Set validation level
                   /// </summary>
-                  internal ValidationLevel ValidationLevel { get; init; } = ValidationLevel.Detailed;
+                  internal ValidationLevel ValidationLevel { get; init; } = ValidationLevel.{{generatorConfig.ValidationLevel.ToString()}};
   
                   /// <summary>
                   /// Should responses be validated?

@@ -5,7 +5,6 @@ namespace OpenAPI.WebClientGenerator.CodeGeneration;
 
 internal sealed class RequestBuilderGenerator(
     OpenApiSpecVersion openApiSpecVersion,
-    WebClientGeneratorConfig generatorConfig,
     JsonValidationExceptionGenerator jsonValidationExceptionGenerator)
 {
     internal SourceCode Generate(string @namespace) =>
@@ -36,7 +35,7 @@ internal sealed class RequestBuilder(HttpClient httpClient, WebClientConfigurati
         where T : struct, IJsonValue<T>
     {
         if (configuration.ValidateRequests)
-            _validationContext = value.Validate(schemaLocation, true, _validationContext, _validationLevel);
+            _validationContext = value.Validate(schemaLocation, true, _validationContext, configuration.ValidationLevel);
         _pathParameters[name] = () => Serialize(value, parameterSpecificationAsJson);
     }
     
@@ -51,7 +50,7 @@ internal sealed class RequestBuilder(HttpClient httpClient, WebClientConfigurati
     {
         var nonNullableValue = value ?? T.Undefined;
         if (configuration.ValidateRequests)
-            _validationContext = nonNullableValue.Validate(schemaLocation, isRequired, _validationContext, _validationLevel);
+            _validationContext = nonNullableValue.Validate(schemaLocation, isRequired, _validationContext, configuration.ValidationLevel);
         if (value is null)
             return;
         _queryParameters[name] = () => Serialize(nonNullableValue, parameterSpecificationAsJson);
@@ -68,7 +67,7 @@ internal sealed class RequestBuilder(HttpClient httpClient, WebClientConfigurati
     {
         var nonNullableValue = value ?? T.Undefined;
         if (configuration.ValidateRequests)
-            _validationContext = nonNullableValue.Validate(schemaLocation, isRequired, _validationContext, _validationLevel);
+            _validationContext = nonNullableValue.Validate(schemaLocation, isRequired, _validationContext, configuration.ValidationLevel);
         _headerParameters[name] = () => Serialize(nonNullableValue, parameterSpecificationAsJson);
     }
     
@@ -119,7 +118,6 @@ internal sealed class RequestBuilder(HttpClient httpClient, WebClientConfigurati
         return parser.Serialize(JsonNode.Parse(jsonValue));
     }
     
-    private ValidationLevel _validationLevel = ValidationLevel.{{generatorConfig.ValidationLevel.ToString()}};
     private ValidationContext _validationContext = ValidationContext.ValidContext.UsingStack().UsingResults();
 
     private void Validate()
