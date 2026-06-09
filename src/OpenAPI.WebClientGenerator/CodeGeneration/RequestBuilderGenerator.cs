@@ -1,4 +1,3 @@
-using System;
 using Microsoft.OpenApi;
 using OpenAPI.WebClientGenerator.OpenApi;
 
@@ -36,7 +35,8 @@ internal sealed class RequestBuilder(HttpClient httpClient, WebClientConfigurati
         string parameterSpecificationAsJson)
         where T : struct, IJsonValue<T>
     {
-        _validationContext = value.Validate(schemaLocation, true, _validationContext, _validationLevel);
+        if (configuration.ValidateRequests)
+            _validationContext = value.Validate(schemaLocation, true, _validationContext, _validationLevel);
         _pathParameters[name] = () => Serialize(value, parameterSpecificationAsJson);
     }
     
@@ -50,7 +50,8 @@ internal sealed class RequestBuilder(HttpClient httpClient, WebClientConfigurati
         where T : struct, IJsonValue<T>
     {
         var nonNullableValue = value ?? T.Undefined;
-        _validationContext = nonNullableValue.Validate(schemaLocation, isRequired, _validationContext, _validationLevel);
+        if (configuration.ValidateRequests)
+            _validationContext = nonNullableValue.Validate(schemaLocation, isRequired, _validationContext, _validationLevel);
         if (value is null)
             return;
         _queryParameters[name] = () => Serialize(nonNullableValue, parameterSpecificationAsJson);
@@ -66,7 +67,8 @@ internal sealed class RequestBuilder(HttpClient httpClient, WebClientConfigurati
         where T : struct, IJsonValue<T>
     {
         var nonNullableValue = value ?? T.Undefined;
-        _validationContext = nonNullableValue.Validate(schemaLocation, isRequired, _validationContext, _validationLevel);
+        if (configuration.ValidateRequests)
+            _validationContext = nonNullableValue.Validate(schemaLocation, isRequired, _validationContext, _validationLevel);
         _headerParameters[name] = () => Serialize(nonNullableValue, parameterSpecificationAsJson);
     }
     
@@ -81,7 +83,8 @@ internal sealed class RequestBuilder(HttpClient httpClient, WebClientConfigurati
         HttpContent? content,
         CancellationToken cancellation = default)
     {
-        Validate();
+        if (configuration.ValidateRequests)
+            Validate();
         var path = _pathParameters.Aggregate(pathTemplate, (uri, parameter) => 
             uri.Replace("{" + parameter.Key + "}", parameter.Value()));
         var query = string.Join("&", _queryParameters.Values.Select(serializeValue => serializeValue()));

@@ -66,7 +66,7 @@ public sealed class WebClientGenerator : IIncrementalGenerator
         jsonValidationExceptionGenerator.GenerateJsonValidationExceptionClass().AddTo(context);
         var mediaTypeHeaderValueExtensionsGenerator = new MediaTypeHeaderValueExtensionsGenerator(rootNamespace);
         mediaTypeHeaderValueExtensionsGenerator.GenerateClass().AddTo(context);
-        var apiConfigurationGenerator = new SdkConfigurationGenerator(rootNamespace);
+        var apiConfigurationGenerator = new WebClientConfigurationGenerator(rootNamespace);
         apiConfigurationGenerator.GenerateClass().AddTo(context);
         var validationExtensionsGenerator = new ValidationExtensionsGenerator(rootNamespace);
         validationExtensionsGenerator.GenerateClass().AddTo(context);
