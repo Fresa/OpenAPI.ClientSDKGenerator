@@ -111,9 +111,10 @@ internal abstract partial class {{ClassName}} : {{baseClassName}}
     /// Bind content from http response
     /// </summary>
     /// <param name="response">Http response message to bind from</param>
+    /// <param name="configuration">Web client configuration</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>An awaitable task for the response content</returns>
-    internal new static Task<{{baseClassName}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+    internal new static Task<{{baseClassName}}> BindAsync(HttpResponseMessage response, WebClientConfiguration configuration, CancellationToken cancellationToken = default)
     {
 {{(_contentGenerators.Any() ?
 $$"""
@@ -122,7 +123,7 @@ $$"""
         {
             null => Unknown.BindAsync(response, cancellationToken),{{_contentGenerators.AggregateToString(generator =>
 $"""
-            _ when contentType.IsSubsetOf({generator.ClassName}.MediaType) => {generator.ClassName}.BindAsync(response, cancellationToken),
+            _ when contentType.IsSubsetOf({generator.ClassName}.MediaType) => {generator.ClassName}.BindAsync(response, configuration, cancellationToken),
 """)}}
             _ => Unknown.BindAsync(response, cancellationToken)
         };
@@ -177,7 +178,7 @@ internal sealed class Empty : {{ClassName}}
     /// </summary>
     /// <param name="response">Response message</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    internal new static Task<{{baseClassName}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default) =>
+    internal static Task<{{baseClassName}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default) =>
         Task.FromResult<{{baseClassName}}>(new Empty(response));
 
     /// <inheritdoc/>
@@ -218,7 +219,7 @@ internal new sealed class Unknown : {{ClassName}}
     /// </summary>
     /// <param name="response">Response message</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    internal new static async Task<{{baseClassName}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+    internal static async Task<{{baseClassName}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
     {
         var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
             .ConfigureAwait(false);

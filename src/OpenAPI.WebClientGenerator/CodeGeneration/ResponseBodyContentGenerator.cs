@@ -67,9 +67,9 @@ internal sealed class {{ClassName}} : {{responseClassName}}, IAcceptContent
 {
     internal {{ClassName}}Enumerable<{{_typeDeclaration.FullyQualifiedDotnetTypeName()}}> Content { get; }
 
-    private {{ClassName}}(Stream stream, HttpResponseMessage response)
+    private {{ClassName}}(Stream stream, HttpResponseMessage response, WebClientConfiguration configuration)
     {
-        Content = new(stream);
+        Content = new(stream, configuration);
         StatusCode = response.StatusCode;
     }
     
@@ -77,12 +77,13 @@ internal sealed class {{ClassName}} : {{responseClassName}}, IAcceptContent
     /// Construct response for content {{ContentType}}
     /// </summary>
     /// <param name="response">Response message</param>
+    /// <param name="configuration">Web client configuration</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    internal new static async Task<{{rootBaseClassName}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+    internal new static async Task<{{rootBaseClassName}}> BindAsync(HttpResponseMessage response, WebClientConfiguration configuration, CancellationToken cancellationToken = default)
     {
         var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
             .ConfigureAwait(false);
-        return new {{ClassName}}(stream, response);
+        return new {{ClassName}}(stream, response, configuration);
     }
     
     public static MediaTypeWithQualityHeaderValue MediaType { get; } = MediaTypeWithQualityHeaderValue.Parse("{{ContentType}}");
@@ -117,7 +118,7 @@ internal sealed class {{ClassName}} : {{responseClassName}}, IAcceptContent
     /// </summary>
     /// <param name="response">Response message</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    internal new static async Task<{{rootBaseClassName}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+    internal new static async Task<{{rootBaseClassName}}> BindAsync(HttpResponseMessage response, WebClientConfiguration _, CancellationToken cancellationToken = default)
     {
         var content = await {{responseClassName}}.ReadJsonAsync(response, cancellationToken)
             .ConfigureAwait(false);

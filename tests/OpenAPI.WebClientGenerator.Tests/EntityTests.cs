@@ -72,7 +72,7 @@ internal partial class Pets
                     null,
                     cancellation)
                 .ConfigureAwait(false);
-            var response = await GetResponse.BindAsync(responseMessage, cancellation)
+            var response = await GetResponse.BindAsync(responseMessage, configuration, cancellation)
                 .ConfigureAwait(false);
             var responseValidationContext = configuration.ValidateResponses ?
                 response.Validate(configuration.ValidationLevel) :
@@ -117,7 +117,7 @@ internal partial class Pets
                     null,
                     cancellation)
                 .ConfigureAwait(false);
-            var response = await GetResponse.BindAsync(responseMessage, cancellation)
+            var response = await GetResponse.BindAsync(responseMessage, configuration, cancellation)
                 .ConfigureAwait(false);
             var responseValidationContext = configuration.ValidateResponses ?
                 response.Validate(configuration.ValidationLevel) :
@@ -187,7 +187,7 @@ internal partial class TestClient
                     null,
                     cancellation)
                 .ConfigureAwait(false);
-            var response = await GetResponse.BindAsync(responseMessage, cancellation)
+            var response = await GetResponse.BindAsync(responseMessage, configuration, cancellation)
                 .ConfigureAwait(false);
             var responseValidationContext = configuration.ValidateResponses ?
                 response.Validate(configuration.ValidationLevel) :
@@ -233,7 +233,7 @@ internal partial class TestClient
                     null,
                     cancellation)
                 .ConfigureAwait(false);
-            var response = await GetResponse.BindAsync(responseMessage, cancellation)
+            var response = await GetResponse.BindAsync(responseMessage, configuration, cancellation)
                 .ConfigureAwait(false);
             var responseValidationContext = configuration.ValidateResponses ?
                 response.Validate(configuration.ValidationLevel) :
@@ -279,7 +279,7 @@ internal partial class TestClient
                     null,
                     cancellation)
                 .ConfigureAwait(false);
-            var response = await GetResponse.BindAsync(responseMessage, cancellation)
+            var response = await GetResponse.BindAsync(responseMessage, configuration, cancellation)
                 .ConfigureAwait(false);
             var responseValidationContext = configuration.ValidateResponses ?
                 response.Validate(configuration.ValidationLevel) :
@@ -368,7 +368,7 @@ internal partial class TestClient
                     null,
                     cancellation)
                 .ConfigureAwait(false);
-            var response = await GetResponse.BindAsync(responseMessage, cancellation)
+            var response = await GetResponse.BindAsync(responseMessage, configuration, cancellation)
                 .ConfigureAwait(false);
             var responseValidationContext = configuration.ValidateResponses ?
                 response.Validate(configuration.ValidationLevel) :
@@ -390,7 +390,7 @@ internal partial class TestClient
                     null,
                     cancellation)
                 .ConfigureAwait(false);
-            var response = await PutResponse.BindAsync(responseMessage, cancellation)
+            var response = await PutResponse.BindAsync(responseMessage, configuration, cancellation)
                 .ConfigureAwait(false);
             var responseValidationContext = configuration.ValidateResponses ?
                 response.Validate(configuration.ValidationLevel) :
@@ -412,7 +412,7 @@ internal partial class TestClient
                     null,
                     cancellation)
                 .ConfigureAwait(false);
-            var response = await DeleteResponse.BindAsync(responseMessage, cancellation)
+            var response = await DeleteResponse.BindAsync(responseMessage, configuration, cancellation)
                 .ConfigureAwait(false);
             var responseValidationContext = configuration.ValidateResponses ?
                 response.Validate(configuration.ValidationLevel) :
@@ -525,7 +525,7 @@ internal partial class TestClient
                         null,
                         cancellation)
                     .ConfigureAwait(false);
-                var response = await GetResponse.BindAsync(responseMessage, cancellation)
+                var response = await GetResponse.BindAsync(responseMessage, configuration, cancellation)
                     .ConfigureAwait(false);
                 var responseValidationContext = configuration.ValidateResponses ?
                     response.Validate(configuration.ValidationLevel) :
@@ -613,7 +613,7 @@ internal partial class TestClient
                     null,
                     cancellation)
                 .ConfigureAwait(false);
-            var response = await GetResponse.BindAsync(responseMessage, cancellation)
+            var response = await GetResponse.BindAsync(responseMessage, configuration, cancellation)
                 .ConfigureAwait(false);
             var responseValidationContext = configuration.ValidateResponses ?
                 response.Validate(configuration.ValidationLevel) :
@@ -694,7 +694,7 @@ internal partial class TestClient
                                 content.Get(),
                                 cancellation)
                             .ConfigureAwait(false);
-                        var response = await PostResponse.BindAsync(responseMessage, cancellation)
+                        var response = await PostResponse.BindAsync(responseMessage, configuration, cancellation)
                             .ConfigureAwait(false);
                         var responseValidationContext = configuration.ValidateResponses ?
                             response.Validate(configuration.ValidationLevel) :
@@ -829,7 +829,7 @@ internal partial class TestClient
                                 content?.Get(),
                                 cancellation)
                             .ConfigureAwait(false);
-                        var response = await PostResponse.BindAsync(responseMessage, cancellation)
+                        var response = await PostResponse.BindAsync(responseMessage, configuration, cancellation)
                             .ConfigureAwait(false);
                         var responseValidationContext = configuration.ValidateResponses ?
                             response.Validate(configuration.ValidationLevel) :
@@ -1011,7 +1011,7 @@ internal partial class TestClient
                     null,
                     cancellation)
                 .ConfigureAwait(false);
-            var response = await GetResponse.BindAsync(responseMessage, cancellation)
+            var response = await GetResponse.BindAsync(responseMessage, configuration, cancellation)
                 .ConfigureAwait(false);
             var responseValidationContext = configuration.ValidateResponses ?
                 response.Validate(configuration.ValidationLevel) :

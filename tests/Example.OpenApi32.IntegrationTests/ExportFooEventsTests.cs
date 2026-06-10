@@ -1,6 +1,7 @@
 using System.Net;
 using AwesomeAssertions;
 using Corvus.Json;
+using Example.Foo;
 
 namespace Example.OpenApi32.IntegrationTests;
 
@@ -63,7 +64,7 @@ public class ExportFooEventsTests(FooApplicationFactory app) : FooTestSpecificat
         var expectedNames = new Queue<string>(["foo1", "foo2"]);
         await foreach (var (content, contentValidationContext) in enumerable.ConfigureAwait(false))
         {
-            contentValidationContext.IsValid.Should().BeTrue();
+            contentValidationContext.IsValid().Should().BeTrue();
             content.Name.Should().BeEquivalentTo(new JsonString(expectedNames.Dequeue()));
         }
     }

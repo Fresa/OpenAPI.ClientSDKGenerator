@@ -82,12 +82,13 @@ $$"""
     /// Construct response
     /// </summary>
     /// <param name="response">Response message</param>
+    /// <param name="configuration">Web client configuration</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    internal static Task<{{className}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default) =>
+    internal static Task<{{className}}> BindAsync(HttpResponseMessage response, WebClientConfiguration configuration, CancellationToken cancellationToken = default) =>
         response.StatusCode switch
         {{{responseContentGenerators.AggregateToString(generator =>
 $"""
-            _ when {generator.ClassName}.MatchesStatusCode(response.StatusCode) => {generator.ClassName}.BindAsync(response, cancellationToken),
+            _ when {generator.ClassName}.MatchesStatusCode(response.StatusCode) => {generator.ClassName}.BindAsync(response, configuration, cancellationToken),
 """)}}
             _ => {{className}}.Unknown.BindAsync(response, cancellationToken)
         };{{(GeneratesContent ? 
@@ -135,7 +136,7 @@ internal sealed class Unknown : {{className}}
     /// </summary>
     /// <param name="response">Response message</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    internal new static async Task<{{className}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+    internal static async Task<{{className}}> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
     {
         var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
             .ConfigureAwait(false);

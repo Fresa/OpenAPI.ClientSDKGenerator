@@ -9,6 +9,7 @@ using Corvus.Json;
 using Microsoft.AspNetCore.Authorization;
 using System;
 using System.Buffers;
+using System.Collections.Immutable;
 using System.IO.Pipelines;
 using System.Text.Json;
 
@@ -17,7 +18,7 @@ namespace {{@namespace}};
 /// <summary>
 /// Base class for sequential json enumerable
 /// </summary>
-internal abstract class SequentialJsonEnumerable<T>(Stream stream) : IAsyncEnumerable<(T, ValidationContext)> 
+internal abstract class SequentialJsonEnumerable<T>(Stream stream, WebClientConfiguration configuration) : IAsyncEnumerable<(T, ImmutableList<ValidationResult>)> 
     where T : struct, IJsonValue<T>
 {
     private int _itemPosition = -1;
@@ -36,7 +37,7 @@ internal abstract class SequentialJsonEnumerable<T>(Stream stream) : IAsyncEnume
     protected abstract bool RequiresDelimiterAfterLastItem { get; }
     
     /// <inheritdoc/>
-    public async IAsyncEnumerator<(T, ValidationContext)> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+    public async IAsyncEnumerator<(T, ImmutableList<ValidationResult>)> GetAsyncEnumerator(CancellationToken cancellationToken = default)
     {
         var pipeReader = PipeReader.Create(stream);
         try
@@ -95,8 +96,14 @@ internal abstract class SequentialJsonEnumerable<T>(Stream stream) : IAsyncEnume
     /// <returns>The parsed item</returns>
     protected abstract T ParseItem(ReadOnlySequence<byte> data); 
     
-    private ValidationContext ValidateCurrentItem() => 
-        _current?.Validate($"{_schemaLocation}/{_itemPosition}", true, ValidationContext.ValidContext, _validationLevel) ?? ValidationContext.ValidContext;
+    private ImmutableList<ValidationResult> ValidateCurrentItem()
+    {
+        if (!configuration.ValidateResponses || _current == null)
+            return ValidationContext.ValidContext.Results;
+        return _current.Validate($"{_schemaLocation}/{_itemPosition}", true, ValidationContext.ValidContext, _validationLevel).Results
+            .WithLocation(configuration.OpenApiSpecificationUri);
+    }
+        
         
     /// <summary>
     /// Validates the sequence
@@ -117,8 +124,8 @@ internal abstract class SequentialJsonEnumerable<T>(Stream stream) : IAsyncEnume
 /// <summary>
 /// Sequential json enumerable for jsonl
 /// </summary>
-internal class ApplicationJsonlEnumerable<T>(Stream stream) : 
-    SequentialJsonEnumerable<T>(stream) 
+internal class ApplicationJsonlEnumerable<T>(Stream stream, WebClientConfiguration configuration) : 
+    SequentialJsonEnumerable<T>(stream, configuration) 
     where T : struct, IJsonValue<T>
 {
     protected override byte Delimiter => 0x0A;
@@ -129,20 +136,20 @@ internal class ApplicationJsonlEnumerable<T>(Stream stream) :
 /// <summary>
 /// Sequential json enumerable for x-ndjson
 /// </summary>
-internal class ApplicationXNdjsonEnumerable<T>(Stream stream) : ApplicationJsonlEnumerable<T>(stream)
+internal class ApplicationXNdjsonEnumerable<T>(Stream stream, WebClientConfiguration configuration) : ApplicationJsonlEnumerable<T>(stream, configuration)
     where T : struct, IJsonValue<T>;
 
 /// <summary>
 /// Sequential json enumerable for x-jsonlines
 /// </summary>
-internal class ApplicationXJsonlinesEnumerable<T>(Stream stream) : ApplicationJsonlEnumerable<T>(stream)
+internal class ApplicationXJsonlinesEnumerable<T>(Stream stream, WebClientConfiguration configuration) : ApplicationJsonlEnumerable<T>(stream, configuration)
     where T : struct, IJsonValue<T>;
 
 /// <summary>
 /// Sequential json enumerable for json-seq
 /// </summary>
-internal class ApplicationJsonSeqEnumerable<T>(Stream stream) : 
-    SequentialJsonEnumerable<T>(stream) 
+internal class ApplicationJsonSeqEnumerable<T>(Stream stream, WebClientConfiguration configuration) : 
+    SequentialJsonEnumerable<T>(stream, configuration) 
     where T : struct, IJsonValue<T>
 {
     private const byte RecordSeparator = 0x1E;
@@ -166,7 +173,7 @@ internal class ApplicationJsonSeqEnumerable<T>(Stream stream) :
 /// <summary>
 /// Sequential json enumerable for geo+json-seq
 /// </summary>
-internal class ApplicationGeoJsonSeqEnumerable<T>(Stream stream) : ApplicationJsonSeqEnumerable<T>(stream)
+internal class ApplicationGeoJsonSeqEnumerable<T>(Stream stream, WebClientConfiguration configuration) : ApplicationJsonSeqEnumerable<T>(stream, configuration)
     where T : struct, IJsonValue<T>;
 
 

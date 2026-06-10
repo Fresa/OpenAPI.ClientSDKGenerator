@@ -142,7 +142,7 @@ $"""
                 {{GetContentExpression(operation.Value.RequestBodyGenerator)}},
                 cancellation)
             .ConfigureAwait(false);
-        var response = await {{operation.Key.Method.ToLower().ToPascalCase()}}Response.BindAsync(responseMessage, cancellation)
+        var response = await {{operation.Key.Method.ToLower().ToPascalCase()}}Response.BindAsync(responseMessage, configuration, cancellation)
             .ConfigureAwait(false);
         var responseValidationContext = configuration.ValidateResponses ?
             response.Validate(configuration.ValidationLevel) :

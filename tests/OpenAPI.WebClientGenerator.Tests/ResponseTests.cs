@@ -38,7 +38,7 @@ internal partial class TestClient
                     /// </summary>
                     /// <param name="response">Response message</param>
                     /// <param name="cancellationToken">Cancellation token</param>
-                    internal new static Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default) =>
+                    internal static Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default) =>
                         Task.FromResult<GetResponse>(new Empty(response));
 
                     /// <inheritdoc/>
@@ -83,7 +83,7 @@ internal partial class TestClient
                 /// </summary>
                 /// <param name="response">Response message</param>
                 /// <param name="cancellationToken">Cancellation token</param>
-                internal new static async Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+                internal static async Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
                 {
                     var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
                         .ConfigureAwait(false);
@@ -212,11 +212,12 @@ internal partial class TestClient
             /// Construct response
             /// </summary>
             /// <param name="response">Response message</param>
+            /// <param name="configuration">Web client configuration</param>
             /// <param name="cancellationToken">Cancellation token</param>
-            internal static Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default) =>
+            internal static Task<GetResponse> BindAsync(HttpResponseMessage response, WebClientConfiguration configuration, CancellationToken cancellationToken = default) =>
                 response.StatusCode switch
                 {
-                    _ when OK200.MatchesStatusCode(response.StatusCode) => OK200.BindAsync(response, cancellationToken),
+                    _ when OK200.MatchesStatusCode(response.StatusCode) => OK200.BindAsync(response, configuration, cancellationToken),
                     _ => GetResponse.Unknown.BindAsync(response, cancellationToken)
                 };
         }
@@ -262,9 +263,10 @@ internal partial class TestClient
                 /// Bind content from http response
                 /// </summary>
                 /// <param name="response">Http response message to bind from</param>
+                /// <param name="configuration">Web client configuration</param>
                 /// <param name="cancellationToken">Cancellation token</param>
                 /// <returns>An awaitable task for the response content</returns>
-                internal new static Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+                internal new static Task<GetResponse> BindAsync(HttpResponseMessage response, WebClientConfiguration configuration, CancellationToken cancellationToken = default)
                 {
                     return Empty.BindAsync(response, cancellationToken);
                 }
@@ -405,11 +407,12 @@ internal partial class TestClient
             /// Construct response
             /// </summary>
             /// <param name="response">Response message</param>
+            /// <param name="configuration">Web client configuration</param>
             /// <param name="cancellationToken">Cancellation token</param>
-            internal static Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default) =>
+            internal static Task<GetResponse> BindAsync(HttpResponseMessage response, WebClientConfiguration configuration, CancellationToken cancellationToken = default) =>
                 response.StatusCode switch
                 {
-                    _ when Default.MatchesStatusCode(response.StatusCode) => Default.BindAsync(response, cancellationToken),
+                    _ when Default.MatchesStatusCode(response.StatusCode) => Default.BindAsync(response, configuration, cancellationToken),
                     _ => GetResponse.Unknown.BindAsync(response, cancellationToken)
                 };
         }
@@ -455,9 +458,10 @@ internal partial class TestClient
                 /// Bind content from http response
                 /// </summary>
                 /// <param name="response">Http response message to bind from</param>
+                /// <param name="configuration">Web client configuration</param>
                 /// <param name="cancellationToken">Cancellation token</param>
                 /// <returns>An awaitable task for the response content</returns>
-                internal new static Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+                internal new static Task<GetResponse> BindAsync(HttpResponseMessage response, WebClientConfiguration configuration, CancellationToken cancellationToken = default)
                 {
                     return Empty.BindAsync(response, cancellationToken);
                 }
@@ -609,11 +613,12 @@ internal partial class TestClient
             /// Construct response
             /// </summary>
             /// <param name="response">Response message</param>
+            /// <param name="configuration">Web client configuration</param>
             /// <param name="cancellationToken">Cancellation token</param>
-            internal static Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default) =>
+            internal static Task<GetResponse> BindAsync(HttpResponseMessage response, WebClientConfiguration configuration, CancellationToken cancellationToken = default) =>
                 response.StatusCode switch
                 {
-                    _ when OK200.MatchesStatusCode(response.StatusCode) => OK200.BindAsync(response, cancellationToken),
+                    _ when OK200.MatchesStatusCode(response.StatusCode) => OK200.BindAsync(response, configuration, cancellationToken),
                     _ => GetResponse.Unknown.BindAsync(response, cancellationToken)
                 };
 
@@ -664,15 +669,16 @@ internal partial class TestClient
                 /// Bind content from http response
                 /// </summary>
                 /// <param name="response">Http response message to bind from</param>
+                /// <param name="configuration">Web client configuration</param>
                 /// <param name="cancellationToken">Cancellation token</param>
                 /// <returns>An awaitable task for the response content</returns>
-                internal new static Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+                internal new static Task<GetResponse> BindAsync(HttpResponseMessage response, WebClientConfiguration configuration, CancellationToken cancellationToken = default)
                 {
                     var contentType = response.Content.Headers.ContentType;
                     return contentType switch
                     {
                         null => Unknown.BindAsync(response, cancellationToken),
-                        _ when contentType.IsSubsetOf(ApplicationJson.MediaType) => ApplicationJson.BindAsync(response, cancellationToken),
+                        _ when contentType.IsSubsetOf(ApplicationJson.MediaType) => ApplicationJson.BindAsync(response, configuration, cancellationToken),
                         _ => Unknown.BindAsync(response, cancellationToken)
                     };
                 }
@@ -729,7 +735,7 @@ internal partial class TestClient
                     /// </summary>
                     /// <param name="response">Response message</param>
                     /// <param name="cancellationToken">Cancellation token</param>
-                    internal new static async Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+                    internal static async Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
                     {
                         var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
                             .ConfigureAwait(false);
@@ -781,7 +787,7 @@ internal partial class TestClient
                     /// </summary>
                     /// <param name="response">Response message</param>
                     /// <param name="cancellationToken">Cancellation token</param>
-                    internal new static async Task<GetResponse> BindAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+                    internal new static async Task<GetResponse> BindAsync(HttpResponseMessage response, WebClientConfiguration _, CancellationToken cancellationToken = default)
                     {
                         var content = await OK200.ReadJsonAsync(response, cancellationToken)
                             .ConfigureAwait(false);
