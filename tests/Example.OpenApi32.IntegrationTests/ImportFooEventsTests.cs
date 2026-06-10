@@ -1,5 +1,6 @@
 using System.Net;
 using AwesomeAssertions;
+using Example.Foo;
 using Example.Foo.Components.Schemas;
 using OpenAPI.IntegrationTestHelpers.Auth;
 
@@ -12,8 +13,8 @@ public class ImportFooEventsTests(FooApplicationFactory app) : FooTestSpecificat
     {
         var content = new Foo.Foo.Foo1.Events0.Content.ApplicationJsonl();
         var sendTask = SendAsync(content);
-        await content.WriteItemAsync(FooProperties.Create(name: "test"), CancellationToken);
-        await content.WriteItemAsync(FooProperties.Create(name: "another test"), CancellationToken);
+        (await content.WriteItemAsync(FooProperties.Create(name: "test"), CancellationToken)).IsValid().Should().BeTrue();
+        (await content.WriteItemAsync(FooProperties.Create(name: "another test"), CancellationToken)).IsValid().Should().BeTrue();
         content.Dispose();
         await sendTask;
     }
@@ -23,8 +24,8 @@ public class ImportFooEventsTests(FooApplicationFactory app) : FooTestSpecificat
     {
         var content = new Foo.Foo.Foo1.Events0.Content.ApplicationXJsonlines();
         var sendTask = SendAsync(content);
-        await content.WriteItemAsync(FooProperties.Create(name: "test"), CancellationToken);
-        await content.WriteItemAsync(FooProperties.Create(name: "another test"), CancellationToken);
+        (await content.WriteItemAsync(FooProperties.Create(name: "test"), CancellationToken)).IsValid().Should().BeTrue();
+        (await content.WriteItemAsync(FooProperties.Create(name: "another test"), CancellationToken)).IsValid().Should().BeTrue();
         content.Dispose();
         await sendTask;
     }
@@ -34,8 +35,8 @@ public class ImportFooEventsTests(FooApplicationFactory app) : FooTestSpecificat
     {
         var content = new Foo.Foo.Foo1.Events0.Content.ApplicationXNdjson();
         var sendTask = SendAsync(content);
-        await content.WriteItemAsync(FooProperties.Create(name: "test"), CancellationToken);
-        await content.WriteItemAsync(FooProperties.Create(name: "another test"), CancellationToken);
+        (await content.WriteItemAsync(FooProperties.Create(name: "test"), CancellationToken)).IsValid().Should().BeTrue();
+        (await content.WriteItemAsync(FooProperties.Create(name: "another test"), CancellationToken)).IsValid().Should().BeTrue();
         content.Dispose();
         await sendTask;
     }
@@ -45,8 +46,8 @@ public class ImportFooEventsTests(FooApplicationFactory app) : FooTestSpecificat
     {
         var content = new Foo.Foo.Foo1.Events0.Content.ApplicationJsonSeq();
         var sendTask = SendAsync(content);
-        await content.WriteItemAsync(FooProperties.Create(name: "test"), CancellationToken);
-        await content.WriteItemAsync(FooProperties.Create(name: "another test"), CancellationToken);
+        (await content.WriteItemAsync(FooProperties.Create(name: "test"), CancellationToken)).IsValid().Should().BeTrue();
+        (await content.WriteItemAsync(FooProperties.Create(name: "another test"), CancellationToken)).IsValid().Should().BeTrue();
         content.Dispose();
         await sendTask;
     }
@@ -56,8 +57,8 @@ public class ImportFooEventsTests(FooApplicationFactory app) : FooTestSpecificat
     {
         var content = new Foo.Foo.Foo1.Events0.Content.ApplicationGeoJsonSeq();
         var sendTask = SendAsync(content);
-        await content.WriteItemAsync(FooProperties.Create(name: "test"), CancellationToken);
-        await content.WriteItemAsync(FooProperties.Create(name: "another test"), CancellationToken);
+        (await content.WriteItemAsync(FooProperties.Create(name: "test"), CancellationToken)).IsValid().Should().BeTrue();
+        (await content.WriteItemAsync(FooProperties.Create(name: "another test"), CancellationToken)).IsValid().Should().BeTrue();
         content.Dispose();
         await sendTask;
     }
