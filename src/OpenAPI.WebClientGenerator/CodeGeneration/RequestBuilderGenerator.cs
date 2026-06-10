@@ -67,6 +67,8 @@ internal sealed class RequestBuilder(HttpClient httpClient, WebClientConfigurati
         var nonNullableValue = value ?? T.Undefined;
         if (configuration.ValidateRequests)
             ValidationContext = nonNullableValue.Validate(schemaLocation, isRequired, ValidationContext, configuration.ValidationLevel);
+        if (value is null)
+            return;
         _headerParameters[name] = () => Serialize(nonNullableValue, parameterSpecificationAsJson);
     }
     

@@ -63,6 +63,17 @@ public class ImportFooEventsTests(FooApplicationFactory app) : FooTestSpecificat
         await sendTask;
     }
 
+    [Fact]
+    internal async Task ImportingInvalidFooEvent_ShouldReturnInvalidValidationResults()
+    {
+        using var content = new Foo.Foo.Foo1.Events0.Content.ApplicationJsonl();
+        var notAFooEvent = FooProperties.Parse("\"not-a-foo-event\"");
+
+        var validationResults = await content.WriteItemAsync(notAFooEvent, CancellationToken);
+
+        validationResults.IsValid().Should().BeFalse();
+    }
+
     private async Task SendAsync(Foo.Foo.Foo1.Events0.Content content)
     {
         using var httpClient = app.CreateClient()
