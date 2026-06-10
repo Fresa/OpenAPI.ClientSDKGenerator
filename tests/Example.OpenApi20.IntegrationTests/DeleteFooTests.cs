@@ -1,4 +1,5 @@
 ﻿using AwesomeAssertions;
+using Corvus.Json;
 
 namespace Example.OpenApi20.IntegrationTests;
 

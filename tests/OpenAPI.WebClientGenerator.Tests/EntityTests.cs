@@ -43,6 +43,7 @@ public class EntityTests(ITestOutputHelper testOutputHelper)
 """"
 #nullable enable
 using Corvus.Json;
+using System.Collections.Immutable;
 using System.IO.Pipelines;
 using System.Net.Http.Headers;
 using System.Text;
@@ -153,6 +154,7 @@ internal partial class Pets
 """"
 #nullable enable
 using Corvus.Json;
+using System.Collections.Immutable;
 using System.IO.Pipelines;
 using System.Net.Http.Headers;
 using System.Text;
@@ -196,6 +198,7 @@ internal partial class TestClient
 """"
 #nullable enable
 using Corvus.Json;
+using System.Collections.Immutable;
 using System.IO.Pipelines;
 using System.Net.Http.Headers;
 using System.Text;
@@ -239,6 +242,7 @@ internal partial class TestClient
 """"
 #nullable enable
 using Corvus.Json;
+using System.Collections.Immutable;
 using System.IO.Pipelines;
 using System.Net.Http.Headers;
 using System.Text;
@@ -311,6 +315,7 @@ internal partial class TestClient
 """"
 #nullable enable
 using Corvus.Json;
+using System.Collections.Immutable;
 using System.IO.Pipelines;
 using System.Net.Http.Headers;
 using System.Text;
@@ -435,6 +440,7 @@ internal partial class TestClient
 """"
 #nullable enable
 using Corvus.Json;
+using System.Collections.Immutable;
 using System.IO.Pipelines;
 using System.Net.Http.Headers;
 using System.Text;
@@ -473,6 +479,7 @@ internal partial class TestClient
 """"
 #nullable enable
 using Corvus.Json;
+using System.Collections.Immutable;
 using System.IO.Pipelines;
 using System.Net.Http.Headers;
 using System.Text;
@@ -545,6 +552,7 @@ internal partial class TestClient
 """"
 #nullable enable
 using Corvus.Json;
+using System.Collections.Immutable;
 using System.IO.Pipelines;
 using System.Net.Http.Headers;
 using System.Text;
@@ -637,6 +645,7 @@ internal partial class TestClient
         source.Should().Be("""
             #nullable enable
             using Corvus.Json;
+            using System.Collections.Immutable;
             using System.IO.Pipelines;
             using System.Net.Http.Headers;
             using System.Text;
@@ -767,6 +776,7 @@ internal partial class TestClient
 """"
 #nullable enable
 using Corvus.Json;
+using System.Collections.Immutable;
 using System.IO.Pipelines;
 using System.Net.Http.Headers;
 using System.Text;

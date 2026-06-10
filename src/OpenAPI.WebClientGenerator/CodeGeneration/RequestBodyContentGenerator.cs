@@ -47,7 +47,11 @@ internal sealed class {{ClassName}} : Content, IDisposable
     private readonly {{ClassName}}Writer<{{_typeDeclaration.FullyQualifiedDotnetTypeName()}}> _content;
     private {{_typeDeclaration.FullyQualifiedDotnetTypeName()}}? _currentItem;
     private readonly Pipe _pipe = new();
+    private WebClientConfiguration _configuration;
 
+    private ValidationContext CreateValidationContext() =>
+        ValidationContext.ValidContext.UsingStack().UsingResults();
+        
     /// <summary>
     /// Construct request for content {{ContentType}}
     /// </summary>{{(_isContentTypeRange ? 
@@ -55,7 +59,7 @@ $"""
 
    /// <param name="contentType">Content type must match range {ContentType.MediaType}</param>
 """ : "")}}
-    public {{ClassName}}({{(_isContentTypeRange ? "string contentType" : "")}})
+    public {{ClassName}}({{(_isContentTypeRange ? "string contentType, " : "")}}WebClientConfiguration? configuration = null)
     {{{(_isContentTypeRange ?
 """
         
@@ -63,6 +67,7 @@ $"""
 """ : "")}}
         _content = new(_pipe.Writer);
         MediaType = {{(_isContentTypeRange ? "contentType" : $"\"{ContentType.MediaType}\"")}};
+        _configuration = configuration ?? new();
     }
 
     internal override string MediaType { get; }
@@ -72,15 +77,20 @@ $"""
     /// </summary>
     /// <param name="item">Item to write</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>An awaitable task for the write operation</returns>
-    internal async ValueTask WriteItemAsync({{_typeDeclaration.FullyQualifiedDotnetTypeName()}} item, CancellationToken cancellationToken = default)
+    /// <returns>An awaitable validation context for the request. The item is only written if passing validation.</returns>
+    internal async ValueTask<ImmutableList<ValidationResult>> WriteItemAsync({{_typeDeclaration.FullyQualifiedDotnetTypeName()}} item, CancellationToken cancellationToken = default)
     {
         _currentItem = item;
-        // todo: Validate
-        //ValidateCurrentItem();
+        var validationContext = _configuration.ValidateRequests ? 
+            ValidateCurrentItem(CreateValidationContext(), _configuration.ValidationLevel) : 
+            CreateValidationContext();
+        if (validationContext.IsValid)
+        {
+            await _content.WriteItemAsync(item, cancellationToken).ConfigureAwait(false);
+        }
 
-        await _content.WriteItemAsync(item, cancellationToken).ConfigureAwait(false);
         _currentItem = null;
+        return validationContext.Results.WithLocation(_configuration.OpenApiSpecificationUri);
     }
     
     private static MediaTypeHeaderValue ContentMediaType { get; } = MediaTypeHeaderValue.Parse("{{ContentType}}");
