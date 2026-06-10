@@ -143,7 +143,10 @@ $"""
             .ConfigureAwait(false);
         var response = await {{operation.Key.Method.ToLower().ToPascalCase()}}Response.BindAsync(responseMessage, cancellation)
             .ConfigureAwait(false);
-        return Result<{{GetResponseTypeName(operation.Key)}}>.WithResponse(response, response.Validate(configuration.ValidationLevel));
+        var responseValidationContext = configuration.ValidateResponses ?
+            response.Validate(configuration.ValidationLevel) :
+            ValidationContext.ValidContext;
+        return Result<{{GetResponseTypeName(operation.Key)}}>.WithResponse(response, responseValidationContext);
     }{{(operation.Value.ResponseGenerator.GeneratesContent ? 
 $$"""
     

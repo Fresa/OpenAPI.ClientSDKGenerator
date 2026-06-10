@@ -72,7 +72,10 @@ internal partial class Pets
                 .ConfigureAwait(false);
             var response = await GetResponse.BindAsync(responseMessage, cancellation)
                 .ConfigureAwait(false);
-            return Result<GetResponse>.WithResponse(response, response.Validate(configuration.ValidationLevel));
+            var responseValidationContext = configuration.ValidateResponses ?
+                response.Validate(configuration.ValidationLevel) :
+                ValidationContext.ValidContext;
+            return Result<GetResponse>.WithResponse(response, responseValidationContext);
         }
     }
 
@@ -112,7 +115,10 @@ internal partial class Pets
                 .ConfigureAwait(false);
             var response = await GetResponse.BindAsync(responseMessage, cancellation)
                 .ConfigureAwait(false);
-            return Result<GetResponse>.WithResponse(response, response.Validate(configuration.ValidationLevel));
+            var responseValidationContext = configuration.ValidateResponses ?
+                response.Validate(configuration.ValidationLevel) :
+                ValidationContext.ValidContext;
+            return Result<GetResponse>.WithResponse(response, responseValidationContext);
         }
     }
 }
@@ -176,7 +182,10 @@ internal partial class TestClient
                 .ConfigureAwait(false);
             var response = await GetResponse.BindAsync(responseMessage, cancellation)
                 .ConfigureAwait(false);
-            return Result<GetResponse>.WithResponse(response, response.Validate(configuration.ValidationLevel));
+            var responseValidationContext = configuration.ValidateResponses ?
+                response.Validate(configuration.ValidationLevel) :
+                ValidationContext.ValidContext;
+            return Result<GetResponse>.WithResponse(response, responseValidationContext);
         }
     }
 }
@@ -216,7 +225,10 @@ internal partial class TestClient
                 .ConfigureAwait(false);
             var response = await GetResponse.BindAsync(responseMessage, cancellation)
                 .ConfigureAwait(false);
-            return Result<GetResponse>.WithResponse(response, response.Validate(configuration.ValidationLevel));
+            var responseValidationContext = configuration.ValidateResponses ?
+                response.Validate(configuration.ValidationLevel) :
+                ValidationContext.ValidContext;
+            return Result<GetResponse>.WithResponse(response, responseValidationContext);
         }
     }
 }
@@ -256,7 +268,10 @@ internal partial class TestClient
                 .ConfigureAwait(false);
             var response = await GetResponse.BindAsync(responseMessage, cancellation)
                 .ConfigureAwait(false);
-            return Result<GetResponse>.WithResponse(response, response.Validate(configuration.ValidationLevel));
+            var responseValidationContext = configuration.ValidateResponses ?
+                response.Validate(configuration.ValidationLevel) :
+                ValidationContext.ValidContext;
+            return Result<GetResponse>.WithResponse(response, responseValidationContext);
         }
     }
 }
@@ -339,7 +354,10 @@ internal partial class TestClient
                 .ConfigureAwait(false);
             var response = await GetResponse.BindAsync(responseMessage, cancellation)
                 .ConfigureAwait(false);
-            return Result<GetResponse>.WithResponse(response, response.Validate(configuration.ValidationLevel));
+            var responseValidationContext = configuration.ValidateResponses ?
+                response.Validate(configuration.ValidationLevel) :
+                ValidationContext.ValidContext;
+            return Result<GetResponse>.WithResponse(response, responseValidationContext);
         }
 
         internal async Task<Result<PutResponse>> PutAsync(
@@ -356,7 +374,10 @@ internal partial class TestClient
                 .ConfigureAwait(false);
             var response = await PutResponse.BindAsync(responseMessage, cancellation)
                 .ConfigureAwait(false);
-            return Result<PutResponse>.WithResponse(response, response.Validate(configuration.ValidationLevel));
+            var responseValidationContext = configuration.ValidateResponses ?
+                response.Validate(configuration.ValidationLevel) :
+                ValidationContext.ValidContext;
+            return Result<PutResponse>.WithResponse(response, responseValidationContext);
         }
 
         internal async Task<Result<DeleteResponse>> DeleteAsync(
@@ -373,7 +394,10 @@ internal partial class TestClient
                 .ConfigureAwait(false);
             var response = await DeleteResponse.BindAsync(responseMessage, cancellation)
                 .ConfigureAwait(false);
-            return Result<DeleteResponse>.WithResponse(response, response.Validate(configuration.ValidationLevel));
+            var responseValidationContext = configuration.ValidateResponses ?
+                response.Validate(configuration.ValidationLevel) :
+                ValidationContext.ValidContext;
+            return Result<DeleteResponse>.WithResponse(response, responseValidationContext);
         }
     }
 }
@@ -479,7 +503,10 @@ internal partial class TestClient
                     .ConfigureAwait(false);
                 var response = await GetResponse.BindAsync(responseMessage, cancellation)
                     .ConfigureAwait(false);
-                return Result<GetResponse>.WithResponse(response, response.Validate(configuration.ValidationLevel));
+                var responseValidationContext = configuration.ValidateResponses ?
+                    response.Validate(configuration.ValidationLevel) :
+                    ValidationContext.ValidContext;
+                return Result<GetResponse>.WithResponse(response, responseValidationContext);
             }
         }
     }
@@ -561,7 +588,10 @@ internal partial class TestClient
                 .ConfigureAwait(false);
             var response = await GetResponse.BindAsync(responseMessage, cancellation)
                 .ConfigureAwait(false);
-            return Result<GetResponse>.WithResponse(response, response.Validate(configuration.ValidationLevel));
+            var responseValidationContext = configuration.ValidateResponses ?
+                response.Validate(configuration.ValidationLevel) :
+                ValidationContext.ValidContext;
+            return Result<GetResponse>.WithResponse(response, responseValidationContext);
         }
     }
 }
@@ -636,7 +666,10 @@ internal partial class TestClient
                             .ConfigureAwait(false);
                         var response = await PostResponse.BindAsync(responseMessage, cancellation)
                             .ConfigureAwait(false);
-                        return Result<PostResponse>.WithResponse(response, response.Validate(configuration.ValidationLevel));
+                        var responseValidationContext = configuration.ValidateResponses ?
+                            response.Validate(configuration.ValidationLevel) :
+                            ValidationContext.ValidContext;
+                        return Result<PostResponse>.WithResponse(response, responseValidationContext);
                     }
 
                     internal abstract class Content
@@ -764,7 +797,10 @@ internal partial class TestClient
                 .ConfigureAwait(false);
             var response = await GetResponse.BindAsync(responseMessage, cancellation)
                 .ConfigureAwait(false);
-            return Result<GetResponse>.WithResponse(response, response.Validate(configuration.ValidationLevel));
+            var responseValidationContext = configuration.ValidateResponses ?
+                response.Validate(configuration.ValidationLevel) :
+                ValidationContext.ValidContext;
+            return Result<GetResponse>.WithResponse(response, responseValidationContext);
         }
 
         internal sealed class Query
