@@ -14,7 +14,7 @@ public class UpdateFooTests(FooApplicationFactory app) : FooTestSpecification, I
             .WithOAuth2ImplicitFlowAuthentication("update");;
 
         var client = new Foo.Foo(httpClient);
-        var response = await client.Foo_(1)
+        var result = await client.Foo_(1)
             .PutAsync(
                 content: new Foo.Foo.Foo1.Content.ApplicationJson(
                     FooProperties.Create(name: "test")),
@@ -23,7 +23,8 @@ public class UpdateFooTests(FooApplicationFactory app) : FooTestSpecification, I
                     Bar = new JsonString("foo")
                 },
                 cancellation: CancellationToken);
-        var anyApplicationResponse = response.Should().BeOfType<Foo.Foo.Foo1.PutResponse.OK200.ApplicationJson>()
+        result.IsSuccessful.Should().BeTrue();
+        var anyApplicationResponse = result.Response.Should().BeOfType<Foo.Foo.Foo1.PutResponse.OK200.ApplicationJson>()
             .Subject;
         anyApplicationResponse.Content.Name
             .Should().NotBeNull()

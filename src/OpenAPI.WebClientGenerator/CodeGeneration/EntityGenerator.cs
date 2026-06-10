@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using OpenAPI.WebClientGenerator.Extensions;
 
 namespace OpenAPI.WebClientGenerator.CodeGeneration;
@@ -59,6 +60,9 @@ internal sealed class EntityGenerator(string name)
         }
     }
 
+    private string GetResponseTypeName(HttpMethod method) =>
+        $"{method.Method.ToLower().ToPascalCase()}Response";
+    
     private string GenerateClass(string @namespace, IReadOnlyList<string> nestedClassNames, bool rootEntity = false)
     {
         return
@@ -97,7 +101,7 @@ $$""""
 internal partial class {{className}}(RequestBuilder requestBuilder, WebClientConfiguration configuration)
 {{{methodGenerator.Operations.AggregateToString(operation => 
 $$"""
-    internal async Task<{{operation.Key.Method.ToLower().ToPascalCase()}}Response> {{operation.Key.Method.ToLower().ToPascalCase()}}Async({{
+    internal async Task<Result<{{GetResponseTypeName(operation.Key)}}>> {{operation.Key.Method.ToLower().ToPascalCase()}}Async({{
         (operation.Value.RequestBodyGenerator.HasBody ? "Content content," : "")}}{{
             new ParametersGenerator []
             {
@@ -128,6 +132,8 @@ $"""
 
         requestBuilder.AcceptMediaTypes(accepts?.MediaTypes ?? []);
 """ : "")}}
+        if (!requestBuilder.ValidationContext.IsValid)
+            return Result<{{GetResponseTypeName(operation.Key)}}>.WithInvalidRequest(requestBuilder.ValidationContext);
         var responseMessage = await requestBuilder
             .SendAsync(
                 "{{methodGenerator.PathExpression}}",
@@ -137,9 +143,7 @@ $"""
             .ConfigureAwait(false);
         var response = await {{operation.Key.Method.ToLower().ToPascalCase()}}Response.BindAsync(responseMessage, cancellation)
             .ConfigureAwait(false);
-        if (configuration.ValidateResponses)
-            response.Validate(configuration.ValidationLevel);
-        return response;
+        return Result<{{GetResponseTypeName(operation.Key)}}>.WithResponse(response, response.Validate(configuration.ValidationLevel));
     }{{(operation.Value.ResponseGenerator.GeneratesContent ? 
 $$"""
     

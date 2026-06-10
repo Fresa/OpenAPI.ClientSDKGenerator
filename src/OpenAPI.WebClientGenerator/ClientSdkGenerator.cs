@@ -62,19 +62,18 @@ public sealed class WebClientGenerator : IIncrementalGenerator
         var openApiVersion = openApiSpecification.Version;
         var openApi = openApiSpecification.Document;
 
-        var jsonValidationExceptionGenerator = new JsonValidationExceptionGenerator(rootNamespace);
-        jsonValidationExceptionGenerator.GenerateJsonValidationExceptionClass().AddTo(context);
         var mediaTypeHeaderValueExtensionsGenerator = new MediaTypeHeaderValueExtensionsGenerator(rootNamespace);
         mediaTypeHeaderValueExtensionsGenerator.GenerateClass().AddTo(context);
         var apiConfigurationGenerator = new WebClientConfigurationGenerator(rootNamespace, sdkConfiguration);
         apiConfigurationGenerator.GenerateClass().AddTo(context);
         var validationExtensionsGenerator = new ValidationExtensionsGenerator(rootNamespace);
         validationExtensionsGenerator.GenerateClass().AddTo(context);
+        var resultGenerator = new ResultGenerator(rootNamespace);
+        resultGenerator.GenerateClass().AddTo(context);
         var sequentialJsonEnumeratorsGenerator = new SequentialMediaTypesGenerator(rootNamespace);
         sequentialJsonEnumeratorsGenerator.GenerateClasses().AddTo(context);
 
-        var requestBuilderGenerator = new RequestBuilderGenerator(openApiVersion,
-            jsonValidationExceptionGenerator);
+        var requestBuilderGenerator = new RequestBuilderGenerator(openApiVersion);
         requestBuilderGenerator.Generate(rootNamespace).AddTo(context);
         var clientGenerator = new ClientGenerator(sdkConfiguration.ClientName, rootNamespace);
         var pathsGenerator = clientGenerator.GetPathsGenerator();
