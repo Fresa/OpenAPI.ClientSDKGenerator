@@ -14,6 +14,7 @@ internal sealed class RequestBodyGenerator
     public static readonly RequestBodyGenerator Empty = new(null, []);
 
     internal bool HasBody => _body != null;
+    internal bool IsRequired => _body?.Required ?? false;
     
     public RequestBodyGenerator(
         IOpenApiRequestBody? body,

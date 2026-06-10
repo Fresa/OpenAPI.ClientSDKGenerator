@@ -103,14 +103,13 @@ internal partial class {{className}}(RequestBuilder requestBuilder, WebClientCon
 {{{methodGenerator.Operations.AggregateToString(operation => 
 $$"""
     internal async Task<Result<{{GetResponseTypeName(operation.Key)}}>> {{operation.Key.Method.ToLower().ToPascalCase()}}Async({{
-        (operation.Value.RequestBodyGenerator.HasBody ? "Content content," : "")}}{{
-            new ParametersGenerator []
+            AddContentParameter(new ParametersGenerator []
             {
                 operation.Value.QueryGenerator,
                 operation.Value.HeadersGenerator
             }.OrderBy(generator => generator.IsOptional)
             .Select(GetParameterArgumentExpression)
-            .AggregateToString()
+            .AggregateToString(), operation.Value.RequestBodyGenerator)
             .Indent(8)
             .TrimStart()
         }}{{(operation.Value.ResponseGenerator.GeneratesContent ? 
@@ -140,7 +139,7 @@ $"""
             .SendAsync(
                 "{{methodGenerator.PathExpression}}",
                 "{{operation.Key.Method}}",
-                {{(operation.Value.RequestBodyGenerator.HasBody ? "content.Get()" : "null")}},
+                {{GetContentExpression(operation.Value.RequestBodyGenerator)}},
                 cancellation)
             .ConfigureAwait(false);
         var response = await {{operation.Key.Method.ToLower().ToPascalCase()}}Response.BindAsync(responseMessage, cancellation)
@@ -216,5 +215,27 @@ $$"""
         var terny = parametersGenerator.IsOptional ? "?" : string.Empty;
         var defaultExpression = parametersGenerator.IsOptional ? " = null" : string.Empty;
         return $"{parametersGenerator.ClassName}{terny} {parametersGenerator.ClassName.ToCamelCase()}{defaultExpression},"; 
+    }
+
+    private static string AddContentParameter(string parameters, RequestBodyGenerator bodyGenerator)
+    {
+        if (!bodyGenerator.HasBody)
+            return parameters;
+        return bodyGenerator.IsRequired
+            ? $"""
+               Content content,
+               {parameters}
+               """.TrimEnd()
+            : $"""
+               {parameters}
+               Content? content = null,
+               """.TrimStart();
+    }
+
+    private static string GetContentExpression(RequestBodyGenerator bodyGenerator)
+    {
+        if (!bodyGenerator.HasBody)
+            return "null";
+        return bodyGenerator.IsRequired ? "content.Get()" : "content?.Get()";
     }
 }

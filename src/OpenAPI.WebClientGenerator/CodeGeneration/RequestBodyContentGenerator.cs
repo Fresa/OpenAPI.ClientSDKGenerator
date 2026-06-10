@@ -166,7 +166,7 @@ $"""
 """    
 
     private static MediaTypeHeaderValue ContentMediaType { get; } = MediaTypeHeaderValue.Parse("{{ContentType}}");
-""" : "")}}    
+""" : "")}}
     private const string ContentSchemaLocation = "{{SchemaLocation}}";
     /// <inheritdoc/>
     internal override ValidationContext Validate(ValidationContext validationContext, ValidationLevel validationLevel) =>
