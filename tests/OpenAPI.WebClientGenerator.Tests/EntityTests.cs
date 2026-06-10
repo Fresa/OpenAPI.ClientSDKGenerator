@@ -898,6 +898,54 @@ internal partial class TestClient
     }
 
     [Fact]
+    public void OperationWithMixedRequiredAndOptionalParametersAndContent_OrdersSignatureRequiredFirst()
+    {
+        const string spec = """
+        {
+          "openapi": "3.0.0",
+          "info": { "title": "Test", "version": "1.0.0" },
+          "paths": {
+            "/items": {
+              "post": {
+                "parameters": [
+                  { "name": "trace", "in": "header", "required": false, "schema": { "type": "string"  } },
+                  { "name": "limit", "in": "query",  "required": true,  "schema": { "type": "integer" } }
+                ],
+                "requestBody": {
+                  "required": false,
+                  "content": {
+                    "application/json": {
+                      "schema": { "type": "object", "properties": { "name": { "type": "string" } } }
+                    }
+                  }
+                },
+                "responses": { "200": { "description": "OK" } }
+              }
+            }
+          }
+        }
+        """;
+
+        var compilation = WebClientGenerator.SetupFromContent(spec,
+            clientName: "TestClient",
+            @namespace: "Example",
+            cancellationToken: Cancellation,
+            diagnostics: out var diagnostics);
+
+        diagnostics.Should().BeEmpty();
+
+        var source = compilation.GetSource("TestClient.Items.g.cs", Cancellation);
+
+        source.Should().Contain(
+            """
+                    internal async Task<Result<PostResponse>> PostAsync(Query query,
+                        Header? header = null,
+                        Content? content = null,
+                        CancellationToken cancellation = default)
+            """.ReplaceLineEndings("\n"));
+    }
+
+    [Fact]
     public void OperationWithQueryParameters_GeneratesQueryClassWithInitProperties()
     {
         const string spec = """
