@@ -134,7 +134,8 @@ $"""
         requestBuilder.AcceptMediaTypes(accepts?.MediaTypes ?? []);
 """ : "")}}
         if (!requestBuilder.ValidationContext.IsValid)
-            return Result<{{GetResponseTypeName(operation.Key)}}>.WithInvalidRequest(requestBuilder.ValidationContext);
+            return Result<{{GetResponseTypeName(operation.Key)}}>.WithInvalidRequest(requestBuilder.ValidationContext.Results
+                .WithLocation(configuration.OpenApiSpecificationUri));
         var responseMessage = await requestBuilder
             .SendAsync(
                 "{{methodGenerator.PathExpression}}",
@@ -147,7 +148,8 @@ $"""
         var responseValidationContext = configuration.ValidateResponses ?
             response.Validate(configuration.ValidationLevel) :
             ValidationContext.ValidContext;
-        return Result<{{GetResponseTypeName(operation.Key)}}>.WithResponse(response, responseValidationContext);
+        return Result<{{GetResponseTypeName(operation.Key)}}>.WithResponse(response, responseValidationContext.Results
+            .WithLocation(configuration.OpenApiSpecificationUri));
     }{{(operation.Value.ResponseGenerator.GeneratesContent ? 
 $$"""
     

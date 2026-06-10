@@ -7,6 +7,7 @@ public class ResultGenerator(string @namespace)
 $$"""
 #nullable enable
 using Corvus.Json;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
 namespace {{@namespace}};
@@ -17,26 +18,26 @@ namespace {{@namespace}};
 /// <typeparam name="T">The response type</typeparam>
 internal sealed class {{ClassName}}<T>
 {
-    private {{ClassName}}(ValidationContext requestValidationContext)
+    private {{ClassName}}(ImmutableList<ValidationResult> requestValidationResults)
     {
-        ValidationContext = requestValidationContext;
+        ValidationResults = requestValidationResults;
         FailedRequestValidation = true;
         IsSuccessful = false;
         Response = default;
     }
 
-    private {{ClassName}}(T response, ValidationContext responseValidationContext)
+    private {{ClassName}}(T response, ImmutableList<ValidationResult> responseValidationResults)
     {
-        ValidationContext = responseValidationContext;
+        ValidationResults = responseValidationResults;
         Response = response;
         FailedRequestValidation = false;
-        IsSuccessful = responseValidationContext.IsValid;
+        IsSuccessful = responseValidationResults.IsValid();
     }
 
-    internal static {{ClassName}}<T> WithInvalidRequest(ValidationContext requestValidationContext) =>
-        new(requestValidationContext);
-    internal static {{ClassName}}<T> WithResponse(T response, ValidationContext responseValidationContext) =>
-        new(response, responseValidationContext);
+    internal static {{ClassName}}<T> WithInvalidRequest(ImmutableList<ValidationResult> requestValidationResults) =>
+        new(requestValidationResults);
+    internal static {{ClassName}}<T> WithResponse(T response, ImmutableList<ValidationResult> responseValidationResults) =>
+        new(response, responseValidationResults);
 
     /// <summary>
     /// The response or null if <see cref="FailedRequestValidation"/> is true
@@ -44,9 +45,9 @@ internal sealed class {{ClassName}}<T>
     internal T? Response { get; }
 
     /// <summary>
-    /// Validation context for the request if <see cref="FailedRequestValidation"/> is true, otherwise validation context for the response
+    /// Validation results for the request if <see cref="FailedRequestValidation"/> is true, otherwise validation results for the response
     /// </summary>
-    internal ValidationContext ValidationContext { get; }
+    internal ImmutableList<ValidationResult> ValidationResults { get; }
     
     /// <summary>
     /// True if request failed validation.

@@ -63,7 +63,8 @@ internal partial class Pets
             CancellationToken cancellation = default)
         {
             if (!requestBuilder.ValidationContext.IsValid)
-                return Result<GetResponse>.WithInvalidRequest(requestBuilder.ValidationContext);
+                return Result<GetResponse>.WithInvalidRequest(requestBuilder.ValidationContext.Results
+                    .WithLocation(configuration.OpenApiSpecificationUri));
             var responseMessage = await requestBuilder
                 .SendAsync(
                     "/pets",
@@ -76,7 +77,8 @@ internal partial class Pets
             var responseValidationContext = configuration.ValidateResponses ?
                 response.Validate(configuration.ValidationLevel) :
                 ValidationContext.ValidContext;
-            return Result<GetResponse>.WithResponse(response, responseValidationContext);
+            return Result<GetResponse>.WithResponse(response, responseValidationContext.Results
+                .WithLocation(configuration.OpenApiSpecificationUri));
         }
     }
 
@@ -106,7 +108,8 @@ internal partial class Pets
             CancellationToken cancellation = default)
         {
             if (!requestBuilder.ValidationContext.IsValid)
-                return Result<GetResponse>.WithInvalidRequest(requestBuilder.ValidationContext);
+                return Result<GetResponse>.WithInvalidRequest(requestBuilder.ValidationContext.Results
+                    .WithLocation(configuration.OpenApiSpecificationUri));
             var responseMessage = await requestBuilder
                 .SendAsync(
                     "/pets/{petId}",
@@ -119,7 +122,8 @@ internal partial class Pets
             var responseValidationContext = configuration.ValidateResponses ?
                 response.Validate(configuration.ValidationLevel) :
                 ValidationContext.ValidContext;
-            return Result<GetResponse>.WithResponse(response, responseValidationContext);
+            return Result<GetResponse>.WithResponse(response, responseValidationContext.Results
+                .WithLocation(configuration.OpenApiSpecificationUri));
         }
     }
 }
@@ -174,7 +178,8 @@ internal partial class TestClient
             CancellationToken cancellation = default)
         {
             if (!requestBuilder.ValidationContext.IsValid)
-                return Result<GetResponse>.WithInvalidRequest(requestBuilder.ValidationContext);
+                return Result<GetResponse>.WithInvalidRequest(requestBuilder.ValidationContext.Results
+                    .WithLocation(configuration.OpenApiSpecificationUri));
             var responseMessage = await requestBuilder
                 .SendAsync(
                     "/foo",
@@ -187,7 +192,8 @@ internal partial class TestClient
             var responseValidationContext = configuration.ValidateResponses ?
                 response.Validate(configuration.ValidationLevel) :
                 ValidationContext.ValidContext;
-            return Result<GetResponse>.WithResponse(response, responseValidationContext);
+            return Result<GetResponse>.WithResponse(response, responseValidationContext.Results
+                .WithLocation(configuration.OpenApiSpecificationUri));
         }
     }
 }
@@ -218,7 +224,8 @@ internal partial class TestClient
             CancellationToken cancellation = default)
         {
             if (!requestBuilder.ValidationContext.IsValid)
-                return Result<GetResponse>.WithInvalidRequest(requestBuilder.ValidationContext);
+                return Result<GetResponse>.WithInvalidRequest(requestBuilder.ValidationContext.Results
+                    .WithLocation(configuration.OpenApiSpecificationUri));
             var responseMessage = await requestBuilder
                 .SendAsync(
                     "/bar",
@@ -231,7 +238,8 @@ internal partial class TestClient
             var responseValidationContext = configuration.ValidateResponses ?
                 response.Validate(configuration.ValidationLevel) :
                 ValidationContext.ValidContext;
-            return Result<GetResponse>.WithResponse(response, responseValidationContext);
+            return Result<GetResponse>.WithResponse(response, responseValidationContext.Results
+                .WithLocation(configuration.OpenApiSpecificationUri));
         }
     }
 }
@@ -262,7 +270,8 @@ internal partial class TestClient
             CancellationToken cancellation = default)
         {
             if (!requestBuilder.ValidationContext.IsValid)
-                return Result<GetResponse>.WithInvalidRequest(requestBuilder.ValidationContext);
+                return Result<GetResponse>.WithInvalidRequest(requestBuilder.ValidationContext.Results
+                    .WithLocation(configuration.OpenApiSpecificationUri));
             var responseMessage = await requestBuilder
                 .SendAsync(
                     "/baz",
@@ -275,7 +284,8 @@ internal partial class TestClient
             var responseValidationContext = configuration.ValidateResponses ?
                 response.Validate(configuration.ValidationLevel) :
                 ValidationContext.ValidContext;
-            return Result<GetResponse>.WithResponse(response, responseValidationContext);
+            return Result<GetResponse>.WithResponse(response, responseValidationContext.Results
+                .WithLocation(configuration.OpenApiSpecificationUri));
         }
     }
 }
@@ -349,7 +359,8 @@ internal partial class TestClient
             CancellationToken cancellation = default)
         {
             if (!requestBuilder.ValidationContext.IsValid)
-                return Result<GetResponse>.WithInvalidRequest(requestBuilder.ValidationContext);
+                return Result<GetResponse>.WithInvalidRequest(requestBuilder.ValidationContext.Results
+                    .WithLocation(configuration.OpenApiSpecificationUri));
             var responseMessage = await requestBuilder
                 .SendAsync(
                     "/items/{id}",
@@ -362,14 +373,16 @@ internal partial class TestClient
             var responseValidationContext = configuration.ValidateResponses ?
                 response.Validate(configuration.ValidationLevel) :
                 ValidationContext.ValidContext;
-            return Result<GetResponse>.WithResponse(response, responseValidationContext);
+            return Result<GetResponse>.WithResponse(response, responseValidationContext.Results
+                .WithLocation(configuration.OpenApiSpecificationUri));
         }
 
         internal async Task<Result<PutResponse>> PutAsync(
             CancellationToken cancellation = default)
         {
             if (!requestBuilder.ValidationContext.IsValid)
-                return Result<PutResponse>.WithInvalidRequest(requestBuilder.ValidationContext);
+                return Result<PutResponse>.WithInvalidRequest(requestBuilder.ValidationContext.Results
+                    .WithLocation(configuration.OpenApiSpecificationUri));
             var responseMessage = await requestBuilder
                 .SendAsync(
                     "/items/{id}",
@@ -382,14 +395,16 @@ internal partial class TestClient
             var responseValidationContext = configuration.ValidateResponses ?
                 response.Validate(configuration.ValidationLevel) :
                 ValidationContext.ValidContext;
-            return Result<PutResponse>.WithResponse(response, responseValidationContext);
+            return Result<PutResponse>.WithResponse(response, responseValidationContext.Results
+                .WithLocation(configuration.OpenApiSpecificationUri));
         }
 
         internal async Task<Result<DeleteResponse>> DeleteAsync(
             CancellationToken cancellation = default)
         {
             if (!requestBuilder.ValidationContext.IsValid)
-                return Result<DeleteResponse>.WithInvalidRequest(requestBuilder.ValidationContext);
+                return Result<DeleteResponse>.WithInvalidRequest(requestBuilder.ValidationContext.Results
+                    .WithLocation(configuration.OpenApiSpecificationUri));
             var responseMessage = await requestBuilder
                 .SendAsync(
                     "/items/{id}",
@@ -402,7 +417,8 @@ internal partial class TestClient
             var responseValidationContext = configuration.ValidateResponses ?
                 response.Validate(configuration.ValidationLevel) :
                 ValidationContext.ValidContext;
-            return Result<DeleteResponse>.WithResponse(response, responseValidationContext);
+            return Result<DeleteResponse>.WithResponse(response, responseValidationContext.Results
+                .WithLocation(configuration.OpenApiSpecificationUri));
         }
     }
 }
@@ -500,7 +516,8 @@ internal partial class TestClient
                 CancellationToken cancellation = default)
             {
                 if (!requestBuilder.ValidationContext.IsValid)
-                    return Result<GetResponse>.WithInvalidRequest(requestBuilder.ValidationContext);
+                    return Result<GetResponse>.WithInvalidRequest(requestBuilder.ValidationContext.Results
+                        .WithLocation(configuration.OpenApiSpecificationUri));
                 var responseMessage = await requestBuilder
                     .SendAsync(
                         "/parent/{id}/child",
@@ -513,7 +530,8 @@ internal partial class TestClient
                 var responseValidationContext = configuration.ValidateResponses ?
                     response.Validate(configuration.ValidationLevel) :
                     ValidationContext.ValidContext;
-                return Result<GetResponse>.WithResponse(response, responseValidationContext);
+                return Result<GetResponse>.WithResponse(response, responseValidationContext.Results
+                    .WithLocation(configuration.OpenApiSpecificationUri));
             }
         }
     }
@@ -586,7 +604,8 @@ internal partial class TestClient
             CancellationToken cancellation = default)
         {
             if (!requestBuilder.ValidationContext.IsValid)
-                return Result<GetResponse>.WithInvalidRequest(requestBuilder.ValidationContext);
+                return Result<GetResponse>.WithInvalidRequest(requestBuilder.ValidationContext.Results
+                    .WithLocation(configuration.OpenApiSpecificationUri));
             var responseMessage = await requestBuilder
                 .SendAsync(
                     "/items/{id}",
@@ -599,7 +618,8 @@ internal partial class TestClient
             var responseValidationContext = configuration.ValidateResponses ?
                 response.Validate(configuration.ValidationLevel) :
                 ValidationContext.ValidContext;
-            return Result<GetResponse>.WithResponse(response, responseValidationContext);
+            return Result<GetResponse>.WithResponse(response, responseValidationContext.Results
+                .WithLocation(configuration.OpenApiSpecificationUri));
         }
     }
 }
@@ -665,7 +685,8 @@ internal partial class TestClient
                         CancellationToken cancellation = default)
                     {
                         if (!requestBuilder.ValidationContext.IsValid)
-                            return Result<PostResponse>.WithInvalidRequest(requestBuilder.ValidationContext);
+                            return Result<PostResponse>.WithInvalidRequest(requestBuilder.ValidationContext.Results
+                                .WithLocation(configuration.OpenApiSpecificationUri));
                         var responseMessage = await requestBuilder
                             .SendAsync(
                                 "/items",
@@ -678,7 +699,8 @@ internal partial class TestClient
                         var responseValidationContext = configuration.ValidateResponses ?
                             response.Validate(configuration.ValidationLevel) :
                             ValidationContext.ValidContext;
-                        return Result<PostResponse>.WithResponse(response, responseValidationContext);
+                        return Result<PostResponse>.WithResponse(response, responseValidationContext.Results
+                            .WithLocation(configuration.OpenApiSpecificationUri));
                     }
 
                     internal abstract class Content
@@ -797,7 +819,8 @@ internal partial class TestClient
         {
             query.AddTo(requestBuilder);
             if (!requestBuilder.ValidationContext.IsValid)
-                return Result<GetResponse>.WithInvalidRequest(requestBuilder.ValidationContext);
+                return Result<GetResponse>.WithInvalidRequest(requestBuilder.ValidationContext.Results
+                    .WithLocation(configuration.OpenApiSpecificationUri));
             var responseMessage = await requestBuilder
                 .SendAsync(
                     "/items",
@@ -810,7 +833,8 @@ internal partial class TestClient
             var responseValidationContext = configuration.ValidateResponses ?
                 response.Validate(configuration.ValidationLevel) :
                 ValidationContext.ValidContext;
-            return Result<GetResponse>.WithResponse(response, responseValidationContext);
+            return Result<GetResponse>.WithResponse(response, responseValidationContext.Results
+                .WithLocation(configuration.OpenApiSpecificationUri));
         }
 
         internal sealed class Query

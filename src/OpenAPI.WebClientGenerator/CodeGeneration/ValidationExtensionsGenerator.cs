@@ -47,6 +47,15 @@ internal static class {{ClassName}}
     }
     
     /// <summary>
+    /// Are all validation results valid?
+    /// </summary>
+    /// <param name="validationResults">Validation results to check</param>
+    /// <returns>True if all validation results are valid</returns>
+    internal static bool IsValid(
+        this ImmutableList<ValidationResult> validationResults) =>
+            validationResults.All(result => result.Valid);
+
+    /// <summary>
     /// Validate a json object
     /// </summary>
     /// <param name="value">json object to validate</param>
