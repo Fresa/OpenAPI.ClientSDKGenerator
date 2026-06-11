@@ -72,6 +72,9 @@ public sealed class WebClientGenerator : IIncrementalGenerator
         resultGenerator.GenerateClass().AddTo(context);
         var sequentialJsonEnumeratorsGenerator = new SequentialMediaTypesGenerator(rootNamespace);
         sequentialJsonEnumeratorsGenerator.GenerateClasses().AddTo(context);
+        var httpResponseMessageExtensionsGenerator =
+            new HttpResponseMessageExtensionsGenerator(openApiVersion, rootNamespace);
+        httpResponseMessageExtensionsGenerator.GenerateClass().AddTo(context);
 
         var requestBuilderGenerator = new RequestBuilderGenerator(openApiVersion);
         requestBuilderGenerator.Generate(rootNamespace).AddTo(context);
@@ -163,12 +166,15 @@ public sealed class WebClientGenerator : IIncrementalGenerator
                             var name = valuePair.Key;
                             var header = valuePair.Value;
                             var responseHeaderSchema = openApiResponseVisitor.GetSchemaReference(header);
-                            return responseHeaderSchema;
+                            var typeDeclaration = schemaGenerator.Generate(responseHeaderSchema);
+                            return new ResponseHeaderGenerator(name, header, typeDeclaration,
+                                openApiVersion);
                         }).ToList() ?? [];
 
                         return new ResponseContentGenerator(
                             content,
-                            responseBodyGenerators);
+                            responseBodyGenerators,
+                            responseHeaderGenerators);
                     })
                     .OrderBy(generator => generator.Precedence)
                     .ToList();

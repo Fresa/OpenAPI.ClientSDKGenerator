@@ -67,10 +67,10 @@ internal sealed class {{ClassName}} : {{responseClassName}}, IAcceptContent
 {
     internal {{ClassName}}Enumerable<{{_typeDeclaration.FullyQualifiedDotnetTypeName()}}> Content { get; }
 
-    private {{ClassName}}(Stream stream, HttpResponseMessage response, WebClientConfiguration configuration)
+    private {{ClassName}}(Stream stream, HttpResponseMessage response, WebClientConfiguration configuration) :
+        base(response)
     {
         Content = new(stream, configuration);
-        StatusCode = response.StatusCode;
     }
     
     /// <summary>
@@ -107,10 +107,10 @@ internal sealed class {{ClassName}} : {{responseClassName}}, IAcceptContent
 {
     internal {{_typeDeclaration.FullyQualifiedDotnetTypeName()}} Content { get; }
     
-    private {{ClassName}}(JsonElement content, HttpResponseMessage response)
+    private {{ClassName}}(JsonElement content, HttpResponseMessage response) :
+        base(response)
     {
         Content = {{_typeDeclaration.FullyQualifiedDotnetTypeName()}}.FromJson(content);
-        StatusCode = response.StatusCode;
     }
     
     /// <summary>

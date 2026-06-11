@@ -10,16 +10,18 @@ namespace OpenAPI.WebClientGenerator.CodeGeneration;
 internal sealed class ResponseContentGenerator
 {
     private readonly List<ResponseBodyContentGenerator> _contentGenerators = [];
-    // private readonly List<ResponseHeaderGenerator> _headerGenerators = [];
+    private readonly List<ResponseHeaderGenerator> _headerGenerators;
     internal string ClassName { get; }
     internal bool HasBodies { get; }
     private readonly string _responseStatusCodePattern;
     private readonly IOpenApiResponse _response;
     private readonly bool _hasExplicitStatusCode;
     private readonly bool _hasDefaultStatusCode;
+    private readonly bool _anyHeaders;
 
     private ResponseContentGenerator(
-        KeyValuePair<string, IOpenApiResponse> response)
+        KeyValuePair<string, IOpenApiResponse> response,
+        List<ResponseHeaderGenerator> headerGenerators)
     {
         var responseStatusCodePattern = response.Key.ToPascalCase();
         var classNamePrefix = Enum.TryParse<HttpStatusCode>(responseStatusCodePattern, out var statusCode)
@@ -42,19 +44,20 @@ internal sealed class ResponseContentGenerator
         _hasExplicitStatusCode = int.TryParse(_responseStatusCodePattern, out _);
         _hasDefaultStatusCode = response.Key == "default";
         Precedence = _hasExplicitStatusCode ? 0 : _hasDefaultStatusCode ? 10 : 5;
+        _headerGenerators = headerGenerators;
+        _anyHeaders = headerGenerators.Any();
     }
 
     internal int Precedence { get; }
 
     public ResponseContentGenerator(
         KeyValuePair<string, IOpenApiResponse> response,
-        List<ResponseBodyContentGenerator> contentGenerators
-        // List<ResponseHeaderGenerator> headerGenerators
-        ) : this(response)
+        List<ResponseBodyContentGenerator> contentGenerators,
+        List<ResponseHeaderGenerator> headerGenerators
+        ) : this(response, headerGenerators)
     {
         _contentGenerators = contentGenerators;
-        HasBodies = _contentGenerators.Any();
-        // _headerGenerators = headerGenerators;
+        HasBodies = contentGenerators.Any();
     }
 
     public IEnumerable<SourceCode> Generate(
@@ -62,10 +65,6 @@ internal sealed class ResponseContentGenerator
         IReadOnlyList<string> nestingClassNames,
         string baseClassName)
     {
-        // var anyHeaders = _headerGenerators.Any();
-        // var anyRequiredHeader = _headerGenerators.Any(generator => generator.IsRequired);
-        // var headerRequiredDirective = anyRequiredHeader ? "required " : "";
-        // var defaultHeadersValueAssignment = anyRequiredHeader ? "" : " = new();";
         yield return GenerateBaseClass(@namespace, nestingClassNames, baseClassName);
         if (_contentGenerators.Any())
         {
@@ -99,6 +98,18 @@ $$"""
 {{_response.Description.AsComment("summary", "para")}}
 internal abstract partial class {{ClassName}} : {{baseClassName}}
 {
+    protected {{ClassName}}(HttpResponseMessage response)
+    {
+        StatusCode = response.StatusCode;{{(_anyHeaders ? 
+$$"""
+        Headers = new ResponseHeaders
+        {{{
+            _headerGenerators.AggregateToString(generator =>
+                generator.GenerateBindDirective("response")).TrimEnd(',').Indent(12)}}
+        };
+""" : "")}}
+    }
+
     internal static bool MatchesStatusCode(HttpStatusCode statusCode) =>
         {{(_hasDefaultStatusCode ? "true" : _hasExplicitStatusCode ? $"((int)statusCode) == {_responseStatusCodePattern}" : $"Matches{_responseStatusCodePattern.First()}xxStatusCode((int)statusCode)")}};
 
@@ -106,7 +117,24 @@ internal abstract partial class {{ClassName}} : {{baseClassName}}
     /// Response status code
     /// </summary>
     internal HttpStatusCode StatusCode { get; private set; }
+{{(_anyHeaders ? 
+$$"""
 
+    /// <summary>
+    /// Response Headers
+    /// </summary> 
+    internal ResponseHeaders Headers { get; private set; }
+
+    /// <summary>
+    /// Response Headers
+    /// </summary> 
+    internal sealed class ResponseHeaders 
+    {{{
+        _headerGenerators.AggregateToString(generator =>
+            generator.GenerateProperty()).Indent(8)}}
+    }
+
+""" : "")}}
     /// <summary>
     /// Bind content from http response
     /// </summary>
@@ -143,7 +171,11 @@ $"""
     /// <inheritdoc/>
     internal override ValidationContext Validate(ValidationLevel validationLevel)
     {
-        var validationContext = CreateValidationContext();
+        var validationContext = CreateValidationContext();{{
+        _headerGenerators.AggregateToString(generator =>
+$"""
+        validationContext = Headers.{generator.GenerateValidateDirective()}
+""")}}
         return validationContext;
     }
 }
@@ -168,9 +200,8 @@ $$"""
 /// </summary>
 internal sealed class Empty : {{ClassName}}
 {
-    private Empty(HttpResponseMessage response)
+    private Empty(HttpResponseMessage response) : base(response)
     {
-        StatusCode = response.StatusCode;
     }
 
     /// <summary>
@@ -208,10 +239,9 @@ internal new sealed class Unknown : {{ClassName}}
 {
     internal Stream Content { get; }
 
-    private Unknown(Stream content, HttpResponseMessage response)
+    private Unknown(Stream content, HttpResponseMessage response) : base(response)
     {
         Content = content;
-        StatusCode = response.StatusCode;
     }
 
     /// <summary>
