@@ -28,9 +28,8 @@ internal partial class TestClient
                 /// </summary>
                 internal sealed class Empty : {{parentClassName}}
                 {
-                    private Empty(HttpResponseMessage response)
+                    private Empty(HttpResponseMessage response) : base(response)
                     {
-                        StatusCode = response.StatusCode;
                     }
 
                     /// <summary>
@@ -251,6 +250,11 @@ internal partial class TestClient
             /// </summary>
             internal abstract partial class OK200 : GetResponse
             {
+                protected OK200(HttpResponseMessage response)
+                {
+                    StatusCode = response.StatusCode;
+                }
+
                 internal static bool MatchesStatusCode(HttpStatusCode statusCode) =>
                     ((int)statusCode) == 200;
 
@@ -446,6 +450,11 @@ internal partial class TestClient
             /// </summary>
             internal abstract partial class Default : GetResponse
             {
+                protected Default(HttpResponseMessage response)
+                {
+                    StatusCode = response.StatusCode;
+                }
+
                 internal static bool MatchesStatusCode(HttpStatusCode statusCode) =>
                     true;
 
@@ -657,6 +666,11 @@ internal partial class TestClient
             /// </summary>
             internal abstract partial class OK200 : GetResponse
             {
+                protected OK200(HttpResponseMessage response)
+                {
+                    StatusCode = response.StatusCode;
+                }
+
                 internal static bool MatchesStatusCode(HttpStatusCode statusCode) =>
                     ((int)statusCode) == 200;
 
@@ -724,10 +738,9 @@ internal partial class TestClient
                 {
                     internal Stream Content { get; }
 
-                    private Unknown(Stream content, HttpResponseMessage response)
+                    private Unknown(Stream content, HttpResponseMessage response) : base(response)
                     {
                         Content = content;
-                        StatusCode = response.StatusCode;
                     }
 
                     /// <summary>
@@ -776,10 +789,10 @@ internal partial class TestClient
                 {
                     internal Example.Paths.Foo.Get.Responses._200.Content.ApplicationJson Content { get; }
 
-                    private ApplicationJson(JsonElement content, HttpResponseMessage response)
+                    private ApplicationJson(JsonElement content, HttpResponseMessage response) :
+                        base(response)
                     {
                         Content = Example.Paths.Foo.Get.Responses._200.Content.ApplicationJson.FromJson(content);
-                        StatusCode = response.StatusCode;
                     }
 
                     /// <summary>
