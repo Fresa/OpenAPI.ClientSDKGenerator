@@ -824,4 +824,136 @@ internal partial class TestClient
 #nullable restore
 """".ReplaceLineEndings("\n"));
     }
+
+    [Fact]
+    public void ResponseWithHeader_GeneratesTypedResponseHeaders()
+    {
+        const string spec = """
+        {
+          "openapi": "3.0.0",
+          "info": { "title": "Test", "version": "1.0.0" },
+          "paths": {
+            "/foo": {
+              "get": {
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "headers": {
+                      "Location": {
+                        "required": true,
+                        "schema": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        """;
+
+        var compilation = WebClientGenerator.SetupFromContent(spec,
+            clientName: "TestClient",
+            @namespace: "Example",
+            cancellationToken: Cancellation,
+            diagnostics: out var diagnostics);
+
+        diagnostics.Should().BeEmpty();
+
+        compilation.Output("TestClient.Foo0.GetResponse.OK200.g.cs", testOutputHelper, Cancellation);
+        compilation.GetSource("TestClient.Foo0.GetResponse.OK200.g.cs", Cancellation).Should().Be(
+            """"
+            #nullable enable
+            using Corvus.Json;
+            using System.Net;
+            using System.Net.Http.Headers;
+            using System.Text.Json;
+            
+            namespace Example;
+            internal partial class TestClient
+            {
+                internal partial class Foo0
+                {
+                    internal partial class GetResponse
+                    {
+                        /// <summary>
+                        /// <para>
+                        /// OK
+                        /// </para>
+                        /// </summary>
+                        internal abstract partial class OK200 : GetResponse
+                        {
+                            protected OK200(HttpResponseMessage response)
+                            {
+                                StatusCode = response.StatusCode;
+                                Headers = new ResponseHeaders
+                                {
+                                    Location = response.Bind<Corvus.Json.JsonString>(
+                                        """
+                                        {
+                                          "name": "Location",
+                                          "in": "header",
+                                          "required": true,
+                                          "schema": {
+                                            "type": "string"
+                                          }
+                                        } 
+                                        """)
+                                };
+                            }
+            
+                            internal static bool MatchesStatusCode(HttpStatusCode statusCode) =>
+                                ((int)statusCode) == 200;
+            
+                            /// <summary>
+                            /// Response status code
+                            /// </summary>
+                            internal HttpStatusCode StatusCode { get; private set; }
+            
+                            /// <summary>
+                            /// Response Headers
+                            /// </summary> 
+                            internal ResponseHeaders Headers { get; private set; }
+            
+                            /// <summary>
+                            /// Response Headers
+                            /// </summary> 
+                            internal sealed class ResponseHeaders 
+                            {
+                                internal required Corvus.Json.JsonString Location { get; init; }
+                            }
+            
+                            /// <summary>
+                            /// Bind content from http response
+                            /// </summary>
+                            /// <param name="response">Http response message to bind from</param>
+                            /// <param name="configuration">Web client configuration</param>
+                            /// <param name="cancellationToken">Cancellation token</param>
+                            /// <returns>An awaitable task for the response content</returns>
+                            internal new static Task<GetResponse> BindAsync(HttpResponseMessage response, WebClientConfiguration configuration, CancellationToken cancellationToken = default)
+                            {
+                                return Empty.BindAsync(response, cancellationToken);
+                            }
+            
+                            /// <summary>
+                            /// Create a validation context
+                            /// </summary>
+                            /// <returns>Validation context</returns>
+                            protected ValidationContext CreateValidationContext() =>
+                                ValidationContext.ValidContext.UsingStack().UsingResults();
+            
+                            /// <inheritdoc/>
+                            internal override ValidationContext Validate(ValidationLevel validationLevel)
+                            {
+                                var validationContext = CreateValidationContext();
+                                validationContext = Headers.Location.Validate("#/paths/~1foo/get/responses/200/headers/Location/schema", true, validationContext, validationLevel);
+                                return validationContext;
+                            }
+                        }
+                    }
+                }
+            }
+            #nullable restore
+            """".ReplaceLineEndings("\n"));
+    }
 }

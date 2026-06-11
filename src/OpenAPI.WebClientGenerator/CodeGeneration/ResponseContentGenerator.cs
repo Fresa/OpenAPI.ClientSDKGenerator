@@ -102,6 +102,7 @@ internal abstract partial class {{ClassName}} : {{baseClassName}}
     {
         StatusCode = response.StatusCode;{{(_anyHeaders ? 
 $$"""
+
         Headers = new ResponseHeaders
         {{{
             _headerGenerators.AggregateToString(generator =>
