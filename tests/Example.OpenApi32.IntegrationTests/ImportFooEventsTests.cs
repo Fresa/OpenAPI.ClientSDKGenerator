@@ -1,5 +1,6 @@
 using System.Net;
 using AwesomeAssertions;
+using Corvus.Json;
 using Example.Foo;
 using Example.Foo.Components.Schemas;
 using OpenAPI.IntegrationTestHelpers.Auth;
@@ -84,8 +85,6 @@ public class ImportFooEventsTests(FooApplicationFactory app) : FooTestSpecificat
         var typedResponse = result.Response.Should().BeOfType<Foo.Foo.Foo1.Events0.PostResponse.Accepted202.Empty>()
             .Subject;
         typedResponse.StatusCode.Should().Be(HttpStatusCode.Accepted);
-        // result.Headers.Should().HaveCount(1);
-        // result.Headers.GetValues("ImportedEvents")
-        //     .Should().HaveCount(1).And.AllBe("2");
+        typedResponse.Headers.ImportedEvents.Should().Be(new JsonInteger(2));
     }
 }

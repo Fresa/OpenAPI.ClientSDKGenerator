@@ -14,12 +14,13 @@ internal sealed class ResponseHeaderGenerator(
 {
     private readonly string _propertyName = name.ToPascalCase();
     private readonly string _requiredDirective = header.Required ? "required " : string.Empty;
-    private readonly string _fullyQualifiedTypeName = $"{typeDeclaration.FullyQualifiedDotnetTypeName()}";
+    private readonly string _fullyQualifiedTypeIdentifier = typeDeclaration.FullyQualifiedDotnetTypeName();
+    private readonly string _nullableTypeAnnotation = header.Required ? "" : "?";
 
     internal string GenerateProperty() =>
         $$"""
           {{header.Description.AsComment("summary", "para")}}
-          internal {{_requiredDirective}}{{_fullyQualifiedTypeName}} {{_propertyName}} { get; init; }
+          internal {{_requiredDirective}}{{_fullyQualifiedTypeIdentifier}}{{_nullableTypeAnnotation}} {{_propertyName}} { get; init; }
           """.TrimStart();
     
     internal string GenerateBindDirective(string responseVariableName)
@@ -35,15 +36,15 @@ internal sealed class ResponseHeaderGenerator(
 
         return
             $""""
-             {_propertyName} = {responseVariableName}.Bind<{_fullyQualifiedTypeName}>(
+             {_propertyName} = {responseVariableName}.Bind<{_fullyQualifiedTypeIdentifier}>(
                  """
                  {headerSpecificationAsJson.Indent(4).TrimStart()}
-                 """),
+                 """){(header.Required ? "" : ".AsOptional()")},
              """";
     }
 
     internal string GenerateValidateDirective() =>
         $"""
-         {_propertyName}.Validate("{typeDeclaration.RelativeSchemaLocation}", {header.Required.ToString().ToLowerInvariant()}, validationContext, validationLevel);
+         {_propertyName}{_nullableTypeAnnotation}.Validate("{typeDeclaration.RelativeSchemaLocation}", {header.Required.ToString().ToLowerInvariant()}, validationContext, validationLevel){(header.Required ? "" : " ?? validationContext")};
          """;
 }

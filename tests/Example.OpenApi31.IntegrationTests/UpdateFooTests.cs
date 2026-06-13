@@ -29,12 +29,9 @@ public class UpdateFooTests(FooApplicationFactory app) : FooTestSpecification, I
         anyApplicationResponse.Content.Name
             .Should().NotBeNull()
             .And.Be(new JsonString("test"));
-        
-        // result.Headers.Should().HaveCount(1);
-        // result.Headers.Should().ContainKey("Status")
-        //     .WhoseValue.Should().HaveCount(1)
-        //     .And.Contain("2");
-        // result.Content.Headers.ContentType.Should().Be(MediaTypeHeaderValue.Parse("application/json"));
+
+        anyApplicationResponse.Headers.Status.Should().Be(new JsonInteger(2));
+        anyApplicationResponse.Headers.Tag.Should().BeNull();
     }
     
     // [Fact]
